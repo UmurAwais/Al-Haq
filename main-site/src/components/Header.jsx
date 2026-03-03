@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Menu, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
 
 import SearchBar from './SearchBar'
@@ -11,10 +12,10 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const navLinks = [
-    { name: 'Home', href: '#home' },
-    { name: 'Courses', href: '#courses' },
-    { name: 'About Us', href: '#about' },
-    { name: 'Contact Us', href: '#contact' },
+    { name: 'Home', href: '/#home' },
+    { name: 'Courses', href: '/#courses' },
+    { name: 'About Us', href: '/#about' },
+    { name: 'Contact Us', href: '/#contact' },
   ]
 
   return (
@@ -23,9 +24,9 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo and Nav */}
           <div className="flex items-center gap-10">
-            <a href="#home" className="shrink-0">
+            <Link to="/" className="shrink-0 cursor-pointer">
               <img src={logo} alt="Al-Haq Logo" className="h-21.25 w-auto object-contain" />
-            </a>
+            </Link>
 
             {/* Desktop Navigation */}
             <NavLinks links={navLinks} className="hidden lg:flex" />
@@ -38,8 +39,12 @@ const Header = () => {
             </div>
             
             <div className="flex items-center gap-4 border-l border-slate-100 pl-2">
-              <Button variant="ghost" className="px-2!">Log In</Button>
-              <Button variant="primary">Get Started</Button>
+              <Link to="/login">
+                <Button variant="ghost" className="px-2! cursor-pointer">Log In</Button>
+              </Link>
+              <Link to="/signup">
+                <Button variant="primary" className="cursor-pointer">Get Started</Button>
+              </Link>
             </div>
 
             {/* Mobile Menu Toggle */}

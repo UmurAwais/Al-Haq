@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import SearchBar from './SearchBar'
 import Button from './Button'
 import NavLinks from './NavLinks'
@@ -17,12 +18,16 @@ const MobileMenu = ({ isOpen, onClose, navLinks }) => {
 
         {/* Mobile Actions */}
         <div className="pt-4 border-t border-slate-100 flex flex-col gap-3">
-           <Button variant="secondary" className="w-full py-4" onClick={onClose}>
-             Log In
-           </Button>
-           <Button variant="primary" className="w-full py-4" size="lg" onClick={onClose}>
-             Join for Free
-           </Button>
+           <Link to="/login" onClick={onClose}>
+             <Button variant="secondary" className="w-full py-4 text-sm font-black uppercase tracking-widest">
+               Log In
+             </Button>
+           </Link>
+           <Link to="/signup" onClick={onClose}>
+             <Button variant="primary" className="w-full py-4 text-sm font-black uppercase tracking-widest" size="lg">
+               Join for Free
+             </Button>
+           </Link>
         </div>
       </div>
     </div>
