@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+@theme {
+  --color-brand: #07102E;
+  --color-brand-accent: #570303;
+  --font-sans: "Outfit", sans-serif;
+}
+
+:root {
+  font-family: "Outfit", sans-serif;
+}
+
+html, body {
+  font-family: "Outfit", sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  font-family: "Outfit", sans-serif !important;
+}
