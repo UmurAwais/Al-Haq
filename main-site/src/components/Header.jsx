@@ -8,7 +8,7 @@ import Button from './Button'
 import MobileMenu from './MobileMenu'
 import NavLinks from './NavLinks'
 
-const Header = () => {
+const Header = ({ searchQuery, onSearchChange, onSearchSubmit }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const navLinks = [
@@ -35,7 +35,7 @@ const Header = () => {
           {/* Right Side - Search & Actions */}
           <div className="flex items-center gap-6">
             <div className="hidden md:block w-100">
-              <SearchBar />
+              <SearchBar value={searchQuery} onChange={onSearchChange} onSubmit={onSearchSubmit} />
             </div>
             
             <div className="flex items-center gap-4 border-l border-slate-100 pl-2">
@@ -62,6 +62,9 @@ const Header = () => {
         isOpen={isMenuOpen} 
         onClose={() => setIsMenuOpen(false)} 
         navLinks={navLinks} 
+        searchQuery={searchQuery}
+        onSearchChange={onSearchChange}
+        onSearchSubmit={onSearchSubmit}
       />
     </header>
   )

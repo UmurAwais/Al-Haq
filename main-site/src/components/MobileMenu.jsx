@@ -4,13 +4,20 @@ import SearchBar from './SearchBar'
 import Button from './Button'
 import NavLinks from './NavLinks'
 
-const MobileMenu = ({ isOpen, onClose, navLinks }) => {
+const MobileMenu = ({ isOpen, onClose, navLinks, searchQuery, onSearchChange, onSearchSubmit }) => {
   return (
     <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-screen border-t border-slate-100' : 'max-h-0'}`}>
       <div className="p-4 space-y-6 bg-white shadow-xl">
         {/* Mobile Search */}
         <div className="mb-2">
-          <SearchBar />
+          <SearchBar 
+            value={searchQuery} 
+            onChange={onSearchChange} 
+            onSubmit={() => {
+              onSearchSubmit?.();
+              onClose();
+            }} 
+          />
         </div>
 
         {/* Mobile Links */}

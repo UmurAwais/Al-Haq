@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react'
 import CourseCard from './CourseCard'
 import Button from './Button'
 
-const FeaturedCourses = () => {
+const FeaturedCourses = ({ searchQuery = '', onClearSearch }) => {
   const courses = [
     {
       title: 'PPSC General Ability Expert 2024',
@@ -47,8 +47,13 @@ const FeaturedCourses = () => {
     }
   ]
 
+  const filteredCourses = courses.filter(course => 
+    course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    course.author.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   return (
-    <section id='courses' className="pb-24">
+    <section id='courses' className="pb-24 scroll-mt-24">
       <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-linear-to-r from-brand via-brand/90 to-brand-accent rounded-4xl p-8 md:p-12 lg:p-16 flex flex-col lg:flex-row items-center gap-12 relative overflow-hidden group">
           {/* Overlay Decoration */}
@@ -57,20 +62,30 @@ const FeaturedCourses = () => {
           {/* Left Text Content */}
           <div className="w-full lg:w-1/4 relative z-10 text-center lg:text-left">
             <h2 className="text-3xl md:text-4xl font-black text-white mb-8 tracking-tight leading-tight">
-              Learn from <span className="opacity-80">Al-Haq</span> Experts
+              {searchQuery ? 'Found' : 'Learn from'} <span className="opacity-80">{searchQuery ? filteredCourses.length : 'Al-Haq'}</span> {searchQuery ? 'Results' : 'Experts'}
             </h2>
             <div className="flex justify-center lg:justify-start">
-                <Button variant="secondary" className="px-6 py-3 text-sm flex items-center gap-3">
-                    Explore courses <ArrowRight className="w-4 h-4" />
+                <Button 
+                  variant="secondary" 
+                  className="px-6 py-3 text-sm flex items-center gap-3"
+                  onClick={searchQuery ? onClearSearch : undefined}
+                >
+                    {searchQuery ? 'Clear Search' : 'Explore courses'} <ArrowRight className="w-4 h-4" />
                 </Button>
             </div>
           </div>
           
           {/* Right Cards Grid */}
           <div className="w-full lg:w-3/4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 relative z-10">
-            {courses.map((course, i) => (
-              <CourseCard key={i} course={course} />
-            ))}
+            {filteredCourses.length > 0 ? (
+              filteredCourses.map((course, i) => (
+                <CourseCard key={i} course={course} />
+              ))
+            ) : (
+              <div className="col-span-full py-20 text-center">
+                 <p className="text-white/60 font-bold text-xl italic">No courses found matching "{searchQuery}"</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

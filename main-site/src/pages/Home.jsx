@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import AnnouncementBar from '../components/AnnouncementBar'
 import Header from '../components/Header'
 import Hero from '../components/Hero'
@@ -12,10 +12,23 @@ import CTA from '../components/CTA'
 import Footer from '../components/Footer'
 
 const Home = () => {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const handleSearch = () => {
+    const section = document.getElementById('courses')
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white font-sans antialiased text-slate-900 scroll-smooth">
       <AnnouncementBar />
-      <Header />
+      <Header 
+        searchQuery={searchQuery} 
+        onSearchChange={setSearchQuery} 
+        onSearchSubmit={handleSearch}
+      />
       
       <main className="overflow-hidden">
         {/* Sections */}
@@ -28,7 +41,11 @@ const Home = () => {
 
         <CourseFeatures id="features" />
 
-        <FeaturedCourses id="courses" />
+        <FeaturedCourses 
+          id="courses" 
+          searchQuery={searchQuery} 
+          onClearSearch={() => setSearchQuery('')}
+        />
 
         <Testimonials id="testimonials" />
 
