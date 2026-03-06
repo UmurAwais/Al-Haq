@@ -1,0 +1,292 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Upload, CreditCard, CheckCircle2 } from 'lucide-react';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import Button from '../components/Button';
+import { useCart } from '../contexts/CartContext';
+import { getApiUrl } from '../config';
+
+const Checkout = () => {
+  const { cartItems } = useCart();
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    city: '',
+    whatsapp: '',
+    email: 'theprogrammer.co@gmail.com', // mock logged in email
+    orderNotes: ''
+  });
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const parsePrice = (priceVal) => {
+    if (!priceVal) return 0;
+    const str = String(priceVal).toLowerCase();
+    if (str === 'free') return 0;
+    const cleaned = str.replace(/[^0-9]/g, '');
+    return cleaned ? parseInt(cleaned, 10) : 0;
+  };
+
+  const subtotal = cartItems.reduce((sum, item) => sum + parsePrice(item.price), 0);
+  const tax = 0;
+  const discount = 0;
+  const total = subtotal + tax - discount;
+
+  return (
+    <div className="min-h-screen bg-[#F9FAFB] font-sans flex flex-col">
+      <Header />
+      
+      <main className="flex-grow pt-12 pb-16 lg:pt-16 lg:pb-24">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <h1 className="text-3xl font-extrabold text-slate-900 mb-8 tracking-tight">
+            Checkout
+          </h1>
+
+          <div className="flex flex-col lg:flex-row gap-8 items-start">
+            
+            {/* Left Column: Form */}
+            <div className="w-full lg:w-[60%] shrink-0 space-y-6">
+              
+              {/* Logged in indicator */}
+              <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-lg px-4 py-3 flex justify-between items-center text-sm mb-6">
+                <div>
+                  <span className="text-blue-900">Logged in as </span>
+                  <span className="font-bold text-blue-900">{formData.email}</span>
+                </div>
+                <button className="text-blue-700 font-bold hover:underline text-xs">
+                  Sign out
+                </button>
+              </div>
+
+              {/* Form Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1.5 relative">
+                  <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">First name</label>
+                  <input 
+                    type="text" name="firstName" value={formData.firstName} onChange={handleInputChange}
+                    className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
+                    placeholder="First Name"
+                  />
+                </div>
+                <div className="space-y-1.5 relative">
+                  <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">Last name</label>
+                  <input 
+                    type="text" name="lastName" value={formData.lastName} onChange={handleInputChange}
+                    className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
+                    placeholder="Last Name"
+                  />
+                </div>
+                <div className="space-y-1.5 relative">
+                  <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">Town / City</label>
+                  <input 
+                    type="text" name="city" value={formData.city} onChange={handleInputChange}
+                    className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
+                    placeholder="Town / City"
+                  />
+                </div>
+                <div className="space-y-1.5 relative">
+                  <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">WhatsApp number</label>
+                  <input 
+                    type="text" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange}
+                    className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
+                    placeholder="WhatsApp Number"
+                  />
+                </div>
+                <div className="col-span-1 md:col-span-2 space-y-1.5 relative mt-4">
+                  <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">Email address</label>
+                  <input 
+                    type="email" name="email" value={formData.email} disabled
+                    className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none bg-slate-50 text-slate-500 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              {/* Upload Section */}
+              <div className="mt-8 space-y-3 pt-4 border-t border-slate-200">
+                <h3 className="text-sm font-bold text-slate-900">Upload payment screenshot</h3>
+                <div className="flex items-center gap-4">
+                  <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-bold text-brand hover:bg-slate-50 transition-colors">
+                    <Upload size={16} />
+                    <span>Choose file</span>
+                    <input type="file" className="hidden" accept="image/jpeg,image/png" onChange={handleFileChange} />
+                  </label>
+                  <span className="text-xs text-slate-400">Max 5 MB • JPG/PNG</span>
+                </div>
+                {selectedFile && (
+                  <p className="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
+                    <CheckCircle2 size={14} /> {selectedFile.name} attached
+                  </p>
+                )}
+                <p className="text-[11px] text-slate-400 mt-2">
+                  Upload JazzCash / Easypaisa / Bank transfer receipt.
+                </p>
+              </div>
+
+              {/* Order Notes */}
+              <div className="mt-6">
+                <textarea 
+                  name="orderNotes"
+                  value={formData.orderNotes}
+                  onChange={handleInputChange}
+                  placeholder="Order notes (optional)"
+                  rows={4}
+                  className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent resize-y"
+                />
+              </div>
+
+              <div className="pt-4">
+                <Button className="w-full py-4 bg-[#E31B23] hover:bg-[#c2171e] text-white text-[16px] font-black rounded-lg transition-colors shadow-lg shadow-brand/10">
+                  Place order
+                </Button>
+              </div>
+
+            </div>
+
+            {/* Right Column: Order Details */}
+            <div className="w-full lg:w-[40%] shrink-0">
+              
+              {/* Your Order Card */}
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm mb-6 overflow-hidden">
+                <div className="p-6">
+                  <h3 className="text-lg font-black text-slate-900 mb-6 tracking-tight">Your order</h3>
+                  
+                  <div className="space-y-3 text-[14px]">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500">Subtotal</span>
+                      <span className="font-bold text-slate-900">Rs. {subtotal.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500">Tax</span>
+                      <span className="text-slate-500">Rs. {tax}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500">Discount</span>
+                      <span className="text-slate-500">Rs. {discount}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-4 mt-2 border-t border-slate-100">
+                      <span className="text-[15px] font-black text-slate-900">Total</span>
+                      <span className="text-lg font-black text-slate-900">Rs. {total.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 border-t items-center border-slate-100 p-6 space-y-4">
+                  {cartItems.map((item) => {
+                    const itemImage = item.image?.startsWith('http') 
+                      ? item.image 
+                      : `${getApiUrl().replace(/\/$/, '')}${item.image?.startsWith('/') ? '' : '/'}${item.image}`;
+                    
+                    return (
+                      <div key={item.id || item._id} className="flex gap-4">
+                        <div className="w-16 h-10 shrink-0 rounded bg-slate-200 overflow-hidden border border-slate-200">
+                           <img src={itemImage} alt={item.title} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-grow">
+                          <h4 className="text-[12px] font-bold text-slate-900 leading-tight mb-1 line-clamp-2">{item.title}</h4>
+                          <p className="text-[10px] text-slate-500">Online Training • Al-Haq Learning Hub</p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Payment Methods Card */}
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm text-center overflow-hidden">
+                <div className="bg-[#E31B23] text-white py-3 px-6 text-sm font-bold flex items-center justify-center gap-2">
+                  <CreditCard size={18} />
+                  Payment Methods
+                </div>
+                
+                <div className="p-6">
+                   <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 inline-block px-3 relative w-full header-lines">
+                     <span className="bg-white relative z-10 px-3">SCAN QR CODE</span>
+                     <div className="absolute top-1/2 left-0 w-full h-[1px] bg-slate-200 z-0"></div>
+                   </h4>
+
+                   {/* Mock QR Code space */}
+                   <div className="w-40 h-40 mx-auto border-4 border-slate-100 rounded-xl p-2 mb-6">
+                     <div className="w-full h-full bg-slate-100 flex items-center justify-center rounded">
+                       <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">QR CODE</span>
+                     </div>
+                   </div>
+
+                   {/* Till ID */}
+                   <div className="max-w-[280px] mx-auto border-2 border-[#F59E0B] rounded-xl pr-2 pl-2 pb-6 pt-5 mb-8 relative">
+                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-3 flex items-center gap-1.5 text-[11px] font-bold text-[#F59E0B] tracking-wider">
+                       <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></div>
+                       TILL ID
+                       <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></div>
+                     </div>
+                     <div className="text-[26px] font-black text-slate-900 tracking-[0.2em] mb-3 font-mono">
+                       981425710
+                     </div>
+                     <div className="text-[10px] text-slate-500 flex items-center justify-center gap-2 font-medium">
+                       Dial <span className="bg-slate-900 text-white font-mono px-1.5 py-0.5 rounded text-[10px]">*786*10#</span> • Enter TILL ID
+                     </div>
+                   </div>
+
+                   <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 inline-block px-3 relative w-full header-lines opacity-70">
+                     <span className="bg-white relative z-10 px-3">BANK TRANSFER</span>
+                     <div className="absolute top-1/2 left-0 w-full h-[1px] border-b border-dashed border-slate-300 z-0"></div>
+                   </h4>
+
+                   {/* Bank Details */}
+                   <div className="space-y-2 text-left text-sm max-w-[280px] mx-auto">
+                     <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                       <span className="text-slate-500 text-[11px] font-bold tracking-wider uppercase">Account Title</span>
+                       <span className="font-bold text-slate-900 text-xs">Al-Haq Learning Hub</span>
+                     </div>
+                     <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                       <span className="text-slate-500 text-[11px] font-bold tracking-wider uppercase">Account No</span>
+                       <span className="font-bold text-slate-900 text-xs">2119337597428</span>
+                     </div>
+                     <div className="bg-[#eff6ff] rounded-lg p-3 my-3">
+                       <div className="flex justify-between items-center mb-1">
+                         <span className="text-blue-600 text-[11px] font-bold tracking-wider uppercase">IBAN</span>
+                         <span className="text-blue-400 text-[9px] uppercase tracking-wider">International</span>
+                       </div>
+                       <div className="text-blue-900 font-mono text-xs font-bold break-all">
+                         PK50UNIL0109000337597428
+                       </div>
+                     </div>
+                     <div className="bg-[#1e40af] rounded-lg p-3 text-white text-center">
+                       <div className="font-black text-[13px] tracking-wide mb-0.5">United Bank Limited</div>
+                       <div className="text-[9px] text-blue-200 tracking-wider">UBL Pakistan</div>
+                     </div>
+                   </div>
+                </div>
+
+                <div className="bg-[#f8fafc] p-4 text-[10px] sm:text-[11px] text-blue-800 font-medium flex items-center justify-center gap-2 border-t border-slate-200 border-dashed">
+                  <div className="w-4 h-4 rounded overflow-hidden mt-0.5 opacity-80 shrink-0"><Upload size={14} className="mt-[-2px] ml-0.5" /></div>
+                  <div className="text-left leading-tight">
+                    Upload payment screenshot above <br/>
+                    Enrollment confirmed after verification
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default Checkout;

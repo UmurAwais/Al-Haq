@@ -1,58 +1,83 @@
-import React from 'react'
-import { Star } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Star, ShieldCheck } from 'lucide-react'
+import Button from './Button'
+import { useCart } from '../contexts/CartContext'
 
 const CourseCard = ({ course }) => {
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
   return (
-    <div className="bg-white flex flex-col p-2 h-full rounded-[18px] group cursor-pointer transition-all duration-300">
-      {/* 1. Thumbnail - Udemy style (minimalistic) */}
-      <div className="relative aspect-video mb-2.5 overflow-hidden border border-slate-100 rounded-[14px]">
+    <Link to={`/course/${course.id}`} className="block group h-full">
+      <div className="bg-white border border-slate-100 rounded-2xl p-2 flex flex-col h-full group hover:shadow-2xl transition-all duration-300">
+      {/* 1. Thumbnail */}
+      <div className="relative aspect-16/10 mb-4 overflow-hidden rounded-xl">
         <img 
           src={course.image} 
           alt={course.title} 
-          className="w-full h-full object-cover hover:opacity-90 transition-opacity"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
-        {course.bestseller && (
-          <div className="absolute top-2 left-2 bg-[#eceb98] text-[#3d3c0a] text-[10px] font-bold px-2 py-0.5 rounded-xs uppercase tracking-wider">
-            Bestseller
-          </div>
-        )}
       </div>
 
-      {/* 2. Content Area - Udemy Typography */}
-      <div className="flex flex-col grow px-0.5">
-        <h3 className="text-[15px] font-bold text-slate-900 leading-tight mb-1 line-clamp-2 h-10">
+      {/* 2. Badge Wrapper */}
+      <div className="mb-3">
+        <div className="inline-flex items-center gap-1.5 bg-[#5022C3] text-white px-3 py-1.5 rounded-full shadow-sm shadow-brand/10">
+          <ShieldCheck size={14} className="stroke-[3]" />
+          <span className="text-[11px] font-black uppercase tracking-tight">
+            {course.badgeLabel || 'Premium • Online'}
+          </span>
+        </div>
+      </div>
+
+      {/* 3. Content Area */}
+      <div className="flex flex-col grow">
+        <h3 className="text-[20px] font-black text-[#0F172A] leading-[1.2] line-clamp-2 mb-2">
           {course.title}
         </h3>
         
-        <p className="text-[12px] text-slate-500 mb-1 truncate">
-          {course.author || 'Al-Haq Expert'}
+        <p className="text-[13px] text-[#64748B] mb-2 line-clamp-2 leading-relaxed">
+          {course.excerpt || course.description || 'Master this course with expert-led training and real-world projects.'}
         </p>
 
-        {/* 3. Rating Area */}
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="text-[13px] font-bold text-[#b4690e]">{course.rating}</span>
-          <div className="flex gap-0.5">
-            {[...Array(5)].map((_, i) => (
-              <Star 
-                key={i} 
-                className={`w-3 h-3 ${i < Math.floor(course.rating) ? 'fill-[#b4690e] text-[#b4690e]' : 'text-slate-200'}`} 
-              />
-            ))}
+        {/* 4. Pricing */}
+        <div className="mb-1 flex flex-row justify-between">
+          <span className="text-[22px] font-black text-[#0F172A] tracking-tight">
+            {String(course.price || '').startsWith('Rs') ? course.price : `Rs. ${course.price}`}
+          </span>
+
+          <div className="flex items-center gap-1">
+            <Star size={18} className="fill-[#F59E0B] text-[#F59E0B]" />
+            <span className="text-[14px] font-black text-[#0F172A]">{course.rating || '4.5'}</span>
           </div>
-          <span className="text-[12px] text-slate-400">({course.reviews})</span>
+
+          
+          <div className="px-2.5 py-1 rounded-lg border border-slate-100 bg-[#F8FAFC] text-[12px] text-[#64748B] font-bold flex items-center">
+            {course.reviews || '0'} ratings
+          </div>
         </div>
 
-        {/* 4. Pricing Area - Udemy Style Discount */}
-        <div className="flex items-center gap-2">
-          <span className="text-base font-bold text-slate-900">{course.price}</span>
-          {course.oldPrice && (
-            <span className="text-[13px] text-slate-500 line-through opacity-60 font-medium">
-              {course.oldPrice}
-            </span>
-          )}
+        {/* 5. Stats Row */}
+        <div className="flex items-center gap-2 mb-6">
+          
+          
+        </div>
+
+        {/* 6. Action Button */}
+        <div className="mt-auto">
+           <Button 
+             variant="primary" 
+             className="w-full rounded-xl py-3.5 text-[15px] font-black shadow-lg shadow-brand/20"
+             onClick={(e) => {
+               e.preventDefault();
+               addToCart(course);
+               navigate('/cart');
+             }}
+           >
+             Enroll now
+           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </Link>
   )
 }
 

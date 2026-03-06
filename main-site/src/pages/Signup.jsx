@@ -1,10 +1,68 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Mail, Lock, Eye, ArrowRight, User } from 'lucide-react'
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { auth } from '../firebaseConfig'
+import { ArrowLeft, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, User } from 'lucide-react'
 import logo from '../assets/logo.png'
 import Button from '../components/Button'
+import { apiFetch } from '../config'
+
+const PORTAL_URL = window.location.hostname === 'localhost' ? 'http://localhost:5174' : 'https://sparktrainings.vercel.app';
 
 const Signup = () => {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    try {
+      // 1. Create user in Firebase
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+      const user = userCredential.user
+
+      // 2. Update profile name
+      await updateProfile(user, { displayName: name })
+
+      // 3. Register in Backend (to generate Reference Number)
+      await apiFetch('/api/users/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          uid: user.uid, 
+          email: user.email, 
+          displayName: name 
+        })
+      })
+
+      // 4. Set Session (simulating dashboard logic)
+      const sessionId = Date.now().toString() + Math.random().toString(36).substring(2)
+      await apiFetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: user.uid, sessionId })
+      })
+      localStorage.setItem(`session_${user.uid}`, sessionId)
+
+      // 5. Redirect to portal
+      window.location.href = `${PORTAL_URL}/student/dashboard`;
+    } catch (err) {
+      console.error(err)
+      setError(err.message.includes('email-already-in-use') 
+        ? 'This email is already registered.' 
+        : 'Failed to create account. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans">
       <Link to="/" className="absolute top-10 left-8 md:left-12 flex items-center gap-2 text-slate-400 hover:text-brand transition-colors group">
@@ -19,13 +77,22 @@ const Signup = () => {
           <p className="text-slate-500 font-medium text-sm mt-3 leading-relaxed">Join Pakistan's leading digital community</p>
         </div>
 
-        <form className="space-y-5">
+        {error && (
+            <div className="bg-red-50 text-red-600 p-4 rounded-xl text-xs font-bold mb-6 border border-red-100">
+                {error}
+            </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Full Name</label>
             <div className="relative group">
               <User className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand transition-colors" />
               <input 
                 type="text" 
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Name"
                 className="w-full pl-14 pr-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-brand/40 focus:ring-4 focus:ring-brand/5 outline-none transition-all font-medium text-slate-900" 
               />
@@ -38,6 +105,9 @@ const Signup = () => {
               <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand transition-colors" />
               <input 
                 type="email" 
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 className="w-full pl-14 pr-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-brand/40 focus:ring-4 focus:ring-brand/5 outline-none transition-all font-medium text-slate-900" 
               />
@@ -49,18 +119,26 @@ const Signup = () => {
             <div className="relative group">
               <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand transition-colors" />
               <input 
-                type="password" 
+                type={showPassword ? "text" : "password"}
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full pl-14 pr-14 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-brand/40 focus:ring-4 focus:ring-brand/5 outline-none transition-all font-medium text-slate-900" 
               />
-              <button type="button" className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                <Eye className="w-5 h-5" />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
           </div>
 
           <div className="flex items-start gap-3 py-2">
-            <input type="checkbox" className="w-5 h-5 mt-0.5 rounded-lg accent-brand-accent transition-all cursor-pointer" id="terms" />
+            <input type="checkbox" required className="w-5 h-5 mt-0.5 rounded-lg accent-brand-accent transition-all cursor-pointer" id="terms" />
             <label htmlFor="terms" className="text-[11px] font-bold text-slate-500 cursor-pointer select-none leading-relaxed">
               I agree to the <a href="#" className="text-brand font-black hover:underline underline-offset-2">Terms</a> and <a href="#" className="text-brand font-black hover:underline underline-offset-2">Privacy</a>.
             </label>
@@ -68,9 +146,11 @@ const Signup = () => {
 
           <Button 
             variant="primary" 
-            className="w-full py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-xl bg-brand-accent hover:bg-brand-accent/90 shadow-brand-accent/10 hover:-translate-y-1 active:scale-[0.98] transition-all"
+            type="submit"
+            disabled={loading}
+            className="w-full py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-xl bg-brand-accent hover:bg-brand-accent/90 shadow-brand-accent/10 hover:-translate-y-1 active:scale-[0.98] transition-all disabled:opacity-70 disabled:pointer-events-none"
           >
-            Create Account <ArrowRight className="w-5 h-5" />
+            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Create Account <ArrowRight className="w-5 h-5" /></>}
           </Button>
         </form>
 

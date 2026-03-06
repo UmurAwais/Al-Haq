@@ -3,6 +3,11 @@
 @theme {
   --color-brand: #07102E;
   --color-brand-accent: #570303;
+  --color-dashboard-primary: #3b82f6;
+  --color-dashboard-secondary: #6366f1;
+  --color-dashboard-success: #10b981;
+  --color-dashboard-warning: #f59e0b;
+  --color-dashboard-danger: #ef4444;
   --font-sans: "Outfit", sans-serif;
 }
 

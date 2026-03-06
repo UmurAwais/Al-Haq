@@ -1,0 +1,29 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Service account files and credentials
+*.json
+!package.json
+!package-lock.json
+!manifest.json
+!vercel.json
+*.pem
+*.key
+*.cert
+
+node_modules/
+
+# Firebase config if it has raw keys
+main-site/src/firebaseConfig.js
+
+# Specific Firebase service account keys we saw
+dashboard/backend/spark-trainings-lms-bbc20c818e4a.json
+dashboard/backend/drive-credentials.json
+dashboard/backend/alhaqlearning-firebase-adminsdk-fbsvc-48b7df4291.json
+dashboard/backend/alhaqlearning-firebase-adminsdk*.json
+
+# Build files
+dist/
+build/
