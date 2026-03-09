@@ -22,6 +22,7 @@ import {
   Search
 } from 'lucide-react';
 import logo from '../../assets/logo.png';
+import NotificationDropdown from '../NotificationDropdown';
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -89,7 +90,7 @@ const AdminLayout = () => {
           })}
         </nav>
 
-        <div className="p-4 border-t border-slate-100 shrink-0 mb-4">
+        <div className="pl-4 pt-2 pr-2 pb-2 border-t border-slate-100 shrink-0 mb-0">
           <button
             onClick={handleLogout}
             className={`w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all group ${!isSidebarOpen && 'justify-center p-4'}`}
@@ -122,10 +123,7 @@ const AdminLayout = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="relative p-2.5 bg-slate-50 hover:bg-slate-100 rounded-2xl transition-all text-slate-400 group border border-slate-100">
-              <Bell size={20} className="group-hover:rotate-12 transition-transform" />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-brand-accent rounded-full border-2 border-white"></span>
-            </button>
+            <NotificationDropdown />
             <div className="h-8 w-px bg-slate-200"></div>
             <div className="flex items-center gap-4 pl-2">
               <div className="text-right hidden sm:block">

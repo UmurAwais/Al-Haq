@@ -45,7 +45,9 @@ const AdminUsers = () => {
     password: ''
   });
   const [successInfo, setSuccessInfo] = useState(null);
-  const [syncResult, setSyncResult] = useState(null); // New state for sync feedback
+  const [syncResult, setSyncResult] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null); // For delete modal
+  const [activeMenu, setActiveMenu] = useState(null); // For actions dropdown
 
   // Real-time listener from Firestore (if users are mirrored there)
   // Fallback to backend fetch if Firestore is empty or for initial load
@@ -54,27 +56,62 @@ const AdminUsers = () => {
 
     const setupListener = () => {
       try {
+        console.log("📡 Starting Firestore listener...");
         const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
         unsubscribe = onSnapshot(q, (snapshot) => {
           const firestoreUsers = snapshot.docs.map(doc => ({
             id: doc.id,
+            uid: doc.id,
             ...doc.data(),
             createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt
           }));
           
-          setUsers(firestoreUsers);
+          console.log(`📡 Firestore emitted ${firestoreUsers.length} users`);
+          
+          setUsers(prevUsers => {
+            if (firestoreUsers.length === 0 && prevUsers.length > 0) {
+                console.log("📡 Firestore returned empty, preserving existing users from MongoDB");
+                return prevUsers;
+            }
+            
+            const merged = [...prevUsers];
+            firestoreUsers.forEach(fUser => {
+              const index = merged.findIndex(u => u.uid === fUser.uid);
+              if (index >= 0) {
+                merged[index] = { 
+                  ...merged[index],
+                  ...fUser, 
+                  referenceNumber: merged[index].referenceNumber || fUser.referenceNumber 
+                };
+              } else {
+                merged.push(fUser);
+              }
+            });
+            
+            return merged.sort((a,b) => {
+                const dateA = new Date(a.createdAt || 0);
+                const dateB = new Date(b.createdAt || 0);
+                return dateB - dateA;
+            });
+          });
           setLoading(false);
         }, (err) => {
-          console.error("Firestore listener error:", err);
+          console.error("❌ Firestore listener error:", err);
           fetchUsers();
         });
       } catch (err) {
-        console.error("Setup listener error:", err);
+        console.error("❌ Setup listener error:", err);
         fetchUsers();
       }
     };
 
-    setupListener();
+    const init = async () => {
+        setLoading(true);
+        await fetchUsers();
+        setupListener();
+    };
+
+    init();
     return () => unsubscribe();
   }, []);
 
@@ -176,6 +213,72 @@ const AdminUsers = () => {
     }
   };
 
+  const handleToggleStatus = async (user) => {
+    try {
+      const newStatus = (user.status || 'active') === 'active' ? 'inactive' : 'active';
+      const token = localStorage.getItem('adminToken');
+      const res = await apiFetch('/api/admin/users/toggle-status', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': token 
+        },
+        body: JSON.stringify({ uid: user.uid, disabled: newStatus === 'inactive' })
+      });
+      
+      const data = await res.json();
+      if (data.ok) {
+        // Optimistic update or wait for Firestore listener
+        setUsers(prev => prev.map(u => u.uid === user.uid ? { ...u, status: newStatus } : u));
+        setActiveMenu(null);
+      }
+    } catch (err) {
+      console.error('Toggle status error:', err);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!confirmDelete) return;
+    setSaving(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await apiFetch(`/api/admin/users/${confirmDelete.uid}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-token': token }
+      });
+      
+      if (res.ok) {
+        setUsers(prev => prev.filter(u => u.uid !== confirmDelete.uid));
+        setConfirmDelete(null);
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleResetPassword = async (email) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await apiFetch('/api/admin/users/reset-password', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': token 
+        },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        alert(`Reset link generated: ${data.resetLink}\nIn production, this would be emailed.`);
+        setActiveMenu(null);
+      }
+    } catch (err) {
+      console.error('Reset error:', err);
+    }
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
     setError(null);
@@ -252,41 +355,30 @@ const AdminUsers = () => {
         </div>
       </div>
 
-      {/* Stat Bar Placeholder (Optional future use) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 hover:border-brand/20 transition-all">
-          <div className="w-12 h-12 rounded-xl bg-brand/5 flex items-center justify-center text-brand">
-            <Users size={24} />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total users</p>
-            <h3 className="text-xl font-bold text-slate-900">{users.length}</h3>
-          </div>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      {/* Stat Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Active', count: users.filter(u => (u.status || 'active') === 'active').length, icon: UserCheck, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+          { label: 'Total Users', count: users.length, icon: Users, color: 'text-brand', bg: 'bg-brand/5' },
+          { label: 'Active Member', count: users.filter(u => (u.status || 'active') === 'active').length, icon: UserCheck, color: 'text-emerald-500', bg: 'bg-emerald-50' },
           { label: 'Inactive', count: users.filter(u => u.status === 'inactive').length, icon: UserMinus, color: 'text-amber-500', bg: 'bg-amber-50' },
-          // { label: 'Admins', count: users.filter(u => u.role === 'admin').length || 1, icon: Shield, color: 'text-brand', bg: 'bg-brand/5' },
           { label: 'New Today', count: users.filter(u => formatDate(u.createdAt) === formatDate(new Date())).length, icon: Clock, color: 'text-blue-500', bg: 'bg-blue-50' },
         ].map((stat, i) => (
-          <div key={i} className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div key={i} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between hover:border-brand/20 transition-all group cursor-pointer hover:shadow-xl hover:shadow-slate-200/50">
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-              <h3 className="text-xl font-black text-slate-900 tracking-tight">{stat.count}</h3>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-slate-500 transition-colors">{stat.label}</p>
+              <h3 className="text-2xl font-black text-slate-900 tracking-tight group-hover:scale-110 origin-left transition-transform">{stat.count}</h3>
             </div>
-            <div className={`w-10 h-10 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center`}>
-              <stat.icon size={20} />
+            <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center border border-transparent group-hover:rotate-6 transition-all`}>
+              <stat.icon size={24} />
             </div>
           </div>
         ))}
       </div>
 
       {/* Main Table Container */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl relative">
         {/* Table Controls */}
-        <div className="border-b border-slate-100 bg-white">
+        <div className="border-b border-slate-100 bg-white rounded-t-2xl">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-6 pt-6 pb-0">
              <div className="relative group w-full md:w-96">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand transition-colors" />
@@ -327,7 +419,7 @@ const AdminUsers = () => {
         </div>
 
         {/* User Table */}
-        <div className="overflow-x-auto">
+        <div className="relative">
           {loading ? (
              <div className="py-32 flex flex-col items-center justify-center">
                <Loader2 className="w-12 h-12 text-brand animate-spin mb-4 opacity-20" />
@@ -404,17 +496,47 @@ const AdminUsers = () => {
                             <p className="text-xs font-black text-slate-700 tracking-tighter mb-0.5">{formatDate(user.createdAt)}</p>
                             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Al-Haq Alumni</p>
                          </td>
-                         <td className="px-8 py-6 text-center">
+                         <td className="px-8 py-6 text-center relative">
                             <div className="flex items-center justify-center gap-2 mt-1">
                                 <button className="p-2 text-slate-400 hover:text-brand hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-100 group/btn">
                                     <ExternalLink size={16} className="group-hover/btn:scale-110 transition-transform" />
                                 </button>
-                                <button className="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-100 group/btn">
+                                <button 
+                                    onClick={() => setConfirmDelete(user)}
+                                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-100 group/btn"
+                                >
                                     <Trash2 size={16} className="group-hover/btn:scale-110 transition-transform" />
                                 </button>
-                                <button className="p-2 text-slate-400 hover:text-slate-900 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-100">
-                                    <MoreVertical size={16} />
-                                </button>
+                                <div className="relative">
+                                    <button 
+                                        onClick={() => setActiveMenu(activeMenu === user.uid ? null : user.uid)}
+                                        className={`p-2 rounded-xl transition-all shadow-sm border ${activeMenu === user.uid ? 'bg-brand text-white border-brand' : 'text-slate-400 hover:text-slate-900 bg-white border-transparent hover:border-slate-100'}`}
+                                    >
+                                        <MoreVertical size={16} />
+                                    </button>
+
+                                    {activeMenu === user.uid && (
+                                        <>
+                                            <div className="fixed inset-0 z-40" onClick={() => setActiveMenu(null)}></div>
+                                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[70] animate-in zoom-in-95 fade-in duration-200 origin-top-right">
+                                                <div className="px-4 py-2 border-b border-slate-50 mb-1">
+                                                    <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Admin Actions</p>
+                                                </div>
+                                                <button onClick={() => handleToggleStatus(user)} className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-slate-600 hover:bg-slate-50 hover:text-brand transition-all uppercase tracking-widest text-left">
+                                                    {(user.status || 'active') === 'active' ? <UserMinus size={14} className="opacity-50" /> : <UserCheck size={14} className="opacity-50" />}
+                                                    {(user.status || 'active') === 'active' ? 'Deactivate' : 'Activate'}
+                                                </button>
+                                                <button onClick={() => handleResetPassword(user.email)} className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-slate-600 hover:bg-slate-50 hover:text-amber-600 transition-all uppercase tracking-widest text-left">
+                                                    <Lock size={14} className="opacity-50" /> Security Link
+                                                </button>
+                                                <div className="h-px bg-slate-50 my-1"></div>
+                                                <button onClick={() => { setConfirmDelete(user); setActiveMenu(null); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all uppercase tracking-widest text-left">
+                                                    <Trash2 size={14} className="opacity-70" /> Purge Account
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                          </td>
                       </tr>
@@ -569,6 +691,40 @@ const AdminUsers = () => {
                   </button>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setConfirmDelete(null)}></div>
+          <div className="relative w-full max-w-sm bg-white rounded-[32px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100">
+            <div className="p-8 text-center">
+                <div className="w-20 h-20 bg-red-50 text-red-500 rounded-[35px] flex items-center justify-center mx-auto mb-6 border-2 border-red-100 shadow-sm animate-bounce">
+                    <Trash2 size={32} />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">Expel Member?</h3>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-loose mb-8 px-4">
+                    You are about to permanently remove <span className="text-red-500">{confirmDelete.displayName}</span> from the registry. This action is irreversible.
+                </p>
+
+                <div className="flex flex-col gap-3">
+                    <button 
+                        onClick={handleDeleteUser}
+                        disabled={saving}
+                        className="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-red-200 hover:bg-red-600 transition-all active:scale-95 disabled:opacity-50"
+                    >
+                        {saving ? 'Terminating...' : 'Confirm Expulsion'}
+                    </button>
+                    <button 
+                        onClick={() => setConfirmDelete(null)}
+                        className="w-full py-4 bg-slate-100 text-slate-400 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-slate-200 transition-all"
+                    >
+                        Cancel
+                    </button>
+                </div>
             </div>
           </div>
         </div>

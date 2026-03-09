@@ -545,20 +545,25 @@ app.get("/api/orders", adminAuth, async (req, res) => {
 // GET endpoint to fetch all users with Firebase status
 app.get("/api/admin/users", adminAuth, async (req, res) => {
   try {
+    console.log("📋 Fetching users from MongoDB (Enriched)...");
     const mongoUsers = await User.find().sort({ createdAt: -1 }).lean();
     
     if (!admin.apps.length) {
+      console.log("⚠️ Firebase not initialized, returning raw MongoDB users");
       return res.json({ ok: true, users: mongoUsers, firebaseDisabled: true });
     }
 
-    // Attempt to get additional status from Firebase for each user (limited to first 100 for performance)
-    const usersWithStatus = await Promise.all(mongoUsers.slice(0, 50).map(async (user) => {
+    // Attempt to get additional status from Firebase for each user (limited for performance)
+    const usersWithStatus = await Promise.all(mongoUsers.slice(0, 100).map(async (user) => {
       try {
         const fbUser = await admin.auth().getUser(user.uid);
         return { 
           ...user, 
+          uid: user.uid,
           disabled: fbUser.disabled,
           lastSignInTime: fbUser.metadata.lastSignInTime,
+          photoURL: fbUser.photoURL || user.profilePicture || null,
+          displayName: user.displayName || fbUser.displayName || user.email.split('@')[0],
           source: 'both'
         };
       } catch (e) {
@@ -566,12 +571,12 @@ app.get("/api/admin/users", adminAuth, async (req, res) => {
       }
     }));
 
-    // For the rest of the users, just return mongo data
-    const remainingUsers = mongoUsers.slice(50);
-
-    res.json({ ok: true, users: [...usersWithStatus, ...remainingUsers] });
+    const remainingUsers = mongoUsers.slice(100);
+    const allUsers = [...usersWithStatus, ...remainingUsers];
+    console.log(`✅ Returning ${allUsers.length} enriched users`);
+    res.json({ ok: true, users: allUsers });
   } catch (err) {
-    console.error("Error fetching users:", err);
+    console.error("❌ Error fetching users:", err);
     res.status(500).json({ ok: false, message: "Failed to fetch users" });
   }
 });
@@ -592,23 +597,47 @@ app.post("/api/admin/users/sync-firebase", adminAuth, async (req, res) => {
     let imported = 0;
     let updated = 0;
 
+    const firestore = admin.firestore();
     for (const fbUser of fbUsers) {
       const existing = await User.findOne({ uid: fbUser.uid });
+      const refNum = `UC-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+      
+      const userData = {
+        uid: fbUser.uid,
+        email: fbUser.email,
+        displayName: fbUser.displayName || fbUser.email.split('@')[0],
+        profilePicture: fbUser.photoURL || null,
+        status: fbUser.disabled ? 'inactive' : 'active',
+        lastSignIn: fbUser.metadata.lastSignInTime || null,
+        updatedAt: new Date()
+      };
+
       if (!existing) {
         await User.create({
-          uid: fbUser.uid,
-          email: fbUser.email,
-          displayName: fbUser.displayName || "",
-          profilePicture: fbUser.photoURL || null,
-          referenceNumber: `SYNC-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-          status: fbUser.disabled ? 'inactive' : 'active'
+          ...userData,
+          referenceNumber: refNum,
+          createdAt: new Date(fbUser.metadata.creationTime)
         });
+        
+        // Also mirror to Firestore for real-time dashboard sync
+        try {
+          await firestore.collection('users').doc(fbUser.uid).set({
+            ...userData,
+            referenceNumber: refNum,
+            role: 'student',
+            createdAt: admin.firestore.Timestamp.fromDate(new Date(fbUser.metadata.creationTime))
+          }, { merge: true });
+        } catch (fe) { console.error("Firestore sync error:", fe); }
+        
         imported++;
       } else {
-        await User.findOneAndUpdate({ uid: fbUser.uid }, { 
-          status: fbUser.disabled ? 'inactive' : 'active',
-          profilePicture: fbUser.photoURL || existing.profilePicture
-        });
+        await User.findOneAndUpdate({ uid: fbUser.uid }, userData);
+        
+        // Update Firestore as well
+        try {
+          await firestore.collection('users').doc(fbUser.uid).set(userData, { merge: true });
+        } catch (fe) { console.error("Firestore update error:", fe); }
+        
         updated++;
       }
     }
@@ -691,7 +720,7 @@ app.delete("/api/admin/orders/:id", adminAuth, async (req, res) => {
 });
 
 // --- Session Management ---
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "changeme";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "changeme" ;
 app.post("/api/auth/session", express.json(), async (req, res) => {
   try {
     const { uid, sessionId } = req.body;
@@ -813,43 +842,7 @@ async function generateReferenceNumber() {
   return referenceNumber;
 }
 
-// Get all users (Admin only) - MongoDB based
-app.get("/api/admin/users", adminAuth, async (req, res) => {
-  try {
-    console.log("📋 Fetching users from MongoDB...");
-    
-    // Fetch all users from MongoDB
-    const users = await User.find({}).sort({ createdAt: -1 });
-    
-    console.log(`✅ Found ${users.length} users in database`);
-    
-    // Format the response to match the expected structure
-    const formattedUsers = users.map((user) => ({
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName || user.email.split('@')[0],
-      photoURL: user.photoURL || user.profilePicture || null,
-      phone: user.phone || "",
-      emailVerified: user.emailVerified || false,
-      disabled: user.disabled || false,
-      referenceNumber: user.referenceNumber,
-      metadata: {
-        creationTime: user.createdAt || user.metadata?.creationTime,
-        lastSignInTime: user.lastSignInTime || user.metadata?.lastSignInTime,
-      },
-      providerData: user.providerData || [],
-    }));
-
-    res.json({ ok: true, users: formattedUsers });
-  } catch (err) {
-    console.error("❌ Error listing users:", err);
-    res.status(500).json({ 
-      ok: false, 
-      message: err.message,
-      error: "Failed to fetch users from database"
-    });
-  }
-});
+// Creation logic helpers below...
 
 // Helper function to generate random temporary password
 function generateTemporaryPassword() {
@@ -1313,6 +1306,16 @@ app.delete("/api/admin/users/:uid", adminAuth, async (req, res) => {
 
     // Always attempt to delete from MongoDB
     const deletedUser = await User.findOneAndDelete({ uid: uid });
+
+    // Also remove from Firestore to sync real-time dashboard
+    if (admin.apps.length) {
+      try {
+        await admin.firestore().collection('users').doc(uid).delete();
+        console.log(`✅ User ${uid} profile purged from Firestore`);
+      } catch (fe) {
+        console.error("⚠️ Firestore purge error:", fe.message);
+      }
+    }
 
     if (!deletedUser) {
         return res.status(404).json({ ok: false, message: "User not found in database" });
