@@ -138,11 +138,11 @@ const AdminOrders = () => {
         </div>
         
         <div className="flex items-center gap-3">
-            <div className="hidden lg:flex flex-col items-end mr-2">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Earnings</span>
-                <span className="text-lg font-black text-brand tracking-tight">{formatPrice(totalRevenue)}</span>
+            <div className="hidden lg:flex flex-col items-end mr-4">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Earnings</span>
+                <span className="text-xl font-bold text-brand tracking-tight">{formatPrice(totalRevenue)}</span>
             </div>
-            <button className="flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 hover:border-brand/30 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95">
+            <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand/20 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95">
               <Download size={16} /> Export CSV
             </button>
         </div>
@@ -150,71 +150,71 @@ const AdminOrders = () => {
 
       {/* Stats Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 group hover:border-brand/20 transition-all">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 group hover:border-brand/20 transition-all">
           <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
             <ShoppingBag size={28} />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Total Orders</p>
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight">{orders.length}</h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Total Orders</p>
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{orders.length}</h3>
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 group hover:border-amber-200 transition-all">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 group hover:border-amber-200 transition-all">
           <div className="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:scale-110 transition-transform">
             <Clock size={28} />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Pending</p>
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight">{pendingOrders}</h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Pending</p>
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{pendingOrders}</h3>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 group hover:border-emerald-200 transition-all">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5 group hover:border-emerald-200 transition-all">
           <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
             <CheckCircle size={28} />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Completed</p>
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight">{completedOrders}</h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Completed</p>
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{completedOrders}</h3>
           </div>
         </div>
       </div>
 
       {/* Main Container */}
-      <div className="bg-white rounded-4xl border border-slate-200 shadow-xl overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
         {/* Table Controls */}
-        <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/30">
-           <div className="flex items-center gap-4 w-full md:w-auto">
+        <div className="border-b border-slate-100 bg-white">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-6 pt-6 pb-0">
              <div className="relative group w-full md:w-80">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand transition-colors" />
                 <input 
                   type="text" 
-                  placeholder="SEARCH BY NAME, EMAIL OR ID..." 
+                  placeholder="Search by name, email or ID..." 
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 text-xs font-black border border-slate-200 rounded-2xl outline-none focus:border-brand/30 focus:ring-4 focus:ring-brand/5 transition-all text-slate-600 placeholder:text-slate-300 tracking-widest"
+                  className="w-full pl-11 pr-4 py-2.5 text-xs font-bold border border-slate-100 rounded-xl outline-none focus:border-brand/30 focus:bg-slate-50/50 transition-all text-slate-600 placeholder:text-slate-300"
                 />
              </div>
-             
-             <div className="relative shrink-0">
-                <select 
-                  value={statusFilter}
-                  onChange={e => setStatusFilter(e.target.value)}
-                  className="appearance-none pl-4 pr-10 py-3 text-xs font-black border border-slate-200 rounded-2xl outline-none focus:border-brand/30 bg-white cursor-pointer uppercase tracking-widest text-slate-600"
-                >
-                  <option value="all">ALL STATUS</option>
-                  <option value="pending">PENDING</option>
-                  <option value="completed">COMPLETED</option>
-                  <option value="cancelled">CANCELLED</option>
-                </select>
-                <Filter className="absolute right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">
+               Showing {filteredOrders.length} of {orders.length} orders
              </div>
-           </div>
+          </div>
 
-           <div className="text-xs font-black text-slate-400 uppercase tracking-widest px-2">
-             Showing {filteredOrders.length} of {orders.length} orders
-           </div>
+          <div className="flex items-center px-6 mt-4 gap-8">
+            {['All', 'Pending', 'Completed', 'Cancelled'].map(tab => (
+              <button 
+                key={tab} 
+                onClick={() => setStatusFilter(tab.toLowerCase())}
+                className={`pb-4 text-[10px] font-bold uppercase tracking-widest relative transition-all ${statusFilter === tab.toLowerCase() ? 'text-brand' : 'text-slate-400 hover:text-slate-600'}`}
+              >
+                {tab}
+                {statusFilter === tab.toLowerCase() && (
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-brand rounded-t-full shadow-[0_-1px_4px_rgba(7,16,46,0.2)]" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Orders Table */}
@@ -317,84 +317,68 @@ const AdminOrders = () => {
 
       {/* Details Modal */}
       {isDetailsModalOpen && selectedOrder && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={() => setIsDetailsModalOpen(false)}></div>
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setIsDetailsModalOpen(false)}></div>
           
-          <div className="relative w-full max-w-4xl bg-white rounded-[40px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-500 border border-slate-200">
+          <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200 border border-slate-200">
             {/* Modal Header */}
-            <div className="shrink-0 p-8 sm:px-12 border-b border-slate-100 flex items-center justify-between bg-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-brand/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-black text-brand uppercase tracking-[0.3em]">Order Record</span>
-                    <div className="h-[1px] w-8 bg-brand/30"></div>
-                </div>
-                <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Order #{selectedOrder._id?.slice(-6).toUpperCase()}</h2>
+            <div className="shrink-0 p-6 border-b border-slate-100 flex items-center justify-between bg-white">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight">Order details</h2>
+                <p className="text-xs text-slate-500 font-medium tracking-tight mt-0.5">Reference ID: #{selectedOrder._id?.slice(-8).toUpperCase()}</p>
               </div>
-              <button onClick={() => setIsDetailsModalOpen(false)} className="relative z-10 w-12 h-12 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-2xl transition-all active:scale-95 border border-slate-100">
-                <XCircle size={24} />
+              <button onClick={() => setIsDetailsModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-xl transition-all active:scale-95 border border-slate-100">
+                <XCircle size={20} />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-8 sm:p-12 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 {/* Left Side: Student & Details */}
                 <div className="space-y-10">
                   <section>
-                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
-                        <User size={16} className="text-brand" /> Student Profile
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <User size={14} className="text-brand" /> Student Information
                     </h3>
-                    <div className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100">
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center py-3 border-b border-slate-200/50">
-                                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Full Name</span>
-                                <span className="text-sm font-black text-slate-800">{selectedOrder.name || 'N/A'}</span>
+                    <div className="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden">
+                        <div className="divide-y divide-slate-200/50 px-6">
+                            <div className="flex justify-between items-center py-4">
+                                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Full Name</span>
+                                <span className="text-sm font-bold text-slate-800">{selectedOrder.name || 'N/A'}</span>
                             </div>
-                            <div className="flex justify-between items-center py-3 border-b border-slate-200/50">
-                                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Email</span>
-                                <span className="text-sm font-black text-slate-800">{selectedOrder.email || 'N/A'}</span>
+                            <div className="flex justify-between items-center py-4">
+                                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Email</span>
+                                <span className="text-sm font-bold text-slate-800">{selectedOrder.email || 'N/A'}</span>
                             </div>
-                            <div className="flex justify-between items-center py-3 border-b border-slate-200/50">
-                                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Town / City</span>
-                                <span className="text-sm font-black text-slate-800">{selectedOrder.city || 'N/A'}</span>
-                            </div>
-                            <div className="flex justify-between items-center py-3">
-                                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">WhatsApp</span>
-                                <span className="text-sm font-black text-slate-800 underline decoration-emerald-500/30 decoration-2">{selectedOrder.whatsapp || selectedOrder.phone || 'N/A'}</span>
+                            <div className="flex justify-between items-center py-4">
+                                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Phone</span>
+                                <span className="text-sm font-bold text-slate-800">{selectedOrder.whatsapp || selectedOrder.phone || 'N/A'}</span>
                             </div>
                         </div>
                     </div>
                   </section>
 
                   <section>
-                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
-                        <FileText size={16} className="text-brand" /> Enrollment Info
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <FileText size={14} className="text-brand" /> Transaction details
                     </h3>
-                    <div className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100">
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center py-3 border-b border-slate-200/50">
-                                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Course</span>
-                                <span className="text-sm font-black text-slate-800 uppercase tracking-tight text-right line-clamp-1 truncate ml-8">{selectedOrder.courseName || 'N/A'}</span>
+                    <div className="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden">
+                        <div className="divide-y divide-slate-200/50 px-6">
+                            <div className="flex justify-between items-start py-4">
+                                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">Course</span>
+                                <span className="text-sm font-bold text-slate-800 text-right max-w-[200px]">{selectedOrder.courseName || 'N/A'}</span>
                             </div>
-                            <div className="flex justify-between items-center py-3 border-b border-slate-200/50">
-                                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Status</span>
-                                <span className={`inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${getStatusColor(selectedOrder.status)}`}>
+                            <div className="flex justify-between items-center py-4">
+                                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Status</span>
+                                <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusColor(selectedOrder.status)}`}>
                                    {selectedOrder.status || 'PENDING'}
                                 </span>
                             </div>
-                            <div className="flex justify-between items-center py-3 border-b border-slate-200/50">
-                                <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Amount Paid</span>
-                                <span className="text-lg font-black text-brand tracking-tighter">{formatPrice(selectedOrder.price || selectedOrder.amount)}</span>
+                            <div className="flex justify-between items-center py-4">
+                                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Total cost</span>
+                                <span className="text-lg font-bold text-brand tracking-tight">{formatPrice(selectedOrder.price || selectedOrder.amount)}</span>
                             </div>
-                            {selectedOrder.couponCode && (
-                                <div className="flex justify-between items-center py-3">
-                                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Coupon Used</span>
-                                    <span className="px-3 py-1 bg-brand/10 text-brand rounded-lg text-xs font-black uppercase tracking-widest border border-brand/20 animate-pulse">
-                                        {selectedOrder.couponCode}
-                                    </span>
-                                </div>
-                            )}
                         </div>
                     </div>
                   </section>
@@ -411,10 +395,10 @@ const AdminOrders = () => {
 
                 {/* Right Side: Payment Proof */}
                 <div className="space-y-6">
-                   <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-3">
-                       <DollarSign size={16} className="text-brand" /> Payment Screenshot
+                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                       <DollarSign size={14} className="text-brand" /> Payment verification
                    </h3>
-                   <div className="relative group rounded-4xl border-4 border-white shadow-2xl overflow-hidden aspect-[3/4] bg-slate-100">
+                   <div className="relative group rounded-2xl border-2 border-slate-100 shadow-lg overflow-hidden aspect-[3/4] bg-slate-50">
                       {selectedOrder.screenshotUrl || selectedOrder.screenshot ? (
                           <>
                             <img 
@@ -426,9 +410,9 @@ const AdminOrders = () => {
                                 href={selectedOrder.screenshotUrl || selectedOrder.screenshot} 
                                 target="_blank" 
                                 rel="noreferrer"
-                                className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-6 py-3 bg-white/90 backdrop-blur-md rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-800 shadow-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all hover:bg-brand hover:text-white"
+                                className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-6 py-3 bg-white/95 backdrop-blur-sm rounded-xl font-bold text-xs text-slate-800 shadow-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all hover:bg-white"
                             >
-                                <ExternalLink size={14} /> Full View
+                                <ExternalLink size={14} /> Open full view
                             </a>
                           </>
                       ) : (
@@ -443,19 +427,19 @@ const AdminOrders = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="shrink-0 p-8 sm:px-12 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-6">
-               <div className="flex items-center gap-3">
-                   <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-red-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-50 transition-all active:scale-95 shadow-sm">
-                       <Trash2 size={16} /> Delete Record
+            <div className="shrink-0 p-6 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-b-2xl">
+               <div className="flex items-center gap-3 w-full sm:w-auto">
+                   <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-red-500 rounded-xl font-bold text-xs hover:bg-red-50 transition-all active:scale-95 shadow-sm">
+                       <Trash2 size={16} /> Delete
                    </button>
                </div>
                
-               <div className="flex items-center gap-4 w-full sm:w-auto">
-                   <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-4 bg-slate-200 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-300 transition-all active:scale-95">
-                       Reject Order
+               <div className="flex items-center gap-3 w-full sm:w-auto">
+                   <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all active:scale-95">
+                       Reject
                    </button>
-                   <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-10 py-4 bg-brand text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:opacity-90 shadow-xl shadow-brand/20 transition-all active:scale-95 hover:-translate-y-0.5">
-                       <CheckCircle size={16} /> Verify & Complete
+                   <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-10 py-3 bg-brand text-white rounded-xl font-bold text-xs shadow-lg shadow-brand/10 transition-all active:scale-95 hover:scale-[1.02]">
+                       <CheckCircle size={16} /> Verify payment
                    </button>
                </div>
             </div>

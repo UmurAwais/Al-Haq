@@ -70,52 +70,58 @@ const AdminActivityLog = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div className="flex items-center gap-4">
-          <div className="p-3.5 bg-brand/5 rounded-2xl border border-brand/10 shadow-sm">
+          <div className="p-3 bg-brand/5 rounded-2xl border border-brand/10 shadow-sm">
             <Activity className="w-8 h-8 text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">System Ledger</h1>
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
-                <Database size={14} className="text-brand-accent" /> 
-                {logs.length} Immutable Events Recorded
-            </p>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">System Ledger</h1>
+            <p className="text-sm text-slate-500 font-medium tracking-tight">Monitoring all system events and administrative maneuvers ({logs.length} logged)</p>
           </div>
         </div>
       </div>
 
       {/* Main Container */}
-      <div className="bg-white rounded-[40px] border border-slate-200 shadow-2xl overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
         {/* Controls */}
-        <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/30">
-           <div className="flex items-center gap-4 w-full md:w-auto">
-              <div className="relative group w-full md:w-80">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand transition-colors" />
-                 <input 
-                   type="text" 
-                   placeholder="SEARCH BY ADMIN OR ACTION..." 
-                   value={searchTerm}
-                   onChange={e => setSearchTerm(e.target.value)}
-                   className="w-full pl-11 pr-4 py-4 text-xs font-black border border-slate-200 rounded-2xl outline-none focus:border-brand/30 focus:ring-4 focus:ring-brand/5 transition-all text-slate-700 placeholder:text-slate-300 tracking-widest uppercase"
-                 />
-              </div>
+        <div className="border-b border-slate-100 bg-white">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-6 pt-6 pb-0">
+             <div className="relative group w-full md:w-96">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand transition-colors" />
+                <input 
+                  type="text" 
+                  placeholder="Search by admin or action..." 
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="w-full pl-11 pr-4 py-2.5 text-xs font-bold border border-slate-100 rounded-xl outline-none focus:border-brand/30 focus:bg-slate-50/50 transition-all text-slate-600 placeholder:text-slate-300"
+                />
+             </div>
 
-              <select 
-                value={typeFilter}
-                onChange={e => setTypeFilter(e.target.value)}
-                className="appearance-none pl-6 pr-12 py-4 text-xs font-black border border-slate-200 rounded-2xl outline-none focus:border-brand/30 bg-white cursor-pointer uppercase tracking-widest text-slate-600 hover:border-slate-300 transition-all"
-              >
-                 <option value="all">ALL ACTIONS</option>
-                 <option value="create">CREATION</option>
-                 <option value="update">UPDATES</option>
-                 <option value="delete">DELETIONS</option>
-              </select>
-           </div>
-
-           <div className="px-4 py-2 bg-brand/5 rounded-xl border border-brand/5">
-                <span className="text-[10px] font-black text-brand uppercase tracking-widest flex items-center gap-2">
-                    <Zap size={12} /> Real-time Streaming Enabled
+             <div className="px-4 py-2 bg-brand/5 rounded-xl border border-brand/5">
+                <span className="text-[10px] font-bold text-brand uppercase tracking-widest flex items-center gap-2">
+                    <Zap size={12} /> Live tracking active
                 </span>
-           </div>
+             </div>
+          </div>
+
+          <div className="flex items-center px-6 mt-4 gap-8 overflow-x-auto scrollbar-hide">
+            {[
+              { label: 'All Actions', value: 'all' },
+              { label: 'Creation', value: 'create' },
+              { label: 'Updates', value: 'update' },
+              { label: 'Deletions', value: 'delete' }
+            ].map(tab => (
+              <button 
+                key={tab.value} 
+                onClick={() => setTypeFilter(tab.value)}
+                className={`pb-4 text-[10px] font-bold uppercase tracking-widest relative transition-all whitespace-nowrap ${typeFilter === tab.value ? 'text-brand' : 'text-slate-400 hover:text-slate-600'}`}
+              >
+                {tab.label}
+                {typeFilter === tab.value && (
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-brand rounded-t-full shadow-[0_-1px_4px_rgba(7,16,46,0.2)]" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Activity Table */}
@@ -135,10 +141,10 @@ const AdminActivityLog = () => {
              <table className="w-full border-collapse">
                 <thead>
                    <tr className="bg-slate-50/50 border-b border-slate-100">
-                      <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Administrator</th>
-                      <th className="px-6 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Action Type</th>
-                      <th className="px-6 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Detailed Trace</th>
-                      <th className="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Timestamp</th>
+                      <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Administrator</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Action Type</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Detailed Trace</th>
+                      <th className="px-8 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Timestamp</th>
                    </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -146,37 +152,37 @@ const AdminActivityLog = () => {
                       const styles = getActionStyles(log.action);
                       return (
                         <tr key={log._id} className="group hover:bg-slate-50/50 transition-all">
-                           <td className="px-8 py-6">
+                           <td className="px-8 py-5">
                               <div className="flex items-center gap-4">
-                                 <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-brand group-hover:text-white transition-all">
-                                    <User size={18} />
+                                 <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-brand group-hover:text-white transition-all shadow-sm">
+                                    <User size={16} />
                                  </div>
                                  <div>
-                                    <p className="text-sm font-black text-slate-800 tracking-tight leading-tight group-hover:text-brand transition-colors lowercase truncate max-w-37.5">{log.adminEmail}</p>
-                                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Management Account</p>
+                                    <p className="text-sm font-bold text-slate-800 tracking-tight leading-tight group-hover:text-brand transition-colors truncate max-w-37.5 lowercase">{log.adminEmail}</p>
+                                    <p className="text-[10px] font-medium text-slate-400 tracking-tight mt-0.5">Management Seat</p>
                                  </div>
                               </div>
                            </td>
-                           <td className="px-6 py-6">
-                              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[9px] font-black uppercase tracking-widest ${styles.bg}`}>
+                           <td className="px-6 py-5">
+                              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[9px] font-bold uppercase tracking-widest ${styles.bg}`}>
                                  {styles.icon}
                                  {log.action}
                               </span>
                            </td>
-                           <td className="px-6 py-6">
+                           <td className="px-6 py-5">
                               <div className="flex items-center gap-3">
                                  <ArrowRight size={12} className="text-slate-300" />
-                                 <p className="text-xs font-bold text-slate-500 line-clamp-1 max-w-75 uppercase tracking-tight italic">
-                                    {log.details || 'NO ADDITIONAL CONTEXT'}
+                                 <p className="text-xs font-medium text-slate-500 line-clamp-1 max-w-75 italic">
+                                    {log.details || 'UNSPECIFIED EVENT DATA'}
                                  </p>
                               </div>
                            </td>
-                           <td className="px-8 py-6 text-right">
-                              <div className="flex items-center justify-end gap-2 text-slate-700 font-black tracking-tighter text-xs">
+                           <td className="px-8 py-5 text-right">
+                              <div className="flex items-center justify-end gap-2 text-slate-600 font-bold tracking-tight text-xs">
                                  <Clock size={12} className="text-slate-400" />
-                                 {new Date(log.createdAt).toLocaleDateString()}
-                                 <span className="opacity-30 mx-1">|</span>
-                                 {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                 <span>{new Date(log.createdAt).toLocaleDateString()}</span>
+                                 <span className="opacity-20 mx-1">|</span>
+                                 <span className="text-slate-400">{new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                               </div>
                            </td>
                         </tr>

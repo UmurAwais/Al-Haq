@@ -153,11 +153,11 @@ const AdminProfile = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
          {/* Profile Summary Card */}
          <div className="lg:col-span-1 space-y-8">
-            <div className="bg-white rounded-[40px] border border-slate-200 shadow-2xl overflow-hidden relative group">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden relative group">
                <div className="h-24 bg-brand relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
                   <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center">
-                     <div className="w-20 h-20 bg-white rounded-[25px] border-4 border-white shadow-xl flex items-center justify-center text-brand">
+                     <div className="w-20 h-20 bg-white rounded-2xl border-4 border-white shadow-xl flex items-center justify-center text-brand">
                         <User size={40} />
                      </div>
                   </div>
@@ -186,7 +186,7 @@ const AdminProfile = () => {
                </div>
             </div>
 
-            <div className="bg-slate-900 rounded-[40px] p-8 text-white relative overflow-hidden shadow-2xl shadow-brand/20">
+            <div className="bg-slate-900 rounded-2xl p-8 text-white relative overflow-hidden shadow-2xl shadow-brand/20">
                <div className="absolute top-0 right-0 p-10 opacity-5 -mr-10 -mt-10">
                   <ShieldCheck size={160} fill="white" />
                </div>
@@ -205,7 +205,7 @@ const AdminProfile = () => {
          {/* Settings & Password Column */}
          <div className="lg:col-span-2 space-y-8">
             {/* General Info */}
-            <div className="bg-white rounded-[40px] border border-slate-200 shadow-2xl overflow-hidden p-8 sm:p-12">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden p-8 sm:p-12">
                <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
                   <Settings2 size={16} className="text-brand" /> Identity Configuration
                </h3>
@@ -220,7 +220,7 @@ const AdminProfile = () => {
                               type="text" 
                               value={profile.name}
                               onChange={e => setProfile({...profile, name: e.target.value})}
-                              className="w-full bg-slate-50 border border-slate-100 rounded-[22px] pl-14 pr-6 py-5 text-sm font-black text-slate-700 focus:bg-white focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all placeholder:text-slate-300 uppercase tracking-widest"
+                              className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-14 pr-6 py-5 text-sm font-bold text-slate-700 focus:bg-white focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all placeholder:text-slate-300 uppercase tracking-widest"
                               placeholder="YOUR NAME"
                            />
                         </div>
@@ -233,7 +233,7 @@ const AdminProfile = () => {
                               disabled
                               type="email" 
                               value={profile.email}
-                              className="w-full bg-slate-100 border border-slate-200 rounded-[22px] pl-14 pr-6 py-5 text-sm font-black text-slate-400 outline-none cursor-not-allowed uppercase tracking-widest"
+                              className="w-full bg-slate-100 border border-slate-200 rounded-xl pl-14 pr-6 py-5 text-sm font-bold text-slate-400 outline-none cursor-not-allowed uppercase tracking-widest"
                            />
                         </div>
                      </div>
@@ -253,7 +253,7 @@ const AdminProfile = () => {
             </div>
 
             {/* Password Change */}
-            <div className="bg-white rounded-[40px] border border-slate-200 shadow-2xl overflow-hidden p-8 sm:p-12 relative">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden p-8 sm:p-12 relative">
                <div className="absolute top-0 right-0 w-px h-full bg-linear-to-b from-transparent via-slate-100 to-transparent"></div>
                
                <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
@@ -278,7 +278,7 @@ const AdminProfile = () => {
                               required
                               value={passwordData.currentPassword}
                               onChange={e => setPasswordData({...passwordData, currentPassword: e.target.value})}
-                              className="w-full bg-slate-50 border border-slate-100 rounded-[22px] pl-14 pr-12 py-5 text-sm font-black text-slate-700 focus:bg-white focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all"
+                              className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-14 pr-12 py-5 text-sm font-bold text-slate-700 focus:bg-white focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all"
                            />
                            <button type="button" onClick={() => setShowPass({...showPass, current: !showPass.current})} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand transition-colors">
                               {showPass.current ? <EyeOff size={18} /> : <Eye size={18} />}

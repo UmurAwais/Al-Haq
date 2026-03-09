@@ -580,7 +580,10 @@ app.get("/api/admin/users", adminAuth, async (req, res) => {
 app.post("/api/admin/users/sync-firebase", adminAuth, async (req, res) => {
   try {
     if (!admin.apps.length) {
-      return res.status(503).json({ ok: false, message: "Firebase Admin not initialized" });
+      return res.status(503).json({ 
+        ok: false, 
+        message: "Firebase Admin not initialized. Please ensure your firebase-service-account.json is present in the backend folder or FIREBASE_SERVICE_ACCOUNT variable is set in .env." 
+      });
     }
 
     const result = await admin.auth().listUsers(1000);
@@ -990,7 +993,7 @@ app.post(
           .status(503)
           .json({ 
             ok: false, 
-            message: "Firebase Admin not initialized. Please check server configuration." 
+            message: "Firebase Admin not initialized. Admin SDK requires a service account key to create users. Please add firebase-service-account.json to the backend folder." 
           });
       }
 

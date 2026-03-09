@@ -145,35 +145,32 @@ const AdminRoles = () => {
     <div className="pb-8 animate-in fade-in duration-500">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
-        <div className="flex items-center gap-4">
-          <div className="p-3.5 bg-brand/5 rounded-2xl border border-brand/10 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-brand/5 rounded-2xl border border-brand/10 shadow-sm">
             <ShieldCheck className="w-8 h-8 text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">Access Control</h1>
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
-                <Lock size={14} className="text-brand-accent" /> 
-                {roles.length} Custom Logic Roles
-            </p>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Access Control</h1>
+            <p className="text-sm text-slate-500 font-medium">Manage administrative roles and permissions system-wide ({roles.length} roles)</p>
           </div>
         </div>
         
         <button 
           onClick={() => openModal()}
-          className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand/20 hover:-translate-y-0.5 active:scale-95"
+          className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand-accent/20 hover:-translate-y-0.5 active:scale-95"
         >
           <Plus size={16} strokeWidth={3} /> Create New Role
         </button>
       </div>
 
       {/* Main Container */}
-      <div className="bg-white rounded-[40px] border border-slate-200 shadow-2xl overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
         {/* Table Controls */}
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
-           <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Configured Authorization Sets</h3>
-           <div className="px-4 py-2 bg-brand/5 rounded-xl border border-brand/5">
-                <span className="text-[10px] font-black text-brand uppercase tracking-widest flex items-center gap-2">
-                    <ShieldAlert size={12} /> SuperAdmin Override Enabled
+        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/10">
+           <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Configured Authorization Sets</h3>
+           <div className="px-3 py-1.5 bg-brand/5 rounded-xl border border-brand/5">
+                <span className="text-[10px] font-bold text-brand uppercase tracking-widest flex items-center gap-2">
+                    <ShieldAlert size={12} /> SuperAdmin Override Active
                 </span>
            </div>
         </div>
@@ -188,7 +185,7 @@ const AdminRoles = () => {
           ) : roles.length === 0 ? (
              <div className="py-32 text-center text-slate-300">
                 <ShieldCheck size={64} className="mx-auto mb-4 opacity-10" />
-                <h3 className="text-xl font-black uppercase tracking-tight">No Custom Roles Found</h3>
+                <h3 className="text-xl font-bold uppercase tracking-tight">No Custom Roles Found</h3>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Add a role to begin delegation</p>
              </div>
           ) : (
@@ -196,24 +193,22 @@ const AdminRoles = () => {
                 {roles.map((role) => (
                   <div 
                     key={role._id} 
-                    className="group bg-slate-50 border border-slate-100 rounded-[35px] p-8 hover:bg-white hover:shadow-2xl hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden active:scale-95"
+                    className="group bg-slate-50/50 border border-slate-100 rounded-2xl p-6 hover:bg-white hover:shadow-xl hover:border-brand/20 transition-all duration-300 relative overflow-hidden active:scale-[0.98]"
                   >
-                     <div className="absolute top-0 right-0 w-32 h-32 bg-brand/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                     
-                     <div className="flex items-center justify-between mb-8">
-                        <div className="w-12 h-12 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-center text-brand group-hover:bg-brand group-hover:text-white transition-all">
-                           <ShieldCheck size={24} />
+                     <div className="flex items-center justify-between mb-6">
+                        <div className="w-10 h-10 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center justify-center text-brand group-hover:bg-brand group-hover:text-white transition-all">
+                           <ShieldCheck size={20} />
                         </div>
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                           <button onClick={() => openModal(role)} className="p-2 text-slate-400 hover:text-brand hover:bg-white rounded-xl shadow-sm border border-transparent hover:border-slate-100"><Edit size={16} /></button>
-                           <button onClick={() => handleDelete(role._id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-xl shadow-sm border border-transparent hover:border-slate-100"><Trash2 size={16} /></button>
+                        <div className="flex gap-2">
+                           <button onClick={() => openModal(role)} className="p-2 text-slate-400 hover:text-brand hover:bg-slate-50 rounded-lg transition-all"><Edit size={16} /></button>
+                           <button onClick={() => handleDelete(role._id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-slate-50 rounded-lg transition-all"><Trash2 size={16} /></button>
                         </div>
                      </div>
 
-                     <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight mb-2 group-hover:text-brand transition-colors text-nowrap truncate">{role.name}</h3>
-                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-6">{role.permissions.length} PERVISIONS ASSIGNED</p>
+                     <h3 className="text-xl font-bold text-slate-900 tracking-tight mb-1 group-hover:text-brand transition-colors text-nowrap truncate">{role.name}</h3>
+                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">{role.permissions.length} Permissions Assigned</p>
 
-                     <div className="flex flex-wrap gap-1.5 h-16 overflow-hidden">
+                     <div className="flex flex-wrap gap-1.5 h-16 overflow-hidden content-start">
                         {role.permissions.slice(0, 4).map(p => (
                            <span key={p} className="px-2 py-1 bg-white border border-slate-200 text-slate-500 rounded-lg text-[8px] font-black uppercase tracking-tight">
                               {p.split('_')[1]}
@@ -233,26 +228,22 @@ const AdminRoles = () => {
       {/* CREATE/EDIT MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
+          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setIsModalOpen(false)}></div>
           
-          <div className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-500 border border-slate-200 max-h-[90vh]">
+          <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200 max-h-[90vh]">
              {/* Modal Header */}
-             <div className="shrink-0 p-8 sm:px-10 border-b border-slate-100 flex items-center justify-between bg-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-                <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-black text-brand uppercase tracking-[0.3em]">{editingRole ? 'Update Profile' : 'Schema Builder'}</span>
-                        <div className="h-px w-8 bg-brand/30"></div>
-                    </div>
-                    <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{editingRole ? 'Edit Role' : 'Create Role'}</h2>
+             <div className="shrink-0 p-6 border-b border-slate-100 flex items-center justify-between bg-white">
+                <div>
+                   <h2 className="text-xl font-bold text-slate-900 tracking-tight">{editingRole ? 'Edit role' : 'Create new role'}</h2>
+                   <p className="text-xs text-slate-500 font-medium">Configure access control and permissions matrix</p>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="relative z-10 w-12 h-12 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-2xl transition-all active:scale-95 border border-slate-100">
-                    <XCircle size={24} />
+                <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-xl transition-all active:scale-95 border border-slate-100">
+                    <XCircle size={20} />
                 </button>
              </div>
 
              {/* Modal Body */}
-             <div className="flex-1 overflow-y-auto p-8 sm:p-10 custom-scrollbar">
+             <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                 <form id="roleForm" onSubmit={handleSubmit} className="space-y-10">
                    {error && (
                        <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-xs font-bold flex items-center gap-3 animate-in shake duration-300">
@@ -261,13 +252,13 @@ const AdminRoles = () => {
                    )}
 
                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Role Identifier (Name)</label>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Role Name</label>
                       <input 
                           required 
                           type="text" 
                           value={formData.name} 
                           onChange={e => setFormData({...formData, name: e.target.value.toUpperCase()})}
-                          className="w-full bg-slate-50 border border-slate-100 rounded-[22px] px-8 py-5 text-sm font-black text-slate-700 focus:bg-white focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all placeholder:text-slate-300 uppercase tracking-widest" 
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:bg-white focus:border-brand/20 transition-all placeholder:text-slate-300 uppercase tracking-widest" 
                           placeholder="E.G. MODERATOR" 
                       />
                    </div>
@@ -278,13 +269,13 @@ const AdminRoles = () => {
                          <span className="text-[10px] font-black text-brand uppercase tracking-widest">{formData.permissions.length} Selected</span>
                       </div>
                       
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                         {availablePermissions.map(perm => (
-                            <div 
-                               key={perm} 
-                               onClick={() => handleTogglePermission(perm)}
-                               className={`p-4 rounded-[20px] border transition-all cursor-pointer flex items-center justify-between group ${formData.permissions.includes(perm) ? 'bg-brand/5 border-brand/20 ring-1 ring-brand/10' : 'bg-slate-50 border-slate-100 hover:border-slate-300'}`}
-                            >
+                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {availablePermissions.map(perm => (
+                             <div 
+                                key={perm} 
+                                onClick={() => handleTogglePermission(perm)}
+                                className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between group ${formData.permissions.includes(perm) ? 'bg-brand/5 border-brand/20' : 'bg-slate-50 border-slate-100 hover:border-slate-300'}`}
+                             >
                                <div className="flex items-center gap-3">
                                   <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${formData.permissions.includes(perm) ? 'bg-brand text-white' : 'bg-white text-slate-300 group-hover:text-brand border border-slate-100'}`}>
                                      {formData.permissions.includes(perm) ? <CheckSquare size={16} /> : <Square size={16} />}
@@ -298,19 +289,19 @@ const AdminRoles = () => {
                 </form>
              </div>
 
-             {/* Modal Footer */}
-             <div className="shrink-0 p-8 sm:px-10 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-4 rounded-b-[40px]">
-               <button onClick={() => setIsModalOpen(false)} type="button" className="px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-200 transition-all">Discard</button>
-               <button 
-                  disabled={saving} 
-                  form="roleForm" 
-                  type="submit" 
-                  className="flex items-center gap-3 px-10 py-4 bg-brand hover:opacity-90 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-brand/20 transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70"
-               >
-                 {saving ? <Loader2 size={16} className="animate-spin" /> : <Settings2 size={16} />} 
-                 {saving ? 'Saving...' : (editingRole ? 'Apply Changes' : 'Build Custom Role')}
-               </button>
-             </div>
+               {/* Modal Footer */}
+              <div className="shrink-0 p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-3">
+                <button onClick={() => setIsModalOpen(false)} type="button" className="px-5 py-2.5 rounded-xl font-bold text-xs text-slate-500 hover:bg-slate-200 transition-all">Discard</button>
+                <button 
+                   disabled={saving} 
+                   form="roleForm" 
+                   type="submit" 
+                   className="flex items-center gap-2 px-8 py-2.5 bg-brand hover:opacity-90 text-white rounded-xl font-bold text-xs shadow-lg shadow-brand/10 transition-all active:scale-[0.98] disabled:opacity-70"
+                >
+                  {saving ? <Loader2 size={16} className="animate-spin" /> : <Settings2 size={16} />} 
+                  {saving ? 'Processing...' : (editingRole ? 'Save Changes' : 'Create Role')}
+                </button>
+              </div>
           </div>
         </div>
       )}

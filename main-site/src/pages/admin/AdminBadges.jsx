@@ -175,7 +175,7 @@ const AdminBadges = () => {
       </div>
 
       {/* Main Container */}
-      <div className="bg-white rounded-[40px] border border-slate-200 shadow-2xl overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
         {/* Table Controls */}
         <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/30">
            <div className="relative group w-full md:w-96">
@@ -212,7 +212,7 @@ const AdminBadges = () => {
           ) : (
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredBadges.map((badge) => (
-                  <div key={badge._id} className="group bg-slate-50 border border-slate-100 rounded-[35px] p-8 hover:bg-white hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative text-center">
+                  <div key={badge._id} className="group bg-slate-50 border border-slate-100 rounded-2xl p-8 hover:bg-white hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative text-center">
                      <div className="absolute top-6 right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => openModal(badge)} className="p-2 text-slate-400 hover:text-brand hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-100"><Settings size={16} /></button>
                         <button onClick={() => handleDelete(badge._id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-100"><Trash2 size={16} /></button>
@@ -245,26 +245,22 @@ const AdminBadges = () => {
       {/* CREATE/EDIT MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
+          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setIsModalOpen(false)}></div>
           
-          <div className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-500 border border-slate-200">
+          <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
              {/* Modal Header */}
-             <div className="shrink-0 p-8 sm:px-10 border-b border-slate-100 flex items-center justify-between bg-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-                <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] text-brand uppercase tracking-[0.3em] font-black">Al-Haq Achievement Forge</span>
-                        <div className="h-px w-8 bg-brand/30"></div>
-                    </div>
-                    <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{editingBadge ? 'Reforge merit' : 'Create merit'}</h2>
+             <div className="shrink-0 p-6 border-b border-slate-100 flex items-center justify-between bg-white">
+                <div>
+                   <h2 className="text-xl font-bold text-slate-900 tracking-tight">{editingBadge ? 'Edit merit badge' : 'Create merit badge'}</h2>
+                   <p className="text-xs text-slate-500 font-medium">Configure achievement standards for students</p>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="relative z-10 w-12 h-12 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-2xl transition-all active:scale-95 border border-slate-100">
-                    <XCircle size={24} />
+                <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-xl transition-all active:scale-95 border border-slate-100">
+                    <XCircle size={20} />
                 </button>
              </div>
 
              {/* Modal Body */}
-             <div className="flex-1 overflow-y-auto p-8 sm:p-10 custom-scrollbar">
+             <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                 <form id="badgeForm" onSubmit={handleSubmit} className="space-y-8">
                    {error && (
                        <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-xs font-bold flex items-center gap-3 animate-in shake duration-300">
@@ -273,73 +269,73 @@ const AdminBadges = () => {
                    )}
 
                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-                      <div className="sm:col-span-1 space-y-4">
-                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Achievement Icon</label>
-                         <div 
-                            onClick={() => document.getElementById('iconFile').click()}
-                            className={`w-full aspect-square rounded-[35px] border-4 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden ${formData.iconPreview ? 'border-brand/40 bg-brand/5' : 'border-slate-100 bg-slate-50 hover:border-brand/20 hover:bg-brand/5'}`}
-                         >
-                            <input id="iconFile" type="file" accept="image/*" onChange={handleIconChange} className="hidden" />
-                            {formData.iconPreview ? (
-                               <img src={formData.iconPreview} alt="Preview" className="w-full h-full object-contain p-4" />
-                            ) : (
-                               <Upload size={32} className="text-slate-200" />
-                            )}
-                         </div>
-                      </div>
+                       <div className="sm:col-span-1 space-y-4">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Icon</label>
+                          <div 
+                             onClick={() => document.getElementById('iconFile').click()}
+                             className={`w-full aspect-square rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden ${formData.iconPreview ? 'border-brand/20 bg-brand/5' : 'border-slate-100 bg-slate-50 hover:border-brand/20 hover:bg-brand/5'}`}
+                          >
+                             <input id="iconFile" type="file" accept="image/*" onChange={handleIconChange} className="hidden" />
+                             {formData.iconPreview ? (
+                                <img src={formData.iconPreview} alt="Preview" className="w-full h-full object-contain p-4" />
+                             ) : (
+                                <Upload size={24} className="text-slate-300" />
+                             )}
+                          </div>
+                       </div>
 
                       <div className="sm:col-span-2 space-y-6">
                          <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Title</label>
-                            <input 
-                                required 
-                                type="text" 
-                                value={formData.title} 
-                                onChange={e => setFormData({...formData, title: e.target.value.toUpperCase()})}
-                                className="w-full bg-slate-50 border border-slate-100 rounded-[22px] px-6 py-4 text-sm font-black text-slate-700 outline-none uppercase tracking-widest focus:bg-white focus:border-brand/20 transition-all" 
-                                placeholder="E.G. TOP STUDENT" 
-                            />
+                             <input 
+                                 required 
+                                 type="text" 
+                                 value={formData.title} 
+                                 onChange={e => setFormData({...formData, title: e.target.value.toUpperCase()})}
+                                 className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3 text-sm font-bold text-slate-700 outline-none uppercase tracking-widest focus:bg-white focus:border-brand/20 transition-all font-mono" 
+                                 placeholder="E.G. TOP STUDENT" 
+                             />
                          </div>
 
                          <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Narrative Description</label>
-                            <textarea 
-                               rows="3"
-                               value={formData.description}
-                               onChange={e => setFormData({...formData, description: e.target.value})}
-                               className="w-full bg-slate-50 border border-slate-100 rounded-[22px] px-6 py-4 text-sm font-bold text-slate-600 outline-none focus:bg-white focus:border-brand/20 transition-all resize-none"
-                               placeholder="Briefly describe the significance of this merit..."
-                            ></textarea>
+                             <textarea 
+                                rows="3"
+                                value={formData.description}
+                                onChange={e => setFormData({...formData, description: e.target.value})}
+                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-3 text-sm font-medium text-slate-600 outline-none focus:bg-white focus:border-brand/20 transition-all resize-none"
+                                placeholder="Describe this merit badge..."
+                             ></textarea>
                          </div>
                       </div>
                    </div>
 
                    <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Verification Criteria (1 Per Line)</label>
-                      <textarea 
-                         rows="4"
-                         value={formData.criteria}
-                         onChange={e => setFormData({...formData, criteria: e.target.value})}
-                         className="w-full bg-slate-50 border border-slate-100 rounded-[22px] px-8 py-5 text-sm font-black text-slate-700 focus:bg-white focus:border-brand/20 outline-none transition-all placeholder:text-slate-300 resize-none uppercase tracking-tight" 
-                         placeholder="COMPLETE ALL LECTURES&#10;PASS FINAL EXAM&#10;SUBMIT ASSIGNMENT" 
-                      ></textarea>
+                       <textarea 
+                          rows="4"
+                          value={formData.criteria}
+                          onChange={e => setFormData({...formData, criteria: e.target.value})}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl px-6 py-4 text-sm font-bold text-slate-700 focus:bg-white focus:border-brand/20 outline-none transition-all placeholder:text-slate-300 resize-none uppercase" 
+                          placeholder="COMPLETE ALL LECTURES&#10;PASS FINAL EXAM&#10;SUBMIT ASSIGNMENT" 
+                       ></textarea>
                    </div>
                 </form>
              </div>
 
-             {/* Modal Footer */}
-             <div className="shrink-0 p-8 sm:px-10 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-4 rounded-b-[40px]">
-               <button onClick={() => setIsModalOpen(false)} type="button" className="px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-200 transition-all">Discard</button>
-               <button 
-                  disabled={processing} 
-                  form="badgeForm" 
-                  type="submit" 
-                  className="flex items-center gap-3 px-10 py-4 bg-brand hover:opacity-90 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-brand/20 transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70"
-               >
-                 {processing ? <Loader2 size={16} className="animate-spin" /> : <BadgeCheck size={16} />} 
-                 {processing ? 'Forging Achievement...' : (editingBadge ? 'Finalize Merit Reforging' : 'Seal Merit Achievement')}
-               </button>
-             </div>
+              {/* Modal Footer */}
+              <div className="shrink-0 p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3 rounded-b-2xl">
+                <button onClick={() => setIsModalOpen(false)} type="button" className="px-5 py-2.5 rounded-xl font-bold text-xs text-slate-500 hover:bg-slate-200 transition-all">Discard</button>
+                <button 
+                   disabled={processing} 
+                   form="badgeForm" 
+                   type="submit" 
+                   className="flex items-center gap-2 px-8 py-2.5 bg-brand hover:opacity-90 text-white rounded-xl font-bold text-xs shadow-lg shadow-brand/10 transition-all active:scale-[0.98] disabled:opacity-70"
+                >
+                  {processing ? <Loader2 size={16} className="animate-spin" /> : <BadgeCheck size={16} />} 
+                  {processing ? 'Processing...' : (editingBadge ? 'Save badge' : 'Issue badge')}
+                </button>
+              </div>
           </div>
         </div>
       )}

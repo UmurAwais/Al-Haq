@@ -152,7 +152,7 @@ const AdminCertificates = () => {
       </div>
 
       {/* Main Container */}
-      <div className="bg-white rounded-[40px] border border-slate-200 shadow-2xl overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
         {/* Controls */}
         <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/30">
            <div className="relative group w-full md:w-96">
@@ -188,7 +188,7 @@ const AdminCertificates = () => {
           ) : (
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredCourses.map((course) => (
-                  <div key={course._id} className="group bg-slate-50 border border-slate-100 rounded-[35px] overflow-hidden hover:bg-white hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                  <div key={course._id} className="group bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden hover:bg-white hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
                      <div className="aspect-[1.414/1] relative bg-slate-200 overflow-hidden">
                         {course.certificateTemplate ? (
                           <>
@@ -233,28 +233,24 @@ const AdminCertificates = () => {
       </div>
 
       {/* UPLOAD MODAL */}
-      {isModalOpen && selectedCourse && (
+      {isModalOpen && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
+          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setIsModalOpen(false)}></div>
           
-          <div className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-500 border border-slate-200">
+          <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
              {/* Modal Header */}
-             <div className="shrink-0 p-8 sm:px-10 border-b border-slate-100 flex items-center justify-between bg-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-                <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-black text-brand uppercase tracking-[0.3em]">Course: {selectedCourse.id}</span>
-                        <div className="h-px w-8 bg-brand/30"></div>
-                    </div>
-                    <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Upload Template</h2>
+             <div className="shrink-0 p-6 border-b border-slate-100 flex items-center justify-between bg-white">
+                <div>
+                   <h2 className="text-xl font-bold text-slate-900 tracking-tight text-nowrap">Upload certificate template</h2>
+                   <p className="text-xs text-slate-500 font-medium">For course: {selectedCourse.title || selectedCourse.id}</p>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="relative z-10 w-12 h-12 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-2xl transition-all active:scale-95 border border-slate-100">
-                    <XCircle size={24} />
+                <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-xl transition-all active:scale-95 border border-slate-100">
+                    <XCircle size={20} />
                 </button>
              </div>
 
              {/* Modal Body */}
-             <div className="flex-1 overflow-y-auto p-8 sm:p-10 custom-scrollbar">
+             <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                 <form id="certForm" onSubmit={handleUpload} className="space-y-8">
                    {error && (
                        <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-xs font-bold flex items-center gap-3 animate-in shake duration-300">
@@ -264,47 +260,47 @@ const AdminCertificates = () => {
 
                    <div 
                       onClick={() => document.getElementById('certFile').click()}
-                      className={`relative group h-72 rounded-[35px] border-4 border-dashed transition-all flex flex-col items-center justify-center p-8 text-center cursor-pointer overflow-hidden ${preview ? 'border-brand/40 bg-brand/5' : 'border-slate-100 bg-slate-50 hover:border-brand/20 hover:bg-brand/5'}`}
+                      className={`relative group h-72 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-8 text-center cursor-pointer overflow-hidden ${preview ? 'border-brand/20 bg-brand/5' : 'border-slate-100 bg-slate-50 hover:border-brand/20 hover:bg-brand/5'}`}
                    >
                       <input id="certFile" type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
                       
                       {preview ? (
                          <>
                             <img src={preview} alt="Preview" className="w-full h-full object-contain relative z-10" />
-                            <div className="absolute inset-0 bg-brand/10 opacity-0 group-hover:opacity-100 flex items-center justify-center z-20 transition-opacity">
-                               <div className="px-6 py-3 bg-white text-brand rounded-2xl shadow-xl font-black text-[10px] uppercase tracking-widest">Change Image</div>
+                            <div className="absolute inset-0 bg-brand/5 opacity-0 group-hover:opacity-100 flex items-center justify-center z-20 transition-opacity">
+                               <div className="px-5 py-2.5 bg-white text-brand rounded-xl shadow-xl font-bold text-xs">Change template</div>
                             </div>
                          </>
                       ) : (
                          <>
-                            <ImageIcon size={48} className="text-slate-200 group-hover:text-brand transition-colors mb-4" />
-                            <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight mb-1">Drop Identity Matrix</h4>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Upload .PNG or .JPG (Recomm. 1200x850)</p>
+                            <ImageIcon size={32} className="text-slate-200 group-hover:text-brand transition-colors mb-3" />
+                            <h4 className="text-sm font-bold text-slate-800 mb-1">Upload template</h4>
+                            <p className="text-[11px] font-medium text-slate-400">PNG, JPG recommended (1200x850)</p>
                          </>
                       )}
                    </div>
 
-                   <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-relaxed flex items-center gap-2">
-                         <Info size={12} className="text-brand" /> System will auto-overlay Student Name & Date upon issuance.
+                   <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100/30">
+                      <p className="text-[11px] font-medium text-blue-600 leading-relaxed flex items-center gap-2">
+                         <Info size={14} className="text-brand shrink-0" /> System overlays student name and date automatically.
                       </p>
                    </div>
                 </form>
              </div>
 
-             {/* Modal Footer */}
-             <div className="shrink-0 p-8 sm:px-10 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-4 rounded-b-[40px]">
-               <button onClick={() => setIsModalOpen(false)} type="button" className="px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-200 transition-all">Cancel</button>
-               <button 
-                  disabled={uploading || !file} 
-                  form="certForm" 
-                  type="submit" 
-                  className="flex items-center gap-3 px-10 py-4 bg-brand hover:opacity-90 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-brand/20 transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70"
-               >
-                 {uploading ? <Loader2 size={16} className="animate-spin" /> : <Award size={16} />} 
-                 {uploading ? 'Processing...' : 'Upload Authority Matrix'}
-               </button>
-             </div>
+              {/* Modal Footer */}
+              <div className="shrink-0 p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3 rounded-b-2xl">
+                <button onClick={() => setIsModalOpen(false)} type="button" className="px-5 py-2.5 rounded-xl font-bold text-xs text-slate-500 hover:bg-slate-200 transition-all">Cancel</button>
+                <button 
+                   disabled={uploading || !file} 
+                   form="certForm" 
+                   type="submit" 
+                   className="flex items-center gap-2 px-8 py-2.5 bg-brand hover:opacity-90 text-white rounded-xl font-bold text-xs shadow-lg shadow-brand/10 transition-all active:scale-[0.98] disabled:opacity-70"
+                >
+                  {uploading ? <Loader2 size={16} className="animate-spin" /> : <Award size={16} />} 
+                  {uploading ? 'Processing...' : 'Upload template'}
+                </button>
+              </div>
           </div>
         </div>
       )}

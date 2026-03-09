@@ -45,6 +45,7 @@ const AdminUsers = () => {
     password: ''
   });
   const [successInfo, setSuccessInfo] = useState(null);
+  const [syncResult, setSyncResult] = useState(null); // New state for sync feedback
 
   // Real-time listener from Firestore (if users are mirrored there)
   // Fallback to backend fetch if Firestore is empty or for initial load
@@ -58,17 +59,13 @@ const AdminUsers = () => {
           const firestoreUsers = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
-            // Ensure createdAt is a Date object if it's a Firestore Timestamp
             createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt
           }));
           
-          if (firestoreUsers.length > 0) {
-            setUsers(firestoreUsers);
-            setLoading(false);
-          }
+          setUsers(firestoreUsers);
+          setLoading(false);
         }, (err) => {
           console.error("Firestore listener error:", err);
-          // If Firestore fails (maybe collection doesn't exist yet), fetch from backend
           fetchUsers();
         });
       } catch (err) {
@@ -110,14 +107,25 @@ const AdminUsers = () => {
       });
       const data = await response.json();
       if (data.ok) {
-        alert(data.message || 'Sync successful!');
+        setSyncResult({
+          success: true,
+          message: data.message || 'Sync successful!',
+          imported: data.imported || 0,
+          updated: data.updated || 0
+        });
         fetchUsers();
       } else {
-        alert(data.message || 'Sync failed.');
+        setSyncResult({
+          success: false,
+          message: data.message || 'Sync failed.'
+        });
       }
     } catch (err) {
       console.error('Sync error:', err);
-      alert('Error connecting to sync service.');
+      setSyncResult({
+        success: false,
+        message: 'Error connecting to sync service.'
+      });
     } finally {
       setSyncing(false);
     }
@@ -244,12 +252,23 @@ const AdminUsers = () => {
         </div>
       </div>
 
-      {/* Stats Summary Panel */}
+      {/* Stat Bar Placeholder (Optional future use) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 hover:border-brand/20 transition-all">
+          <div className="w-12 h-12 rounded-xl bg-brand/5 flex items-center justify-center text-brand">
+            <Users size={24} />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total users</p>
+            <h3 className="text-xl font-bold text-slate-900">{users.length}</h3>
+          </div>
+        </div>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         {[
           { label: 'Active', count: users.filter(u => (u.status || 'active') === 'active').length, icon: UserCheck, color: 'text-emerald-500', bg: 'bg-emerald-50' },
           { label: 'Inactive', count: users.filter(u => u.status === 'inactive').length, icon: UserMinus, color: 'text-amber-500', bg: 'bg-amber-50' },
-          { label: 'Admins', count: users.filter(u => u.role === 'admin').length || 1, icon: Shield, color: 'text-brand', bg: 'bg-brand/5' },
+          // { label: 'Admins', count: users.filter(u => u.role === 'admin').length || 1, icon: Shield, color: 'text-brand', bg: 'bg-brand/5' },
           { label: 'New Today', count: users.filter(u => formatDate(u.createdAt) === formatDate(new Date())).length, icon: Clock, color: 'text-blue-500', bg: 'bg-blue-50' },
         ].map((stat, i) => (
           <div key={i} className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -265,40 +284,46 @@ const AdminUsers = () => {
       </div>
 
       {/* Main Table Container */}
-      <div className="bg-white rounded-[40px] border border-slate-200 shadow-2xl overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
         {/* Table Controls */}
-        <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/30">
-           <div className="flex items-center gap-4 w-full md:w-auto">
+        <div className="border-b border-slate-100 bg-white">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-6 pt-6 pb-0">
              <div className="relative group w-full md:w-96">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand transition-colors" />
                 <input 
                   type="text" 
-                  placeholder="SEARCH USERS BY NAME, EMAIL, ID..." 
+                  placeholder="Search by name, email or ID..." 
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className="w-full pl-11 pr-4 py-4 text-xs font-black border border-slate-200 rounded-2xl outline-none focus:border-brand/30 focus:ring-4 focus:ring-brand/5 transition-all text-slate-700 placeholder:text-slate-300 tracking-widest uppercase"
+                  className="w-full pl-11 pr-4 py-2.5 text-xs font-bold border border-slate-100 rounded-xl outline-none focus:border-brand/30 focus:bg-slate-50/50 transition-all text-slate-600 placeholder:text-slate-300"
                 />
              </div>
              
-             <div className="relative shrink-0">
-                <select 
-                  value={statusFilter}
-                  onChange={e => setStatusFilter(e.target.value)}
-                  className="appearance-none pl-6 pr-12 py-4 text-xs font-black border border-slate-200 rounded-2xl outline-none focus:border-brand/30 bg-white cursor-pointer uppercase tracking-widest text-slate-600 shadow-sm"
-                >
-                  <option value="all">EVERYONE</option>
-                  <option value="active">ACTIVE ONLY</option>
-                  <option value="inactive">INACTIVE</option>
-                </select>
-                <RefreshCw className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none opacity-50" />
-             </div>
-           </div>
-
-           <div className="px-4 py-2 bg-brand/5 rounded-xl border border-brand/5">
-                <span className="text-[10px] font-black text-brand uppercase tracking-widest">
-                    Live Feed {loading ? '• Loading...' : '• Connected'}
+             <div className="px-4 py-2 bg-brand/5 rounded-xl border border-brand/5">
+                <span className="text-[10px] font-bold text-brand uppercase tracking-widest flex items-center gap-2">
+                    <Activity size={12} /> {loading ? 'Syncing...' : 'Live view active'}
                 </span>
-           </div>
+             </div>
+          </div>
+
+          <div className="flex items-center px-6 mt-4 gap-8">
+            {[
+              { label: 'Everyone', value: 'all' },
+              { label: 'Active', value: 'active' },
+              { label: 'Inactive', value: 'inactive' }
+            ].map(tab => (
+              <button 
+                key={tab.value} 
+                onClick={() => setStatusFilter(tab.value)}
+                className={`pb-4 text-[10px] font-bold uppercase tracking-widest relative transition-all ${statusFilter === tab.value ? 'text-brand' : 'text-slate-400 hover:text-slate-600'}`}
+              >
+                {tab.label}
+                {statusFilter === tab.value && (
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-brand rounded-t-full shadow-[0_-1px_4px_rgba(7,16,46,0.2)]" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* User Table */}
@@ -424,26 +449,22 @@ const AdminUsers = () => {
       {/* CREATE USER MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={closeModal}></div>
+          <div className="absolute inset-0 bg-slate-900/50" onClick={closeModal}></div>
           
-          <div className="relative w-full max-w-xl bg-white rounded-[40px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-500 border border-slate-200">
+          <div className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
             {/* Modal Header */}
-            <div className="shrink-0 p-8 sm:px-10 border-b border-slate-100 flex items-center justify-between bg-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-brand/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-black text-brand uppercase tracking-[0.3em]">Directory Access</span>
-                    <div className="h-px w-8 bg-brand/30"></div>
-                </div>
-                <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">{successInfo ? 'User Registered' : 'Registry Entry'}</h2>
+            <div className="shrink-0 p-6 border-b border-slate-100 flex items-center justify-between bg-white">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight">{successInfo ? 'User Added' : 'Add New User'}</h2>
+                <p className="text-xs text-slate-500 font-medium">{successInfo ? 'Registration complete' : 'Enter member details below'}</p>
               </div>
-              <button onClick={closeModal} className="relative z-10 w-12 h-12 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-2xl transition-all active:scale-95 border border-slate-100">
-                <X size={24} />
+              <button onClick={closeModal} className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-xl transition-all active:scale-95 border border-slate-100">
+                <X size={20} />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-8 sm:p-10 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
               {successInfo ? (
                   <div className="text-center py-6">
                       <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-[35px] flex items-center justify-center mx-auto mb-6 border-2 border-emerald-100 shadow-sm">
@@ -534,7 +555,7 @@ const AdminUsers = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="shrink-0 p-8 sm:px-10 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-4">
+            <div className="shrink-0 p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3 rounded-b-2xl">
               {successInfo ? (
                   <button onClick={closeModal} className="flex-1 sm:flex-none px-10 py-4 bg-brand text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-brand/20 transition-all hover:-translate-y-0.5 active:scale-95">
                       Dismiss & Continue
@@ -548,6 +569,49 @@ const AdminUsers = () => {
                   </button>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SYNC RESULT MODAL */}
+      {syncResult && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setSyncResult(null)}></div>
+          
+          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
+            <div className="p-8 text-center">
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 border shadow-sm transition-all duration-500 ${syncResult.success ? 'bg-emerald-50 border-emerald-100 text-emerald-500' : 'bg-red-50 border-red-100 text-red-500'}`}>
+                {syncResult.success ? <CheckCircle size={32} /> : <XCircle size={32} />}
+              </div>
+
+              <h3 className="text-xl font-bold text-slate-900 mb-2">
+                {syncResult.success ? 'Sync Complete' : 'Sync Failed'}
+              </h3>
+              
+              <p className="text-sm font-medium text-slate-500 mb-6 leading-relaxed">
+                {syncResult.message}
+              </p>
+
+              {syncResult.success && (
+                <div className="grid grid-cols-2 gap-3 mb-8">
+                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">New Users</p>
+                    <p className="text-xl font-bold text-slate-900">{syncResult.imported || 0}</p>
+                  </div>
+                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Updated</p>
+                    <p className="text-xl font-bold text-slate-900">{syncResult.updated || 0}</p>
+                  </div>
+                </div>
+              )}
+
+              <button 
+                onClick={() => setSyncResult(null)}
+                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all active:scale-95 ${syncResult.success ? 'bg-brand text-white' : 'bg-slate-200 text-slate-700'}`}
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

@@ -267,50 +267,60 @@ const AdminCourses = () => {
   return (
     <div className="pb-6 md:pb-8 animate-in fade-in duration-500">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
         <div className="flex items-center gap-3">
-          <BookOpen className="w-8 h-8 text-brand" />
+          <div className="p-3 bg-brand/5 rounded-2xl border border-brand/10 shadow-sm">
+            <BookOpen className="w-8 h-8 text-brand" />
+          </div>
           <div>
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Courses</h1>
-            <p className="text-sm text-slate-500 font-medium">Manage your course catalog ({courses.length} online)</p>
+            <p className="text-sm text-slate-500 font-medium">Manage and refine your interactive course catalog ({courses.length} courses)</p>
           </div>
         </div>
-        <button onClick={() => openModal()} className="flex items-center gap-2 px-5 py-2.5 bg-brand hover:opacity-90 text-white rounded-lg font-bold text-sm transition-all shadow-sm shadow-brand/20">
-          <Plus size={18} strokeWidth={2.5} /> Add Course
+        <button 
+          onClick={() => openModal()} 
+          className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand/10 hover:-translate-y-0.5 active:scale-95"
+        >
+          <Plus size={16} strokeWidth={3} /> Add New Course
         </button>
       </div>
 
       {/* Main Container */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-           <h2 className="text-lg font-bold text-slate-900 tracking-tight">Online Courses ({filteredCourses.length})</h2>
-           <div className="flex items-center gap-4 w-full sm:w-auto">
-             <div className="relative group w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand" />
-                <input 
-                  type="text" 
-                  placeholder="Search courses..." 
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  className="pl-9 pr-4 py-2 text-sm font-medium border border-slate-200 rounded-lg focus:outline-none focus:border-brand/30 focus:ring-2 focus:ring-brand/10 transition-all w-full text-slate-700 placeholder:text-slate-400"
-                />
-             </div>
-             <div className="flex items-center gap-3 shrink-0 ml-auto">
-                {selectedCourses.length > 0 && (
-                  <button 
-                    onClick={handleDeleteSelected}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-md text-sm font-bold transition-colors"
-                  >
-                    <Trash2 size={14} /> Delete ({selectedCourses.length})
-                  </button>
-                )}
-                <button 
-                  onClick={() => handleSelectAll(filteredCourses)}
-                  className={`text-sm font-semibold transition-colors hidden sm:block whitespace-nowrap ${selectedCourses.length > 0 && selectedCourses.length === filteredCourses.length ? 'text-brand' : 'text-slate-500 hover:text-brand'}`}
-                >
-                  {selectedCourses.length > 0 && selectedCourses.length === filteredCourses.length ? 'Deselect All' : 'Select All'}
-                </button>
-             </div>
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden p-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-slate-50 pb-6">
+           <div className="space-y-1">
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Learning Inventory</h2>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{filteredCourses.length} Matches Found</p>
+           </div>
+           
+           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+              <div className="relative group w-full sm:w-80">
+                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand transition-colors" />
+                 <input 
+                   type="text" 
+                   placeholder="Search course library..." 
+                   value={searchTerm}
+                   onChange={e => setSearchTerm(e.target.value)}
+                   className="pl-10 pr-4 py-3 text-xs font-bold border border-slate-100 rounded-xl outline-none focus:border-brand/30 focus:bg-white transition-all text-slate-600 placeholder:text-slate-300 w-full bg-slate-50/50"
+                 />
+              </div>
+              
+              <div className="flex items-center gap-3 shrink-0 ml-auto">
+                 {selectedCourses.length > 0 && (
+                   <button 
+                     onClick={handleDeleteSelected}
+                     className="flex items-center gap-1.5 px-4 py-2 bg-red-50 text-red-500 hover:bg-red-100 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm"
+                   >
+                     <Trash2 size={14} /> Remove Selected ({selectedCourses.length})
+                   </button>
+                 )}
+                 <button 
+                   onClick={() => handleSelectAll(filteredCourses)}
+                   className={`text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-xl transition-all ${selectedCourses.length > 0 && selectedCourses.length === filteredCourses.length ? 'text-brand bg-brand/5 border border-brand/10' : 'text-slate-400 hover:text-brand hover:bg-brand/5'}`}
+                 >
+                   {selectedCourses.length > 0 && selectedCourses.length === filteredCourses.length ? 'Deselect All' : 'Select All In View'}
+                 </button>
+              </div>
            </div>
         </div>
 
@@ -362,45 +372,46 @@ const AdminCourses = () => {
                       />
                     </div>
 
-                    {/* Content */}
-                    <div className="py-5 flex flex-col flex-1">
-                      <div className="mb-3">
-                        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-sm shadow-brand/10 ${course.badge?.color || 'bg-[#5022C3] text-white'}`}>
-                          <ShieldCheck size={14} className="stroke-[3]" />
-                          <span className="text-[11px] font-black uppercase tracking-tight">
-                            {course.badge?.label || 'Premium • Online'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <h3 className="text-[18px] font-black text-[#0F172A] leading-[1.2] mb-2 line-clamp-2 h-[44px]">
-                        {course.title}
-                      </h3>
-                      
-                      <p className="text-[13px] text-[#64748B] mb-4 line-clamp-2 leading-relaxed h-[40px]">
-                        {course.excerpt || 'Master this subject with our comprehensive online course. Start learning today!'}
-                      </p>
-
-                      <div className="mb-4">
-                        <span className="text-[22px] font-black text-[#0F172A] tracking-tight">
-                          {String(course.price || '').toLowerCase() === 'free' ? 'Free' : (String(course.price || '').startsWith('Rs') ? course.price : `Rs. ${course.price}`)}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2 mb-6">
-                        <div className="flex items-center gap-1">
-                           <Star size={18} className="fill-[#F59E0B] text-[#F59E0B]" />
-                           <span className="text-[14px] font-black text-[#0F172A]">{course.rating || '4.5'}</span>
-                        </div>
-                        <div className="px-2.5 py-1 rounded-lg border border-slate-100 bg-[#F8FAFC] text-[12px] text-[#64748B] font-bold">
-                          {course.ratingCount || '0 ratings'}
-                        </div>
-                      </div>
-
-                      <button className="w-full rounded-xl py-3.5 text-[15px] font-black bg-brand/5 text-brand border border-brand/10 cursor-default">
-                        Dashboard Preview
-                      </button>
-                    </div>
+                       {/* Content */}
+                       <div className="py-5 flex flex-col flex-1">
+                         <div className="mb-3">
+                           <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border ${course.badge?.color || 'bg-brand/5 text-brand border-brand/10'}`}>
+                             <ShieldCheck size={14} className="stroke-[2.5]" />
+                             <span className="text-[10px] font-bold uppercase tracking-widest">
+                               {course.badge?.label || 'Premium • Online'}
+                             </span>
+                           </div>
+                         </div>
+ 
+                         <h3 className="text-lg font-bold text-slate-900 leading-snug mb-2 line-clamp-2 min-h-12">
+                           {course.title}
+                         </h3>
+                         
+                         <p className="text-sm text-slate-500 mb-6 line-clamp-2 leading-relaxed min-h-10">
+                           {course.excerpt || 'Master this subject with our comprehensive online course. Start learning today!'}
+                         </p>
+ 
+                         <div className="mt-auto pt-4 border-t border-slate-50">
+                           <div className="flex items-center justify-between mb-4">
+                              <span className="text-xl font-bold text-slate-900 tracking-tight">
+                                {String(course.price || '').toLowerCase() === 'free' ? 'Free' : (String(course.price || '').startsWith('Rs') ? course.price : `Rs. ${course.price}`)}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <Star size={16} className="fill-amber-400 text-amber-400" />
+                                <span className="text-sm font-bold text-slate-900">{course.rating || '4.5'}</span>
+                              </div>
+                           </div>
+ 
+                           <div className="grid grid-cols-2 gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button onClick={() => openModal(course)} className="flex items-center justify-center gap-2 py-2.5 bg-brand text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-brand/10">
+                                <Edit size={14} /> Design
+                              </button>
+                              <button onClick={() => handleDelete(currentId)} className="flex items-center justify-center gap-2 py-2.5 bg-slate-50 text-slate-500 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-red-50 hover:text-red-500 border border-slate-100 transition-all">
+                                <Trash2 size={14} /> Remove
+                              </button>
+                           </div>
+                         </div>
+                       </div>
                   </div>
               )})}
            </div>
@@ -409,24 +420,24 @@ const AdminCourses = () => {
 
       {/* CREATE/EDIT MODAL OVERLAY */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-999 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-slate-900/60" onClick={closeModal}></div>
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/50" onClick={closeModal}></div>
           
-          <div className="relative w-full max-w-4xl bg-white rounded-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in slide-in-from-bottom-16 duration-500">
+          <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200 border border-slate-200">
             
             {/* Modal Header */}
-            <div className="shrink-0 p-6 sm:px-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div className="shrink-0 p-6 border-b border-slate-100 flex items-center justify-between bg-white">
               <div>
-                <h2 className="text-2xl font-black text-brand uppercase tracking-tight">{editingCourse ? 'Edit Course' : 'Create Course'}</h2>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Configure online course details</p>
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight">{editingCourse ? 'Edit online course' : 'Create online course'}</h2>
+                <p className="text-xs text-slate-500 font-medium">Configure course visibility and academic content</p>
               </div>
-              <button onClick={closeModal} className="p-2 bg-white hover:bg-slate-100 text-slate-400 rounded-xl transition-all shadow-sm border border-slate-100">
+              <button onClick={closeModal} className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-xl transition-all active:scale-95 border border-slate-100">
                 <X size={20} />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-6 sm:p-10 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
               <form id="courseForm" onSubmit={handleSave} className="space-y-8">
                 
                 {error && (
@@ -527,14 +538,14 @@ const AdminCourses = () => {
               </form>
             </div>
 
-            {/* Modal Footer */}
-            <div className="shrink-0 p-6 sm:px-10 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-4 rounded-b-4xl">
-              <button disabled={saving} onClick={closeModal} type="button" className="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-500 hover:bg-slate-200 transition-all disabled:opacity-50">Cancel</button>
-              <button disabled={saving} form="courseForm" type="submit" className="flex items-center gap-3 px-8 py-3 bg-brand hover:opacity-90 text-white rounded-xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand/20 transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none">
-                {saving ? <Loader2 size={16} className="animate-spin" /> : <Star size={16} />} 
-                {saving ? 'Saving...' : 'Save Course'}
-              </button>
-            </div>
+             {/* Modal Footer */}
+             <div className="shrink-0 p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-3">
+               <button disabled={saving} onClick={closeModal} type="button" className="px-6 py-3 rounded-2xl font-bold text-xs text-slate-500 hover:bg-slate-200 transition-all disabled:opacity-50">Discard Changes</button>
+               <button disabled={saving} form="courseForm" type="submit" className="flex items-center gap-2 px-8 py-3 bg-brand hover:opacity-90 text-white rounded-2xl font-bold text-xs shadow-lg shadow-brand/10 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:pointer-events-none">
+                 {saving ? <Loader2 size={16} className="animate-spin" /> : <Settings2 size={16} />} 
+                 {saving ? 'Processing...' : (editingCourse ? 'Save Changes' : 'Launch Course')}
+               </button>
+             </div>
 
           </div>
         </div>
@@ -542,33 +553,33 @@ const AdminCourses = () => {
 
       {/* DELETE CONFIRMATION MODAL */}
       {deleteModal.isOpen && (
-        <div className="fixed inset-0 z-999 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-slate-900/60" onClick={() => setDeleteModal({ isOpen: false, courseId: null, isMultiple: false })}></div>
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setDeleteModal({ isOpen: false, courseId: null, isMultiple: false })}></div>
           
-          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-16 duration-500">
-            <div className="p-8 text-center flex flex-col items-center">
-              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6">
+          <div className="relative w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
+            <div className="p-10 text-center flex flex-col items-center">
+              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mb-6 border border-red-100">
                 <Trash2 size={32} />
               </div>
-              <h2 className="text-2xl font-black text-slate-900 mb-2 uppercase tracking-tight">Confirm Deletion</h2>
-              <p className="text-slate-500 font-medium text-sm">
+              <h2 className="text-xl font-bold text-slate-900 mb-2">Delete confirm</h2>
+              <p className="text-slate-500 font-medium text-sm leading-relaxed">
                 {deleteModal.isMultiple 
-                  ? `Are you absolutely sure you want to delete ${selectedCourses.length} selected courses? This action cannot be undone.` 
-                  : `Are you sure you want to delete this course? This action cannot be undone.`}
+                  ? `Are you sure you want to remove all ${selectedCourses.length} selected courses?` 
+                  : `Are you sure you want to remove this course from the catalog?`}
               </p>
             </div>
-            <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-4">
+            <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex gap-3">
               <button 
                 onClick={() => setDeleteModal({ isOpen: false, courseId: null, isMultiple: false })} 
-                className="flex-1 py-3 px-4 rounded-xl font-bold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors uppercase text-xs tracking-widest leading-none drop-shadow-sm"
+                className="flex-1 py-3 px-4 rounded-xl font-bold bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all text-xs"
               >
-                Cancel
+                Discard
               </button>
               <button 
                 onClick={confirmDelete} 
-                className="flex-1 py-3 px-4 rounded-xl font-black bg-red-500 hover:bg-red-600 text-white transition-all hover:-translate-y-0.5 active:scale-95 shadow-lg shadow-red-500/20 uppercase text-xs tracking-widest leading-none flex items-center justify-center gap-2"
+                className="flex-1 py-3 px-4 rounded-xl font-bold bg-red-500 text-white hover:bg-red-600 transition-all active:scale-95 shadow-lg shadow-red-500/10 text-xs"
               >
-                <Trash2 size={16} /> Delete {deleteModal.isMultiple && 'All'}
+                Confirm Delete
               </button>
             </div>
           </div>

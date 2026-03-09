@@ -189,87 +189,102 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Dashboard Overview Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <div className="p-2 bg-brand/10 rounded-lg">
-          <LayoutGrid size={20} className="text-brand" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 mt-2">
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-brand/5 rounded-2xl border border-brand/10 shadow-sm">
+            <LayoutGrid size={24} className="text-brand" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Analytics Dashboard</h1>
+            <p className="text-sm text-slate-500 font-medium">Welcome back, Administrator. Monitoring Al-Haq's presence today.</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Dashboard Overview</h1>
-          <p className="text-sm text-slate-500">Welcome back! Here's what's happening with your courses.</p>
+        
+        <div className="px-5 py-2.5 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">System Status: Active</span>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {statCards.map((card, i) => (
-          <div
-            key={i}
-            className="bg-white border border-slate-200 rounded-2xl p-6 relative overflow-hidden hover:shadow-md transition-all group"
-          >
-            {/* Badge (for orders card) */}
-            {card.badge && (
-              <span className={`absolute top-4 right-4 px-2 py-1 text-[10px] font-bold rounded-md ${card.badgeColor}`}>
-                {card.badge}
-              </span>
-            )}
-
-            {/* Icon */}
-            <div className={`w-12 h-12 rounded-xl ${card.iconBg} flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform`}>
-              <card.icon size={22} className={card.iconColor} />
-            </div>
-
-            {/* Label */}
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{card.label}</p>
-
-            {/* Value */}
-            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight leading-none mb-1">{loading ? '...' : card.value}</h3>
-
-            {/* Subtitle */}
-            <p className="text-xs text-slate-400">{card.sub}</p>
-
-            {/* Bottom colored bar */}
-            <div className={`absolute bottom-0 left-0 h-1 ${card.barColor} w-full opacity-20 group-hover:opacity-50 transition-opacity`}></div>
-          </div>
-        ))}
-      </div>
+       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+         {statCards.map((card, i) => (
+           <div
+             key={i}
+             className="bg-white border border-slate-200 rounded-2xl p-6 relative overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+           >
+             {/* Badge (for orders card) */}
+             {card.badge && (
+               <span className={`absolute top-6 right-6 px-2 py-1 text-[10px] font-bold rounded-lg border border-transparent ${card.badgeColor}`}>
+                 {card.badge}
+               </span>
+             )}
+ 
+             {/* Icon */}
+             <div className={`w-12 h-12 rounded-2xl ${card.iconBg} flex items-center justify-center mb-5 shadow-sm transform group-hover:rotate-6 transition-transform duration-500`}>
+               <card.icon size={22} className={card.iconColor} />
+             </div>
+ 
+             {/* Label */}
+             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-2">{card.label}</p>
+ 
+             {/* Value */}
+             <div className="flex items-baseline gap-1 mb-1">
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight leading-none">{loading ? '...' : card.value}</h3>
+             </div>
+ 
+             {/* Subtitle */}
+             <p className="text-[11px] text-slate-400 font-medium">{card.sub}</p>
+ 
+             {/* Bottom colored bar accent */}
+             <div className={`absolute bottom-0 left-0 h-1.5 ${card.barColor} w-full opacity-10 group-hover:opacity-100 transition-opacity duration-500`}></div>
+           </div>
+         ))}
+       </div>
 
       {/* Quality Content Tip Banner */}
       {showTip && (
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl px-6 py-5 flex items-start md:items-center justify-between gap-4 relative">
-          <div className="flex items-start md:items-center gap-4">
-            <div className="p-2.5 bg-brand/10 rounded-xl shrink-0 mt-0.5 md:mt-0">
-              <Lightbulb size={20} className="text-brand" />
+        <div className="bg-brand/5 border border-brand/10 rounded-2xl px-8 py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-brand/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div className="flex items-start md:items-center gap-5 relative z-10">
+            <div className="p-3 bg-brand/10 rounded-2xl shrink-0 mt-1 md:mt-0 text-brand">
+              <Lightbulb size={24} strokeWidth={2.5} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-800 text-sm">Quality Content</h3>
-              <p className="text-slate-500 text-xs mt-0.5">
-                Courses with 10+ lectures and 2+ hours of content receive 60% more positive reviews. Quality over quantity!
+              <h3 className="font-bold text-slate-900 text-sm tracking-tight">Maximize Student Engagement</h3>
+              <p className="text-slate-600 text-xs mt-1 leading-relaxed max-w-xl">
+                Courses structured with 10+ modules and interactive quizzes receive 60% more positive conversion rates. Focus on depth and clarity to boost your revenue.
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <Link to="/admin/courses" className="px-4 py-2 bg-brand text-white text-xs font-bold rounded-lg hover:opacity-90 transition-all shadow-sm">
-              Add Content
+          <div className="flex items-center gap-4 shrink-0 relative z-10">
+            <Link to="/admin/courses" className="px-6 py-2.5 bg-brand text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:opacity-90 transition-all shadow-lg shadow-brand/10 whitespace-nowrap">
+              Design My Course
             </Link>
-            <button onClick={() => setShowTip(false)} className="p-1.5 hover:bg-slate-200 rounded-lg transition-colors text-slate-400 hover:text-slate-600">
-              <X size={16} />
+            <button onClick={() => setShowTip(false)} className="p-2 hover:bg-slate-200 rounded-xl transition-all text-slate-400 hover:text-slate-600">
+              <X size={18} />
             </button>
           </div>
         </div>
       )}
 
       {/* Revenue Analytics Chart */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">Revenue Analytics</h2>
-            <p className="text-xs text-slate-400 mt-0.5">Track your earnings over time</p>
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">Revenue Analytics</h2>
+            <p className="text-xs text-slate-400 mt-1 font-medium italic">Monitoring financial performance vs last period</p>
           </div>
-          <div className="relative">
-            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 hover:border-brand/30 transition-colors">
-              {chartPeriod}
-              <ChevronDown size={14} />
-            </button>
+          <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
+            {['Last 7 days', 'Last 30 days', 'Yearly'].map((p) => (
+              <button 
+                key={p} 
+                onClick={() => setChartPeriod(p)}
+                className={`px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${chartPeriod === p ? 'bg-white text-brand shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
+              >
+                {p}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -330,75 +345,87 @@ const AdminDashboard = () => {
       </div>
 
       {/* Recent Orders + Quick Actions */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 pb-4">
         {/* Recent Orders */}
-        <div className="xl:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 overflow-hidden">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">Recent Orders</h2>
-            <Link to="/admin/orders" className="text-xs font-bold text-brand hover:underline underline-offset-2">
-              View All
+        <div className="xl:col-span-2 bg-white border border-slate-200 rounded-2xl p-8 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-50">
+            <div className="flex items-center gap-3">
+               <div className="w-10 h-10 rounded-xl bg-brand/5 flex items-center justify-center border border-brand/10">
+                  <ShoppingCart size={18} className="text-brand" />
+               </div>
+               <div>
+                  <h2 className="text-lg font-bold text-slate-900 tracking-tight leading-tight">Recent Activity</h2>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Latest Student Enrollments</p>
+               </div>
+            </div>
+            <Link to="/admin/orders" className="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-xl text-[10px] font-bold text-brand uppercase tracking-widest transition-all border border-slate-100">
+              View Audit Log
             </Link>
           </div>
-
+ 
           {loading ? (
-            <div className="flex items-center justify-center h-40">
-              <div className="w-8 h-8 border-3 border-brand/20 border-t-brand rounded-full animate-spin"></div>
+            <div className="flex items-center justify-center py-20">
+              <div className="w-10 h-10 border-4 border-brand/10 border-t-brand rounded-full animate-spin"></div>
             </div>
           ) : recentOrders.length === 0 ? (
-            <div className="text-center py-12 text-slate-400">
-              <ShoppingCart size={40} className="mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-semibold">No orders yet</p>
+            <div className="text-center py-20 text-slate-400">
+              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                 <ShoppingCart size={32} className="opacity-30" />
+              </div>
+              <p className="text-sm font-bold text-slate-600 uppercase tracking-tight">No Market Orders Yet</p>
+              <p className="text-xs text-slate-400 font-medium mt-1">Enrollments will appear here once students purchase courses.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-100">
-                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-3">Student</th>
-                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-3">Course</th>
-                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-3">Amount</th>
-                    <th className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-3">Payment SS</th>
-                    <th className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-3">Date</th>
-                    <th className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-3">Action</th>
+                  <tr className="bg-slate-50/50">
+                    <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enrollment Details</th>
+                    <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Price Point</th>
+                    <th className="px-2 py-4 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Proof</th>
+                    <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Timestamp</th>
+                    <th className="px-4 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Audit</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {recentOrders.map((order, i) => (
-                    <tr key={order._id || i} className="group hover:bg-slate-50/50 transition-colors">
-                      <td className="py-3.5">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-800 leading-tight">{order.name || 'Unknown'}</p>
-                          <p className="text-[10px] text-slate-400 mt-0.5">{order.email || '-'}</p>
+                    <tr key={order._id || i} className="group hover:bg-slate-50/50 transition-all duration-300">
+                      <td className="px-4 py-5">
+                        <div className="flex items-center gap-3">
+                           <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-[11px] font-bold text-slate-600 border border-slate-200">
+                              {(order.name || 'U').charAt(0).toUpperCase()}
+                           </div>
+                           <div>
+                             <p className="text-sm font-bold text-slate-800 leading-tight group-hover:text-brand transition-colors">{order.name || 'Unknown User'}</p>
+                             <p className="text-[11px] text-slate-500 font-medium leading-tight mt-0.5 line-clamp-1 max-w-35">{order.courseName || order.courseId || '-'}</p>
+                           </div>
                         </div>
                       </td>
-                      <td className="py-3.5 max-w-[200px]">
-                        <p className="text-xs text-slate-600 font-medium leading-snug truncate">{order.courseName || order.courseId || '-'}</p>
-                      </td>
-                      <td className="py-3.5">
-                        <span className="text-sm font-bold text-slate-800">
+                      <td className="px-4 py-5">
+                        <span className="text-sm font-bold text-slate-900 tracking-tight">
                           Rs. {parseFloat(String(order.price || order.amount || 0).replace(/[^0-9.]/g, '')).toLocaleString('en-PK')}
                         </span>
                       </td>
-                      <td className="py-3.5 text-center">
+                      <td className="px-2 py-5 text-center">
                         {order.screenshotUrl || order.screenshot ? (
                           <a
                             href={order.screenshotUrl || order.screenshot}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-md text-[10px] font-bold hover:bg-emerald-100 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-emerald-100 transition-all border border-emerald-100/50"
                           >
-                            <Eye size={12} /> View
+                            <Eye size={12} strokeWidth={2.5} /> View
                           </a>
                         ) : (
-                          <span className="text-[10px] text-slate-300">—</span>
+                          <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">No File</span>
                         )}
                       </td>
-                      <td className="py-3.5">
-                        <span className="text-xs text-slate-500">{formatDate(order.createdAt || order.date)}</span>
+                      <td className="px-4 py-5">
+                        <span className="text-xs text-slate-500 font-medium">{formatDate(order.createdAt || order.date)}</span>
                       </td>
-                      <td className="py-3.5 text-center">
-                        <button className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
-                          <Trash2 size={14} />
+                      <td className="px-4 py-5 text-right">
+                        <button className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100 border border-transparent hover:border-red-100">
+                          <Trash2 size={16} />
                         </button>
                       </td>
                     </tr>
@@ -410,46 +437,58 @@ const AdminDashboard = () => {
         </div>
 
         {/* Quick Actions Panel */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6">
-          <h2 className="text-lg font-extrabold text-slate-900 tracking-tight mb-5">Quick Actions</h2>
-          <div className="space-y-3">
+        <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+          <div className="mb-8">
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">System Workflow</h2>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Direct Operational Shortcuts</p>
+          </div>
+          <div className="space-y-4">
             <Link
               to="/admin/courses"
-              className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-brand/20 hover:bg-brand/5 transition-all group"
+              className="flex items-center justify-between p-5 rounded-2xl border border-slate-100 hover:border-brand/20 hover:bg-brand/5 transition-all group relative overflow-hidden shadow-sm hover:shadow-md"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center group-hover:bg-brand group-hover:shadow-md transition-all">
-                  <Plus size={18} className="text-brand group-hover:text-white transition-colors" />
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-brand/10 flex items-center justify-center group-hover:bg-brand transition-all duration-500">
+                  <Plus size={20} className="text-brand group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-sm font-semibold text-slate-700 group-hover:text-brand transition-colors">Add New Course</span>
+                <div>
+                   <span className="text-sm font-bold text-slate-800 group-hover:text-brand transition-colors block">Launch Course</span>
+                   <span className="text-[10px] text-slate-400 font-medium">Create new educational material</span>
+                </div>
               </div>
-              <ArrowUpRight size={16} className="text-slate-300 group-hover:text-brand transition-colors" />
+              <ArrowUpRight size={18} className="text-slate-300 group-hover:text-brand transition-all group-hover:translate-x-1 group-hover:-translate-y-1" />
             </Link>
-
+ 
             <Link
               to="/admin/drive"
-              className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-amber-500/20 hover:bg-amber-50/50 transition-all group"
+              className="flex items-center justify-between p-5 rounded-2xl border border-slate-100 hover:border-amber-500/20 hover:bg-amber-50/50 transition-all group relative overflow-hidden shadow-sm hover:shadow-md"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center group-hover:bg-amber-500 group-hover:shadow-md transition-all">
-                  <FolderOpen size={18} className="text-amber-600 group-hover:text-white transition-colors" />
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center group-hover:bg-amber-500 transition-all duration-500">
+                  <FolderOpen size={20} className="text-amber-600 group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-sm font-semibold text-slate-700 group-hover:text-amber-600 transition-colors">Manage Resources</span>
+                <div>
+                  <span className="text-sm font-bold text-slate-800 group-hover:text-amber-600 transition-colors block">Cloud Storage</span>
+                   <span className="text-[10px] text-slate-400 font-medium">Manage uploaded static assets</span>
+                </div>
               </div>
-              <ArrowUpRight size={16} className="text-slate-300 group-hover:text-amber-600 transition-colors" />
+              <ArrowUpRight size={18} className="text-slate-300 group-hover:text-amber-600 transition-all group-hover:translate-x-1 group-hover:-translate-y-1" />
             </Link>
-
+ 
             <Link
               to="/admin/users"
-              className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-indigo-500/20 hover:bg-indigo-50/50 transition-all group"
+              className="flex items-center justify-between p-5 rounded-2xl border border-slate-100 hover:border-indigo-500/20 hover:bg-indigo-50/50 transition-all group relative overflow-hidden shadow-sm hover:shadow-md"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-500 group-hover:shadow-md transition-all">
-                  <UserCog size={18} className="text-indigo-600 group-hover:text-white transition-colors" />
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-500 transition-all duration-500">
+                  <UserCog size={20} className="text-indigo-600 group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-sm font-semibold text-slate-700 group-hover:text-indigo-600 transition-colors">View Users</span>
+                <div>
+                  <span className="text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition-colors block">User Access</span>
+                  <span className="text-[10px] text-slate-400 font-medium">Moderate student permissions</span>
+                </div>
               </div>
-              <ArrowUpRight size={16} className="text-slate-300 group-hover:text-indigo-600 transition-colors" />
+              <ArrowUpRight size={18} className="text-slate-300 group-hover:text-indigo-600 transition-all group-hover:translate-x-1 group-hover:-translate-y-1" />
             </Link>
           </div>
         </div>
