@@ -12,7 +12,8 @@ import {
   Loader2,
   X,
   Upload,
-  AlertCircle
+  AlertCircle,
+  ShieldCheck
 } from 'lucide-react';
 import { apiFetch, getApiUrl } from '../../config';
 
@@ -355,7 +356,7 @@ const AdminCourses = () => {
                     {/* Image */}
                     <div className="aspect-[16/10] w-full bg-slate-100 overflow-hidden relative rounded-xl">
                       <img 
-                         src={course.image?.startsWith('http') ? course.image : `${getApiUrl().replace(/\/$/, '')}${course.image.startsWith('/') ? '' : '/'}${course.image}`} 
+                         src={course.image ? (course.image.startsWith('http') ? course.image : `${getApiUrl().replace(/\/$/, '')}${course.image.startsWith('/') ? '' : '/'}${course.image}`) : 'https://placehold.co/600x400/f1f5f9/64748b?text=No+Image'} 
                          alt={course.title}
                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />

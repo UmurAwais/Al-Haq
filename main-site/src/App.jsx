@@ -14,6 +14,17 @@ import AdminLayout from './components/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminCourses from './pages/admin/AdminCourses'
 
+import AdminOrders from './pages/admin/AdminOrders'
+import AdminUsers from './pages/admin/AdminUsers'
+import AdminCoupons from './pages/admin/AdminCoupons'
+import AdminContacts from './pages/admin/AdminContacts'
+import AdminDrive from './pages/admin/AdminDrive'
+import AdminRoles from './pages/admin/AdminRoles'
+import AdminActivityLog from './pages/admin/AdminActivityLog'
+import AdminCertificates from './pages/admin/AdminCertificates'
+import AdminBadges from './pages/admin/AdminBadges'
+import AdminProfile from './pages/admin/AdminProfile'
+
 // Mock Auth Check
 const ProtectedAdminRoute = ({ children }) => {
   const isAdmin = localStorage.getItem('adminToken');
@@ -42,7 +53,16 @@ const App = () => {
         }>
           <Route index element={<AdminDashboard />} />
           <Route path="courses" element={<AdminCourses />} />
-          <Route path="users" element={<div className="p-8 text-white font-black uppercase text-2xl">Users Management Under Construction</div>} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="coupons" element={<AdminCoupons />} />
+          <Route path="contacts" element={<AdminContacts />} />
+          <Route path="drive" element={<AdminDrive />} />
+          <Route path="roles" element={<AdminRoles />} />
+          <Route path="activity" element={<AdminActivityLog />} />
+          <Route path="certificates" element={<AdminCertificates />} />
+          <Route path="badges" element={<AdminBadges />} />
+          <Route path="profile" element={<AdminProfile />} />
           {/* Add other admin sub-routes here as needed */}
         </Route>
       </Routes>

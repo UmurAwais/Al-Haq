@@ -5,7 +5,8 @@ import { auth } from '../firebaseConfig'
 import { ArrowLeft, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, User } from 'lucide-react'
 import logo from '../assets/logo.png'
 import Button from '../components/Button'
-import { apiFetch } from '../config'
+import { db } from '../firebaseConfig'
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 
 const PORTAL_URL = window.location.hostname === 'localhost' ? 'http://localhost:5174' : 'https://sparktrainings.vercel.app';
 
@@ -24,15 +25,15 @@ const Signup = () => {
     setError('')
 
     try {
-      // 1. Create user in Firebase
+      // 1. Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password)
       const user = userCredential.user
 
       // 2. Update profile name
       await updateProfile(user, { displayName: name })
 
-      // 3. Register in Backend (to generate Reference Number)
-      await apiFetch('/api/users/register', {
+      // 3. Register in Backend (to generate Reference Number for MongoDB)
+      const regRes = await apiFetch('/api/users/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -41,6 +42,18 @@ const Signup = () => {
           displayName: name 
         })
       })
+      const regData = await regRes.json();
+
+      // 4. MIRROR TO FIRESTORE (for real-time admin sync)
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        email: user.email,
+        displayName: name,
+        referenceNumber: regData.referenceNumber || 'PENDING',
+        status: 'active',
+        createdAt: serverTimestamp(),
+        lastSignIn: serverTimestamp()
+      });
 
       // 4. Set Session (simulating dashboard logic)
       const sessionId = Date.now().toString() + Math.random().toString(36).substring(2)

@@ -481,6 +481,19 @@ app.post("/api/orders", uploadOrders.single("screenshot"), async (req, res) => {
     const newOrder = await Order.create(orderData);
     console.log("✅ Order saved successfully:", newOrder._id);
 
+    // Increment coupon usage if applied
+    if (orderData.couponCode) {
+      try {
+        await Coupon.findOneAndUpdate(
+          { code: orderData.couponCode.toUpperCase() },
+          { $inc: { usedCount: 1 } }
+        );
+        console.log(`🎫 Incremented usage for coupon: ${orderData.couponCode}`);
+      } catch (err) {
+        console.error("⚠️ Failed to increment coupon usage:", err);
+      }
+    }
+
     // Automatically sync phone number to user profile if UID is provided
     if (body.uid && body.phone) {
       try {
@@ -2868,6 +2881,7 @@ app.delete(
 app.get("/api/coupons/validate/:code", async (req, res) => {
   try {
     const code = req.params.code.trim().toUpperCase();
+    const { amount } = req.query;
     const coupon = await Coupon.findOne({ code, isActive: true });
 
     if (!coupon) {
@@ -2879,6 +2893,19 @@ app.get("/api/coupons/validate/:code", async (req, res) => {
     // Check expiry
     if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
       return res.status(400).json({ ok: false, message: "Coupon has expired" });
+    }
+
+    // Check usage limit
+    if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+      return res.status(400).json({ ok: false, message: "Coupon usage limit reached" });
+    }
+
+    // Check minimum purchase amount
+    if (amount && Number(amount) < coupon.minPurchaseAmount) {
+      return res.status(400).json({ 
+        ok: false, 
+        message: `Minimum purchase of Rs. ${coupon.minPurchaseAmount} required for this coupon` 
+      });
     }
 
     res.json({ ok: true, coupon });

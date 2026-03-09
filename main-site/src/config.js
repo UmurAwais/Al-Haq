@@ -6,6 +6,8 @@ const PRODUCTION_FALLBACK = 'https://al-haq-backend-production.up.railway.app';
 
 export let API_URL = BACKEND_URL;
 
+const POSSIBLE_PORTS = [3000, 4001, 5000, 8080];
+
 /**
  * Automatically detect which port the backend server is running on (Local Dev Only)
  */

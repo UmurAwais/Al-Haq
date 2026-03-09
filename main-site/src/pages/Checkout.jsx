@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Upload, CreditCard, CheckCircle2 } from 'lucide-react';
+import { Upload, CreditCard, CheckCircle2, Loader2, Activity } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
@@ -18,6 +18,12 @@ const Checkout = () => {
     orderNotes: ''
   });
   const [selectedFile, setSelectedFile] = useState(null);
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [applying, setApplying] = useState(false);
+  const [couponError, setCouponError] = useState('');
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -27,6 +33,80 @@ const Checkout = () => {
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setApplying(true);
+    setCouponError('');
+    try {
+      const res = await fetch(`${getApiUrl()}/api/coupons/validate/${couponCode}?amount=${subtotal}`);
+      const data = await res.json();
+      if (data.ok) {
+        setAppliedCoupon(data.coupon);
+        setCouponCode('');
+      } else {
+        setCouponError(data.message);
+      }
+    } catch (err) {
+      setCouponError('Failed to validate coupon');
+    } finally {
+      setApplying(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+  };
+
+  const handlePlaceOrder = async () => {
+    if (!formData.firstName || !formData.whatsapp || !selectedFile) {
+      alert("Please fill in all required fields and upload the payment screenshot.");
+      return;
+    }
+
+    setOrderLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append('firstName', formData.firstName);
+      fd.append('lastName', formData.lastName);
+      fd.append('city', formData.city);
+      fd.append('phone', formData.whatsapp);
+      fd.append('email', formData.email);
+      fd.append('notes', formData.orderNotes);
+      fd.append('screenshot', selectedFile);
+      fd.append('amount', total);
+      fd.append('total', total);
+      fd.append('items', JSON.stringify(cartItems));
+      
+      if (appliedCoupon) {
+        fd.append('couponCode', appliedCoupon.code);
+      }
+
+      // If we have a main course (from first item)
+      if (cartItems.length > 0) {
+        fd.append('courseId', cartItems[0].id || cartItems[0]._id);
+        fd.append('courseTitle', cartItems[0].title);
+      }
+
+      const res = await fetch(`${getApiUrl()}/api/orders`, {
+        method: 'POST',
+        body: fd
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setOrderSuccess(true);
+        // Clear cart could be here if context supports it
+      } else {
+        alert(data.message || "Failed to place order");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setOrderLoading(false);
     }
   };
 
@@ -40,7 +120,16 @@ const Checkout = () => {
 
   const subtotal = cartItems.reduce((sum, item) => sum + parsePrice(item.price), 0);
   const tax = 0;
-  const discount = 0;
+  
+  let discount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.type === 'percent') {
+      discount = (subtotal * appliedCoupon.value) / 100;
+    } else {
+      discount = appliedCoupon.value;
+    }
+  }
+
   const total = subtotal + tax - discount;
 
   return (
@@ -146,9 +235,20 @@ const Checkout = () => {
                 />
               </div>
 
-              <div className="pt-4">
-                <Button className="w-full py-4 bg-[#E31B23] hover:bg-[#c2171e] text-white text-[16px] font-black rounded-lg transition-colors shadow-lg shadow-brand/10">
-                  Place order
+               <div className="pt-4">
+                <Button 
+                  onClick={handlePlaceOrder}
+                  disabled={orderLoading}
+                  className="w-full py-4 bg-[#E31B23] hover:bg-[#c2171e] text-white text-[16px] font-black rounded-lg transition-colors shadow-lg shadow-brand/10 disabled:opacity-50 flex items-center justify-center gap-3"
+                >
+                  {orderLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Processing...
+                    </>
+                  ) : (
+                    'Place order'
+                  )}
                 </Button>
               </div>
 
@@ -173,13 +273,62 @@ const Checkout = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-slate-500">Discount</span>
-                      <span className="text-slate-500">Rs. {discount}</span>
+                      <span className={`${discount > 0 ? 'text-emerald-600 font-bold' : 'text-slate-500'}`}>
+                        {discount > 0 ? `- Rs. ${discount.toLocaleString()}` : `Rs. 0`}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center pt-4 mt-2 border-t border-slate-100">
                       <span className="text-[15px] font-black text-slate-900">Total</span>
                       <span className="text-lg font-black text-slate-900">Rs. {total.toLocaleString()}</span>
                     </div>
                   </div>
+                </div>
+
+                {/* Coupon Section */}
+                <div className="px-6 pb-6 pt-2 border-t border-slate-50">
+                  {appliedCoupon ? (
+                    <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-center justify-between animate-in zoom-in-95 duration-300">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm">
+                          <CheckCircle2 size={16} />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">{appliedCoupon.code}</p>
+                          <p className="text-[9px] font-bold text-emerald-600 uppercase">{appliedCoupon.label}</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={removeCoupon}
+                        className="text-[10px] font-black text-emerald-700 hover:text-emerald-900 uppercase tracking-widest bg-white/50 px-3 py-1.5 rounded-lg border border-emerald-100/50 transition-all hover:bg-white"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" 
+                          placeholder="PROMO CODE" 
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                          className="flex-1 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 outline-none focus:bg-white focus:border-brand/20 transition-all uppercase tracking-widest placeholder:text-slate-300"
+                        />
+                        <button 
+                          onClick={handleApplyCoupon}
+                          disabled={applying || !couponCode.trim()}
+                          className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand transition-all disabled:opacity-50 shadow-lg shadow-slate-900/10"
+                        >
+                          {applying ? '...' : 'Apply'}
+                        </button>
+                      </div>
+                      {couponError && (
+                        <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider flex items-center gap-1 animate-in shake duration-300 px-1">
+                          <CheckCircle2 size={12} className="rotate-45" /> {couponError}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="bg-slate-50 border-t items-center border-slate-100 p-6 space-y-4">
@@ -285,6 +434,33 @@ const Checkout = () => {
       </main>
 
       <Footer />
+
+      {/* Success Modal Overlay */}
+      {orderSuccess && (
+        <div className="fixed inset-0 z-200 flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm animate-in fade-in duration-500">
+           <div className="bg-white rounded-[40px] max-w-lg w-full p-10 text-center shadow-2xl animate-in zoom-in-95 duration-500 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-emerald-400 to-teal-500"></div>
+              
+              <div className="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-[35px] flex items-center justify-center mx-auto mb-8 border-2 border-emerald-100/50 shadow-inner">
+                 <CheckCircle2 size={48} />
+              </div>
+
+              <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight mb-4">Order Received!</h2>
+              <p className="text-sm font-bold text-slate-500 leading-relaxed uppercase tracking-widest mb-10">
+                  Your enrollment request has been submitted. Our team will verify the payment and authorize your access within <span className="text-brand">6-12 hours</span>.
+              </p>
+
+              <div className="space-y-4">
+                <Link to="/" className="block w-full py-4 bg-brand text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-brand/20 hover:-translate-y-1 transition-all">
+                  Return to Home
+                </Link>
+                <div className="flex items-center gap-2 justify-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <Activity size={12} className="text-brand" /> Tracking: Pending Confirmation
+                </div>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 };
