@@ -15,6 +15,7 @@ import StudentDashboard from './pages/student/StudentDashboard'
 import StudentProfile from './pages/student/StudentProfile'
 import StudentCourses from './pages/student/StudentCourses'
 import StudentCertificates from './pages/student/StudentCertificates'
+import CoursePlayer from './pages/student/CoursePlayer'
 
 // Admin Components
 import AdminLogin from './pages/admin/AdminLogin'
@@ -80,6 +81,17 @@ const App = () => {
             <Route path="courses" element={<StudentCourses />} />
             <Route path="achievements" element={<StudentCertificates />} />
           </Route>
+ 
+          <Route path="/student/course/:courseId/play" element={
+            <ProtectedRoute>
+              <CoursePlayer />
+            </ProtectedRoute>
+          } />
+          <Route path="/student/course/:courseId/play/:lectureId" element={
+            <ProtectedRoute>
+              <CoursePlayer />
+            </ProtectedRoute>
+          } />
 
           {/* Admin Secret Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />

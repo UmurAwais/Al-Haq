@@ -2306,6 +2306,44 @@ app.get("/api/drive/list", adminAuth, async (req, res) => {
   }
 });
 
+// Fetch detailed info for a single Drive file
+app.get("/api/admin/fetch-video-info", adminAuth, async (req, res) => {
+  const { videoId } = req.query;
+  if (!videoId) return res.status(400).json({ ok: false, message: "videoId required" });
+
+  const credPath = path.join(__dirname, "drive-credentials.json");
+  let credentials = null;
+
+  if (process.env.GOOGLE_DRIVE_CREDENTIALS) {
+    try { credentials = JSON.parse(process.env.GOOGLE_DRIVE_CREDENTIALS); } catch (e) {}
+  }
+  
+  if (!credentials && fs.existsSync(credPath)) {
+    try { credentials = JSON.parse(fs.readFileSync(credPath, 'utf8')); } catch (e) {}
+  }
+
+  if (!credentials) return res.json({ ok: false, message: "Drive credentials missing" });
+
+  try {
+    const { google } = require("googleapis");
+    const auth = new google.auth.GoogleAuth({
+      credentials: credentials,
+      scopes: ["https://www.googleapis.com/auth/drive.readonly"],
+    });
+    const drive = google.drive({ version: "v3", auth });
+
+    const resp = await drive.files.get({
+      fileId: videoId,
+      fields: "id,name,mimeType,size,createdTime,videoMediaMetadata,thumbnailLink,webViewLink",
+    });
+
+    res.json({ ok: true, data: resp.data });
+  } catch (e) {
+    console.error("❌ Drive fetch error:", e.message);
+    res.status(500).json({ ok: false, message: e.message });
+  }
+});
+
 // Course upload endpoint
 app.post(
   "/api/courses/upload",
@@ -2787,6 +2825,41 @@ app.get("/api/course/:id", async (req, res) => {
   } catch (error) {
     console.error("Error fetching single course:", error);
     res.status(500).json({ ok: false, message: error.message });
+  }
+});
+
+// --- Student Course Access ---
+app.get("/api/student/enrolled-courses/:uid", async (req, res) => {
+  try {
+    const { uid } = req.params;
+    console.log(`📚 Fetching enrolled courses for student: ${uid}`);
+    
+    // Find all approved orders for this user
+    const orders = await Order.find({ uid, status: "Approved" });
+    
+    // Extract course IDs from items OR from courseId field
+    let courseIds = [];
+    orders.forEach(order => {
+      if (order.courseId) courseIds.push(order.courseId);
+      if (order.items && Array.isArray(order.items)) {
+        order.items.forEach(item => {
+          if (item.courseId) courseIds.push(item.courseId);
+          else if (item.id) courseIds.push(item.id);
+        });
+      }
+    });
+
+    // Deduplicate
+    const uniqueCourseIds = [...new Set(courseIds)];
+    console.log(`   Found unique IDs: ${uniqueCourseIds.join(', ')}`);
+
+    // Fetch full course details
+    const courses = await OnlineCourse.find({ id: { $in: uniqueCourseIds } });
+    
+    res.json({ ok: true, courses });
+  } catch (err) {
+    console.error("❌ Error fetching enrolled courses:", err);
+    res.status(500).json({ ok: false, message: err.message });
   }
 });
 
