@@ -120,11 +120,18 @@ const StudentCourses = () => {
                   </div>
                 </div>
 
-                <div className="p-6">
-                  <p className="text-[10px] font-bold text-brand uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                     <div className="w-1.5 h-1.5 rounded-full bg-brand"></div>
-                     Online Course
-                  </p>
+                 <div className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] font-bold text-brand uppercase tracking-widest flex items-center gap-1.5 shrink-0">
+                       <div className="w-1.5 h-1.5 rounded-full bg-brand"></div>
+                       Online Course
+                    </p>
+                    {course.status?.toLowerCase() === 'pending' && (
+                      <span className="px-2 py-0.5 bg-amber-50 text-amber-600 rounded-lg text-[8px] font-black uppercase tracking-widest border border-amber-100 flex items-center gap-1 shrink-0">
+                        <Clock size={10} /> Pending
+                      </span>
+                    )}
+                  </div>
                   <h3 className="text-base font-bold text-slate-900 leading-snug mb-4 line-clamp-2 h-12">
                      {course.title}
                   </h3>
@@ -132,11 +139,12 @@ const StudentCourses = () => {
                   <div className="space-y-3 mb-6">
                      <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                        <span>Course Progress</span>
-                       <span className="text-brand">0%</span>
+                       <span className="text-brand">{course.progress || 0}%</span>
                      </div>
                      <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-brand rounded-full transition-all duration-1000 w-0" 
+                          className="h-full bg-brand rounded-full transition-all duration-1000" 
+                          style={{ width: `${course.progress || 0}%` }}
                         ></div>
                      </div>
                   </div>
@@ -146,10 +154,16 @@ const StudentCourses = () => {
                        <Clock size={14} />
                        <span className="text-[10px] font-bold uppercase tracking-tight">{course.duration || 'Flexible'}</span>
                      </div>
-                     <div className="px-5 py-2.5 bg-brand text-white rounded-xl font-bold text-[9px] uppercase tracking-widest shadow-lg shadow-brand/20 group-hover:opacity-90 transition-all flex items-center gap-2">
-                        Start Learning <PlayCircle size={14} />
-                     </div>
-                  </div>
+                     {course.status?.toLowerCase() === 'pending' ? (
+                       <div className="px-5 py-2.5 bg-slate-100 text-slate-400 rounded-xl font-bold text-[9px] uppercase tracking-widest flex items-center gap-2 cursor-not-allowed">
+                          Waiting Approval <Clock size={14} />
+                       </div>
+                     ) : (
+                       <Link to={`/student/course/${course.id}/play`} className="px-5 py-2.5 bg-brand text-white rounded-xl font-bold text-[9px] uppercase tracking-widest shadow-lg shadow-brand/20 group-hover:opacity-90 transition-all flex items-center gap-2 z-20">
+                          {course.progress > 0 ? 'Continue' : 'Start Learning'} <PlayCircle size={14} />
+                       </Link>
+                     )}
+                   </div>
                 </div>
               </div>
             ))}

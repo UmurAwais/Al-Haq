@@ -1,33 +1,125 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Upload, CreditCard, CheckCircle2, Loader2, Activity } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Upload, CreditCard, CheckCircle2, Loader2, Activity, User, Mail, Lock, Phone, ArrowRight, LogIn } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
 import { useCart } from '../contexts/CartContext';
-import { getApiUrl } from '../config';
+import { useAuth } from '../contexts/AuthContext';
+import { getApiUrl, apiFetch } from '../config';
+import { auth, db } from '../firebaseConfig';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const Checkout = () => {
-  const { cartItems } = useCart();
+  const { cartItems, clearCart } = useCart();
+  const { user, loading: authLoading } = useAuth();
+  const location = useLocation();
+  
+  // Auth state for non-logged in users
+  const [authMode, setAuthMode] = useState('signup'); // 'signup' or 'login'
+  const [authData, setAuthData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    phone: ''
+  });
+  const [authProcessing, setAuthProcessing] = useState(false);
+  const [authError, setAuthError] = useState('');
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     city: '',
     whatsapp: '',
-    email: 'theprogrammer.co@gmail.com', // mock logged in email
+    email: '',
     orderNotes: ''
   });
+  
   const [selectedFile, setSelectedFile] = useState(null);
   const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [appliedCoupon, setAppliedCoupon] = useState(location.state?.initialCoupon || null);
   const [applying, setApplying] = useState(false);
   const [couponError, setCouponError] = useState('');
   const [orderLoading, setOrderLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (user?.email) {
+      setFormData(prev => ({ 
+        ...prev, 
+        email: user.email,
+        firstName: user.displayName?.split(' ')[0] || '',
+        lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+        whatsapp: user.phone || ''
+      }));
+    }
+  }, [user]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAuthInputChange = (e) => {
+    const { name, value } = e.target;
+    setAuthData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAuthSubmit = async (e) => {
+    e.preventDefault();
+    setAuthProcessing(true);
+    setAuthError('');
+
+    try {
+      if (authMode === 'signup') {
+        // 1. Firebase Auth Signup
+        const userCredential = await createUserWithEmailAndPassword(auth, authData.email, authData.password);
+        const fbUser = userCredential.user;
+
+        // 2. Update Profile
+        await updateProfile(fbUser, { displayName: authData.name });
+
+        // 3. Register in Backend
+        const regRes = await apiFetch('/api/users/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            uid: fbUser.uid, 
+            email: fbUser.email, 
+            displayName: authData.name,
+            phone: authData.phone
+          })
+        });
+        const regData = await regRes.json();
+
+        // 4. Mirror to Firestore
+        await setDoc(doc(db, "users", fbUser.uid), {
+          uid: fbUser.uid,
+          email: fbUser.email,
+          displayName: authData.name,
+          phone: authData.phone,
+          referenceNumber: regData.referenceNumber || 'PENDING',
+          status: 'active',
+          createdAt: serverTimestamp(),
+          lastSignIn: serverTimestamp()
+        });
+
+      } else {
+        // Firebase Login
+        await signInWithEmailAndPassword(auth, authData.email, authData.password);
+      }
+    } catch (err) {
+      console.error(err);
+      setAuthError(err.message.includes('email-already-in-use') 
+        ? 'Email already registered. Try logging in.' 
+        : err.message.includes('user-not-found') || err.message.includes('wrong-password')
+        ? 'Invalid email or password.'
+        : 'Authentication failed. Please check your details.');
+    } finally {
+      setAuthProcessing(false);
+    }
   };
 
   const handleFileChange = (e) => {
@@ -96,9 +188,9 @@ const Checkout = () => {
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (data.ok || data.success) {
         setOrderSuccess(true);
-        // Clear cart could be here if context supports it
+        clearCart();
       } else {
         alert(data.message || "Failed to place order");
       }
@@ -132,6 +224,17 @@ const Checkout = () => {
 
   const total = subtotal + tax - discount;
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="animate-spin text-brand mx-auto mb-4" size={40} />
+          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Establishing Session...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F9FAFB] font-sans flex flex-col">
       <Header />
@@ -145,112 +248,202 @@ const Checkout = () => {
 
           <div className="flex flex-col lg:flex-row gap-8 items-start">
             
-            {/* Left Column: Form */}
+            {/* Left Column: Form or Auth */}
             <div className="w-full lg:w-[60%] shrink-0 space-y-6">
               
-              {/* Logged in indicator */}
-              <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-lg px-4 py-3 flex justify-between items-center text-sm mb-6">
-                <div>
-                  <span className="text-blue-900">Logged in as </span>
-                  <span className="font-bold text-blue-900">{formData.email}</span>
-                </div>
-                <button className="text-blue-700 font-bold hover:underline text-xs">
-                  Sign out
-                </button>
-              </div>
+              {!user ? (
+                <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500">
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-brand/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-brand/10">
+                      {authMode === 'signup' ? <User className="text-brand" size={32} /> : <LogIn className="text-brand" size={32} />}
+                    </div>
+                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                      {authMode === 'signup' ? 'Create Account' : 'Welcome Back'}
+                    </h2>
+                    <p className="text-sm text-slate-500 font-medium">
+                      {authMode === 'signup' ? 'Join our community to proceed' : 'Sign in to access your details'}
+                    </p>
+                  </div>
 
-              {/* Form Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-1.5 relative">
-                  <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">First name</label>
-                  <input 
-                    type="text" name="firstName" value={formData.firstName} onChange={handleInputChange}
-                    className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
-                    placeholder="First Name"
-                  />
-                </div>
-                <div className="space-y-1.5 relative">
-                  <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">Last name</label>
-                  <input 
-                    type="text" name="lastName" value={formData.lastName} onChange={handleInputChange}
-                    className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
-                    placeholder="Last Name"
-                  />
-                </div>
-                <div className="space-y-1.5 relative">
-                  <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">Town / City</label>
-                  <input 
-                    type="text" name="city" value={formData.city} onChange={handleInputChange}
-                    className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
-                    placeholder="Town / City"
-                  />
-                </div>
-                <div className="space-y-1.5 relative">
-                  <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">WhatsApp number</label>
-                  <input 
-                    type="text" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange}
-                    className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
-                    placeholder="WhatsApp Number"
-                  />
-                </div>
-                <div className="col-span-1 md:col-span-2 space-y-1.5 relative mt-4">
-                  <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">Email address</label>
-                  <input 
-                    type="email" name="email" value={formData.email} disabled
-                    className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none bg-slate-50 text-slate-500 cursor-not-allowed"
-                  />
-                </div>
-              </div>
-
-              {/* Upload Section */}
-              <div className="mt-8 space-y-3 pt-4 border-t border-slate-200">
-                <h3 className="text-sm font-bold text-slate-900">Upload payment screenshot</h3>
-                <div className="flex items-center gap-4">
-                  <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-bold text-brand hover:bg-slate-50 transition-colors">
-                    <Upload size={16} />
-                    <span>Choose file</span>
-                    <input type="file" className="hidden" accept="image/jpeg,image/png" onChange={handleFileChange} />
-                  </label>
-                  <span className="text-xs text-slate-400">Max 5 MB • JPG/PNG</span>
-                </div>
-                {selectedFile && (
-                  <p className="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
-                    <CheckCircle2 size={14} /> {selectedFile.name} attached
-                  </p>
-                )}
-                <p className="text-[11px] text-slate-400 mt-2">
-                  Upload JazzCash / Easypaisa / Bank transfer receipt.
-                </p>
-              </div>
-
-              {/* Order Notes */}
-              <div className="mt-6">
-                <textarea 
-                  name="orderNotes"
-                  value={formData.orderNotes}
-                  onChange={handleInputChange}
-                  placeholder="Order notes (optional)"
-                  rows={4}
-                  className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent resize-y"
-                />
-              </div>
-
-               <div className="pt-4">
-                <Button 
-                  onClick={handlePlaceOrder}
-                  disabled={orderLoading}
-                  className="w-full py-4 bg-[#E31B23] hover:bg-[#c2171e] text-white text-[16px] font-black rounded-lg transition-colors shadow-lg shadow-brand/10 disabled:opacity-50 flex items-center justify-center gap-3"
-                >
-                  {orderLoading ? (
-                    <>
-                      <Loader2 className="animate-spin" size={20} />
-                      Processing...
-                    </>
-                  ) : (
-                    'Place order'
+                  {authError && (
+                    <div className="bg-red-50 text-red-600 p-4 rounded-xl text-[11px] font-bold mb-6 border border-red-100 flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mt-1 shrink-0"></div>
+                      <p>{authError}</p>
+                    </div>
                   )}
-                </Button>
-              </div>
+
+                  <form onSubmit={handleAuthSubmit} className="space-y-4">
+                    {authMode === 'signup' && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="relative group">
+                          <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={16} />
+                          <input 
+                            type="text" name="name" required value={authData.name} onChange={handleAuthInputChange}
+                            placeholder="Full Name"
+                            className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand/30 outline-none text-sm transition-all"
+                          />
+                        </div>
+                        <div className="relative group">
+                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={16} />
+                          <input 
+                            type="tel" name="phone" required value={authData.phone} onChange={handleAuthInputChange}
+                            placeholder="WhatsApp Number"
+                            className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand/30 outline-none text-sm transition-all"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="relative group">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={16} />
+                      <input 
+                        type="email" name="email" required value={authData.email} onChange={handleAuthInputChange}
+                        placeholder="Email Address"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand/30 outline-none text-sm transition-all"
+                      />
+                    </div>
+
+                    <div className="relative group">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={16} />
+                      <input 
+                        type="password" name="password" required value={authData.password} onChange={handleAuthInputChange}
+                        placeholder="Password (Min 6 chars)" minLength={6}
+                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand/30 outline-none text-sm transition-all"
+                      />
+                    </div>
+
+                    <button 
+                      type="submit" disabled={authProcessing}
+                      className="w-full py-4 bg-brand text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-brand/20 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                    >
+                      {authProcessing ? <Loader2 className="animate-spin" size={16} /> : (
+                        <>
+                          {authMode === 'signup' ? 'Create Account & Continue' : 'Sign In & Continue'}
+                          <ArrowRight size={14} />
+                        </>
+                      )}
+                    </button>
+                  </form>
+
+                  <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                      {authMode === 'signup' ? 'Already have an account?' : "Don't have an account yet?"}
+                      <button 
+                        onClick={() => setAuthMode(authMode === 'signup' ? 'login' : 'signup')}
+                        className="ml-2 text-brand hover:underline"
+                      >
+                        {authMode === 'signup' ? 'Log in' : 'Register now'}
+                      </button>
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                {/* Logged in indicator */}
+                <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-lg px-4 py-3 flex justify-between items-center text-sm mb-6 animate-in fade-in slide-in-from-top-2 duration-500">
+                  <div>
+                    <span className="text-blue-900">Signed in as </span>
+                    <span className="font-bold text-blue-900">{user.email}</span>
+                  </div>
+                  <button onClick={() => auth.signOut()} className="text-blue-700 font-bold hover:underline text-xs">
+                    Sign out
+                  </button>
+                </div>
+
+                {/* Form Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-500 delay-150">
+                  <div className="space-y-1.5 relative">
+                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">First name</label>
+                    <input 
+                      type="text" name="firstName" value={formData.firstName} onChange={handleInputChange}
+                      className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
+                      placeholder="First Name"
+                    />
+                  </div>
+                  <div className="space-y-1.5 relative">
+                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">Last name</label>
+                    <input 
+                      type="text" name="lastName" value={formData.lastName} onChange={handleInputChange}
+                      className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
+                      placeholder="Last Name"
+                    />
+                  </div>
+                  <div className="space-y-1.5 relative">
+                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">Town / City</label>
+                    <input 
+                      type="text" name="city" value={formData.city} onChange={handleInputChange}
+                      className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
+                      placeholder="Town / City"
+                    />
+                  </div>
+                  <div className="space-y-1.5 relative">
+                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">WhatsApp number</label>
+                    <input 
+                      type="text" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange}
+                      className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
+                      placeholder="WhatsApp Number"
+                    />
+                  </div>
+                  <div className="col-span-1 md:col-span-2 space-y-1.5 relative mt-4">
+                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">Email address</label>
+                    <input 
+                      type="email" name="email" value={formData.email} disabled
+                      className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none bg-slate-50 text-slate-500 cursor-not-allowed"
+                    />
+                  </div>
+                </div>
+
+                {/* Upload Section */}
+                <div className="mt-8 space-y-3 pt-4 border-t border-slate-200">
+                  <h3 className="text-sm font-bold text-slate-900">Upload payment screenshot</h3>
+                  <div className="flex items-center gap-4">
+                    <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-bold text-brand hover:bg-slate-50 transition-colors">
+                      <Upload size={16} />
+                      <span>Choose file</span>
+                      <input type="file" className="hidden" accept="image/jpeg,image/png" onChange={handleFileChange} />
+                    </label>
+                    <span className="text-xs text-slate-400">Max 5 MB • JPG/PNG</span>
+                  </div>
+                  {selectedFile && (
+                    <p className="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
+                      <CheckCircle2 size={14} /> {selectedFile.name} attached
+                    </p>
+                  )}
+                  <p className="text-[11px] text-slate-400 mt-2">
+                    Upload JazzCash / Easypaisa / Bank transfer receipt.
+                  </p>
+                </div>
+
+                {/* Order Notes */}
+                <div className="mt-6">
+                  <textarea 
+                    name="orderNotes"
+                    value={formData.orderNotes}
+                    onChange={handleInputChange}
+                    placeholder="Order notes (optional)"
+                    rows={4}
+                    className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent resize-y"
+                  />
+                </div>
+
+                 <div className="pt-4">
+                  <Button 
+                    onClick={handlePlaceOrder}
+                    disabled={orderLoading}
+                    className="w-full py-4 bg-[#E31B23] hover:bg-[#c2171e] text-white text-[16px] font-black rounded-lg transition-colors shadow-lg shadow-brand/10 disabled:opacity-50 flex items-center justify-center gap-3"
+                  >
+                    {orderLoading ? (
+                      <>
+                        <Loader2 className="animate-spin" size={20} />
+                        Processing...
+                      </>
+                    ) : (
+                      'Place order'
+                    )}
+                  </Button>
+                </div>
+                </>
+              )}
 
             </div>
 

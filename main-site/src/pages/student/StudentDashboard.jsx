@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   BookOpen, 
@@ -9,26 +9,67 @@ import {
   TrendingUp,
   Target,
   Zap,
-  Star
+  Star,
+  Loader2
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { getApiUrl } from '../../config';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user?.email) {
+      fetchEnrolledCourses();
+    }
+  }, [user]);
+
+  const fetchEnrolledCourses = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${getApiUrl()}/api/student/courses`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setCourses(data.courses);
+      }
+    } catch (err) {
+      console.error("Failed to fetch dashboard courses:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const stats = [
-    { label: 'Courses Enrolled', value: '4', icon: BookOpen, color: 'blue' },
-    { label: 'Completed', value: '1', icon: Award, color: 'emerald' },
-    { label: 'Learning Hours', value: '12.5', icon: Clock, color: 'brand' },
-    { label: 'Skill Points', value: '850', icon: Target, color: 'orange' },
+    { label: 'Courses Enrolled', value: courses.length, icon: BookOpen, color: 'blue' },
+    { label: 'Verified Access', value: courses.filter(c => c.status?.toLowerCase() === 'verified' || c.status?.toLowerCase() === 'completed').length, icon: Award, color: 'emerald' },
+    { label: 'Learning Progress', value: `${Math.round(courses.reduce((acc, curr) => acc + (curr.progress || 0), 0) / (courses.length || 1))}%`, icon: Clock, color: 'brand' },
+    { label: 'Pending Approval', value: courses.filter(c => c.status?.toLowerCase() === 'pending').length, icon: Target, color: 'orange' },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-brand animate-spin opacity-20" />
+      </div>
+    );
+  }
+
+  const activeCourse = courses.find(c => c.progress > 0) || courses[0];
 
   return (
     <div className="animate-in fade-in duration-500">
       {/* Welcome Section */}
       <div className="mb-10 text-center md:text-left">
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight leading-none mb-2">Salaam, {user?.displayName?.split(' ')[0] || 'Student'}</h1>
-        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] opacity-80 mt-1">Status: Active Track • Continuous Progress</p>
+        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] opacity-80 mt-1">
+          {courses.length > 0 ? `Status: Enrolled in ${courses.length} educational tracks` : "Welcome to Al-Haq Learning Hub"}
+        </p>
       </div>
 
       {/* Stats Grid */}
@@ -62,34 +103,56 @@ const StudentDashboard = () => {
               </Link>
             </div>
             
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm group">
-              <div className="flex flex-col md:flex-row gap-8 items-center">
-                <div className="w-full md:w-48 h-32 bg-slate-100 rounded-2xl overflow-hidden shrink-0">
-                  <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400" alt="Course" className="w-full h-full object-cover grayscale-0 hover:scale-110 transition-transform duration-700" />
-                </div>
-                
-                <div className="flex-1 w-full">
-                  <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-brand/5 text-brand text-[9px] font-bold uppercase tracking-widest rounded-lg mb-3">
-                    Currently Progressing
+            {activeCourse ? (
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm group">
+                <div className="flex flex-col md:flex-row gap-8 items-center">
+                  <div className="w-full md:w-48 h-32 bg-slate-100 rounded-2xl overflow-hidden shrink-0">
+                    <img src={activeCourse.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400"} alt="Course" className="w-full h-full object-cover grayscale-0 hover:scale-110 transition-transform duration-700" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 tracking-tight mb-4">Mastering Quranic Arabic: Basics to Advanced</h3>
                   
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center justify-between text-[10px] font-bold text-slate-400">
-                      <span className="uppercase tracking-widest">Progress</span>
-                      <span className="text-brand">62% COMPLETE</span>
+                  <div className="flex-1 w-full">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-brand/5 text-brand text-[9px] font-bold uppercase tracking-widest rounded-lg">
+                        {activeCourse.status?.toLowerCase() === 'pending' ? 'Verification Pending' : 'Currently Progressing'}
+                      </div>
+                      {activeCourse.status?.toLowerCase() === 'pending' && (
+                        <div className="flex items-center gap-1 text-[9px] font-black text-amber-600 uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-lg border border-amber-100 italic">
+                          <Clock size={10} /> Waiting for Admin Approval
+                        </div>
+                      )}
                     </div>
-                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-brand rounded-full transition-all duration-500" style={{ width: '62%' }}></div>
+                    <h3 className="text-xl font-bold text-slate-900 tracking-tight mb-4">{activeCourse.title}</h3>
+                    
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-center justify-between text-[10px] font-bold text-slate-400">
+                        <span className="uppercase tracking-widest">Progress</span>
+                        <span className="text-brand">{activeCourse.progress || 0}% COMPLETE</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-brand rounded-full transition-all duration-500" style={{ width: `${activeCourse.progress || 0}%` }}></div>
+                      </div>
                     </div>
-                  </div>
 
-                  <button className="w-full sm:w-auto px-10 py-3 bg-brand text-white rounded-xl font-bold text-xs shadow-lg shadow-brand/20 hover:opacity-90 transition-all flex items-center justify-center gap-2 uppercase tracking-widest">
-                     Continue <ArrowRight size={14} />
-                  </button>
+                    {activeCourse.status?.toLowerCase() === 'pending' ? (
+                       <button disabled className="w-full sm:w-auto px-10 py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs flex items-center justify-center gap-2 uppercase tracking-widest cursor-not-allowed border border-slate-200">
+                          Confirming Payment... <Clock size={14} />
+                       </button>
+                    ) : (
+                      <Link to={`/student/course/${activeCourse.id}/play`} className="w-full sm:w-auto px-10 py-3 bg-brand text-white rounded-xl font-bold text-xs shadow-lg shadow-brand/20 hover:opacity-90 transition-all flex items-center justify-center gap-2 uppercase tracking-widest">
+                         Continue <ArrowRight size={14} />
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-white border-2 border-dashed border-slate-200 rounded-3xl p-12 text-center">
+                 <BookOpen className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                 <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest mb-2">Initialize Your Journey</h4>
+                 <p className="text-xs text-slate-400 font-bold uppercase tracking-tight mb-8">You haven't enrolled in any educational tracks yet.</p>
+                 <Link to="/#courses" className="inline-flex px-8 py-3 bg-brand text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-brand/10 active:scale-95 transition-all">Explore Courses</Link>
+              </div>
+            )}
           </section>
 
           <section>

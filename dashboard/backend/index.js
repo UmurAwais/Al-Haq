@@ -9,12 +9,19 @@ const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 require("dotenv").config();
 
-// Cloudinary configuration
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Cloudinary Sanitizer
+const cleanEnv = (val) => (val || "").replace(/['"]/g, "").trim();
+
+// Cloudinary configuration (Hardcoded Hotfix)
+const cloudinaryConfig = {
+  cloud_name: "dvqgy3aj1",
+  api_key: "658918888253217",
+  api_secret: "h1BnW26j3uUeRJim2BNIky51Hfg",
+  secure: true
+};
+
+cloudinary.config(cloudinaryConfig);
+console.log(`☁️  Cloudinary Active: ${cloudinaryConfig.cloud_name}`);
 
 // Email configuration (using nodemailer)
 let nodemailer;
@@ -365,8 +372,10 @@ const cloudinaryOrderStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "spark-lms/orders",
-    allowed_formats: ["jpg", "png", "jpeg", "webp"],
-    public_id: (req, file) => "order-" + Date.now() + "-" + file.originalname.split(".")[0],
+    public_id: (req, file) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      return `order-${uniqueSuffix}`;
+    }
   },
 });
 
@@ -375,7 +384,10 @@ const cloudinaryProfileStorage = new CloudinaryStorage({
   params: {
     folder: "spark-lms/profiles",
     allowed_formats: ["jpg", "png", "jpeg", "webp"],
-    public_id: (req, file) => "profile-" + Date.now() + "-" + file.originalname.split(".")[0],
+    public_id: (req, file) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      return `profile-${uniqueSuffix}`;
+    }
   },
 });
 
@@ -384,7 +396,10 @@ const cloudinaryCourseStorage = new CloudinaryStorage({
   params: {
     folder: "spark-lms/courses",
     allowed_formats: ["jpg", "png", "jpeg", "webp"],
-    public_id: (req, file) => "course-" + Date.now() + "-" + file.originalname.split(".")[0],
+    public_id: (req, file) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      return `course-${uniqueSuffix}`;
+    }
   },
 });
 
@@ -406,38 +421,83 @@ app.get("/test", (req, res) => {
   res.sendFile(path.join(__dirname, "test.html"));
 });
 
-// Orders endpoint with file upload (Cloudinary)
-app.post("/api/orders", uploadOrders.single("screenshot"), async (req, res) => {
-  console.log("📦 Incoming order request...");
+// Coupon validation endpoint
+app.get("/api/coupons/validate/:code", async (req, res) => {
   try {
-    // Multer will populate req.file and req.body
+    const { code } = req.params;
+    const { amount } = req.query;
+    
+    console.log(`🎫 Validating coupon: ${code} for amount: ${amount}`);
+
+    const coupon = await Coupon.findOne({ 
+      code: code.toUpperCase(),
+      isActive: true 
+    });
+
+    if (!coupon) {
+      return res.status(404).json({ ok: false, message: "Invalid or inactive coupon code" });
+    }
+
+    // Check expiry
+    if (coupon.expiryDate && new Date() > new Date(coupon.expiryDate)) {
+      return res.status(400).json({ ok: false, message: "This coupon has expired" });
+    }
+
+    // Check usage limit
+    if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+      return res.status(400).json({ ok: false, message: "Coupon usage limit reached" });
+    }
+
+    // Check min purchase amount
+    if (amount && parseFloat(amount) < coupon.minPurchaseAmount) {
+      return res.status(400).json({ 
+        ok: false, 
+        message: `This coupon requires a minimum purchase of Rs. ${coupon.minPurchaseAmount.toLocaleString()}` 
+      });
+    }
+
+    res.json({ ok: true, coupon });
+  } catch (err) {
+    console.error("Error validating coupon:", err);
+    res.status(500).json({ ok: false, message: "Failed to validate coupon" });
+  }
+});
+
+// Orders endpoint with direct Cloudinary upload via Memory Storage
+app.post("/api/orders", multer({ storage: multer.memoryStorage() }).single("screenshot"), async (req, res) => {
+  console.log("📦 Incoming order request (Direct Upload)...");
+  try {
     const file = req.file;
     const body = req.body || {};
 
-    console.log("📝 Order body:", {
-      uid: body.uid,
-      email: body.email,
-      courseId: body.courseId,
-      hasScreenshotUrl: !!body.screenshotUrl,
-      hasFile: !!file
-    });
+    let screenshotUrl = body.screenshotUrl || null;
 
-    // Allow either file upload OR direct URL (from Firebase client-side upload)
-    if (!file && !body.screenshotUrl) {
-      console.warn("⚠️ No screenshot provided");
-      return res
-        .status(400)
-        .json({ success: false, message: "No screenshot uploaded (File or URL required)" });
+    // Handle File Upload if present
+    if (file) {
+      try {
+        console.log("📤 Uploading screenshot to Cloudinary via DataURI...");
+        const base64Image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+        
+        const result = await cloudinary.uploader.upload(base64Image, {
+          folder: "spark-lms/orders",
+          resource_type: "image"
+        });
+        screenshotUrl = result.secure_url;
+        console.log("✅ Cloudinary upload success:", screenshotUrl);
+      } catch (uploadErr) {
+        console.error("❌ Cloudinary upload failed:", uploadErr);
+        return res.status(500).json({ success: false, message: "Cloudinary upload failed: " + uploadErr.message });
+      }
+    }
+
+    if (!screenshotUrl) {
+      console.warn("⚠️ No screenshot URL or file found");
+      return res.status(400).json({ success: false, message: "Screenshot is required" });
     }
 
     // Basic validation
     if (!body.firstName || !body.email) {
-      console.warn("⚠️ Missing required fields:", { firstName: !!body.firstName, email: !!body.email });
-      // remove uploaded file if validation fails and it exists
-      if (file) fs.unlink(path.join(uploadDir, file.filename), () => {});
-      return res
-        .status(400)
-        .json({ success: false, message: "Missing required fields (First Name and Email are mandatory)" });
+      return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
     let parsedItems = [];
@@ -446,8 +506,8 @@ app.post("/api/orders", uploadOrders.single("screenshot"), async (req, res) => {
         parsedItems = JSON.parse(body.items);
       }
     } catch (e) {
-      console.error("❌ Failed to parse items JSON:", body.items);
-      return res.status(400).json({ success: false, message: "Invalid items data format" });
+      console.error("❌ Failed to parse items JSON");
+      return res.status(400).json({ success: false, message: "Invalid items format" });
     }
 
     const orderData = {
@@ -462,8 +522,7 @@ app.post("/api/orders", uploadOrders.single("screenshot"), async (req, res) => {
       courseTitle: body.courseTitle || "",
       items: parsedItems,
       amount: body.amount || body.total || "0",
-      // Use Firebase Storage URL (primary), fallback to local file path (legacy support)
-      paymentScreenshot: body.screenshotUrl || (file ? file.path : ""),
+      paymentScreenshot: screenshotUrl,
       couponCode: body.couponCode || null,
       status: "Pending",
     };
@@ -530,6 +589,74 @@ app.get("/api/orders", adminAuth, async (req, res) => {
   } catch (err) {
     console.error("Error fetching orders:", err);
     res.status(500).json({ ok: false, message: "Failed to fetch orders" });
+  }
+});
+
+// PUT endpoint to update order status (Verify/Reject)
+app.put("/api/orders/:id/status", adminAuth, async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!status) {
+      return res.status(400).json({ ok: false, message: "Status is required" });
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ ok: false, message: "Order not found" });
+    }
+
+    // Log the action
+    try {
+      await ActivityLog.create({
+        id: Date.now().toString(),
+        type: "order_update",
+        title: `Order ${status}`,
+        message: `Admin ${status} order for ${updatedOrder.email}`,
+        user: "Admin",
+        time: new Date(),
+      });
+    } catch (e) {
+      console.error("⚠️ Failed to log order update activity:", e);
+    }
+
+    res.json({ ok: true, order: updatedOrder });
+  } catch (err) {
+    console.error("Error updating order status:", err);
+    res.status(500).json({ ok: false, message: "Failed to update order status" });
+  }
+});
+
+// DELETE endpoint to remove order (Revoke access)
+app.delete("/api/orders/:id", adminAuth, async (req, res) => {
+  try {
+    const deletedOrder = await Order.findByIdAndDelete(req.params.id);
+    if (!deletedOrder) {
+      return res.status(404).json({ ok: false, message: "Order not found" });
+    }
+
+    // Log the action
+    try {
+      await ActivityLog.create({
+        id: Date.now().toString(),
+        type: "order_delete",
+        title: "Order Deleted",
+        message: `Admin deleted/revoked order for ${deletedOrder.email} (${deletedOrder.courseTitle})`,
+        user: "Admin",
+        time: new Date(),
+      });
+    } catch (e) {
+      console.error("⚠️ Failed to log order deletion activity:", e);
+    }
+
+    res.json({ ok: true, message: "Order deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting order:", err);
+    res.status(500).json({ ok: false, message: "Failed to delete order" });
   }
 });
 

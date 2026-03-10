@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { X, CheckCircle2 } from 'lucide-react';
 import { getApiUrl } from '../config';
@@ -11,6 +11,10 @@ const Cart = () => {
   const { cartItems, removeFromCart } = useCart();
   const [coupon, setCoupon] = useState('');
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const parsePrice = (priceVal) => {
     if (!priceVal) return 0;
     const str = String(priceVal).toLowerCase();
@@ -22,6 +26,41 @@ const Cart = () => {
 
   const totalPrice = cartItems.reduce((sum, item) => sum + parsePrice(item.price), 0);
   const isCartEmpty = cartItems.length === 0;
+
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [applying, setApplying] = useState(false);
+  const [couponError, setCouponError] = useState('');
+
+  const handleApplyCoupon = async () => {
+    if (!coupon.trim()) return;
+    setApplying(true);
+    setCouponError('');
+    try {
+      const res = await fetch(`${getApiUrl()}/api/coupons/validate/${coupon}?amount=${totalPrice}`);
+      const data = await res.json();
+      if (data.ok) {
+        setAppliedCoupon(data.coupon);
+        setCoupon('');
+      } else {
+        setCouponError(data.message);
+      }
+    } catch (err) {
+      setCouponError('Communication failure with server');
+    } finally {
+      setApplying(false);
+    }
+  };
+
+  let discount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.type === 'percent') {
+      discount = (totalPrice * appliedCoupon.value) / 100;
+    } else {
+      discount = appliedCoupon.value;
+    }
+  }
+
+  const finalTotal = totalPrice - discount;
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] font-sans flex flex-col">
@@ -117,17 +156,48 @@ const Cart = () => {
                 </div>
 
                 {/* Coupon Block */}
-                <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm flex flex-col sm:flex-row gap-3">
-                  <input 
-                    type="text" 
-                    value={coupon}
-                    onChange={(e) => setCoupon(e.target.value)}
-                    placeholder="Coupon code" 
-                    className="flex-grow border border-slate-300 rounded-full px-4 py-3 text-[14px] outline-none focus:border-brand transition-colors"
-                  />
-                  <Button className="px-8 py-3 bg-[#E31B23] hover:bg-[#c2171e] text-white text-[15px] font-bold rounded transition-colors whitespace-nowrap">
-                    Apply coupon
-                  </Button>
+                <div className="space-y-4">
+                  {appliedCoupon ? (
+                    <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex items-center justify-between animate-in zoom-in-95 duration-300">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-md">
+                          <CheckCircle2 size={20} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-emerald-800 uppercase tracking-widest">{appliedCoupon.code}</p>
+                          <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-tight">{appliedCoupon.label}</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setAppliedCoupon(null)}
+                        className="text-[10px] font-black text-emerald-700 hover:text-emerald-900 uppercase tracking-widest bg-white/50 px-4 py-2 rounded-lg border border-emerald-100/50 transition-all hover:bg-white"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm flex flex-col sm:flex-row gap-2">
+                      <input 
+                        type="text" 
+                        value={coupon}
+                        onChange={(e) => setCoupon(e.target.value.toUpperCase())}
+                        placeholder="COUPON CODE" 
+                        className="flex-grow bg-slate-50/50 border border-slate-100 rounded-full px-5 py-3 text-xs font-bold uppercase tracking-widest outline-none focus:bg-white focus:border-brand/20 transition-all"
+                      />
+                      <Button 
+                        onClick={handleApplyCoupon}
+                        disabled={applying || !coupon.trim()}
+                        className="px-8 py-3 bg-[#E31B23] hover:bg-[#c2171e] text-white text-[12px] font-black rounded-full transition-all whitespace-nowrap shadow-lg shadow-brand/10 disabled:opacity-50"
+                      >
+                        {applying ? 'Checking...' : 'Apply coupon'}
+                      </Button>
+                    </div>
+                  )}
+                  {couponError && (
+                    <p className="text-[10px] text-red-500 font-bold uppercase tracking-[0.2em] px-4 animate-in shake duration-300">
+                      Error: {couponError}
+                    </p>
+                  )}
                 </div>
 
               </div>
@@ -144,13 +214,20 @@ const Cart = () => {
                       <span className="text-slate-500 font-medium">Subtotal</span>
                       <span className="font-bold text-slate-900">Rs. {totalPrice.toLocaleString()}</span>
                     </div>
+
+                    {discount > 0 && (
+                      <div className="flex justify-between items-center py-4 border-b border-slate-100 text-[14px] animate-in slide-in-from-right-2 duration-300">
+                        <span className="text-emerald-600 font-bold">Discount</span>
+                        <span className="font-bold text-emerald-600">- Rs. {discount.toLocaleString()}</span>
+                      </div>
+                    )}
                     
                     <div className="flex justify-between items-center py-6">
                       <span className="text-slate-500 font-medium text-[15px]">Total</span>
-                      <span className="text-2xl font-black text-slate-900 tracking-tight">Rs. {totalPrice.toLocaleString()}</span>
+                      <span className="text-2xl font-black text-slate-900 tracking-tight">Rs. {finalTotal.toLocaleString()}</span>
                     </div>
 
-                    <Link to="/checkout" className="block w-full">
+                    <Link to="/checkout" state={{ initialCoupon: appliedCoupon }} className="block w-full">
                       <Button className="w-full py-4 bg-[#E31B23] hover:bg-[#c2171e] text-white text-[15px] font-bold rounded transition-colors shadow-lg shadow-brand/10">
                         Proceed to Checkout
                       </Button>

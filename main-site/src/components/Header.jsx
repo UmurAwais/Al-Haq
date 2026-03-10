@@ -8,8 +8,11 @@ import Button from './Button'
 import MobileMenu from './MobileMenu'
 import NavLinks from './NavLinks'
 
+import { useAuth } from '../contexts/AuthContext'
+
 const Header = ({ searchQuery, onSearchChange, onSearchSubmit }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { user } = useAuth()
 
   const navLinks = [
     { name: 'Home', href: '/#home' },
@@ -39,12 +42,25 @@ const Header = ({ searchQuery, onSearchChange, onSearchSubmit }) => {
             </div>
             
             <div className="flex items-center gap-4 border-l border-slate-100 pl-2">
-              <Link to="/login">
-                <Button variant="ghost" className="px-2! cursor-pointer">Log In</Button>
-              </Link>
-              <Link to="/signup">
-                <Button variant="primary" className="cursor-pointer">Get Started</Button>
-              </Link>
+              {user ? (
+                <>
+                  <Link to="/student/dashboard">
+                    <Button variant="ghost" className="px-4! cursor-pointer font-bold text-slate-700">My Learning</Button>
+                  </Link>
+                  <Link to="/student/profile">
+                    <Button variant="primary" className="cursor-pointer px-6!">Profile</Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/login">
+                    <Button variant="ghost" className="px-2! cursor-pointer">Log In</Button>
+                  </Link>
+                  <Link to="/signup">
+                    <Button variant="primary" className="cursor-pointer">Get Started</Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Toggle */}

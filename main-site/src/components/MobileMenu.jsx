@@ -4,7 +4,10 @@ import SearchBar from './SearchBar'
 import Button from './Button'
 import NavLinks from './NavLinks'
 
+import { useAuth } from '../contexts/AuthContext'
+
 const MobileMenu = ({ isOpen, onClose, navLinks, searchQuery, onSearchChange, onSearchSubmit }) => {
+  const { user } = useAuth()
   return (
     <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-screen border-t border-slate-100' : 'max-h-0'}`}>
       <div className="p-4 space-y-6 bg-white shadow-xl">
@@ -25,16 +28,33 @@ const MobileMenu = ({ isOpen, onClose, navLinks, searchQuery, onSearchChange, on
 
         {/* Mobile Actions */}
         <div className="pt-4 border-t border-slate-100 flex flex-col gap-3">
-           <Link to="/login" onClick={onClose}>
-             <Button variant="secondary" className="w-full py-4 text-sm font-black uppercase tracking-widest">
-               Log In
-             </Button>
-           </Link>
-           <Link to="/signup" onClick={onClose}>
-             <Button variant="primary" className="w-full py-4 text-sm font-black uppercase tracking-widest" size="lg">
-               Join for Free
-             </Button>
-           </Link>
+           {user ? (
+             <>
+               <Link to="/student/dashboard" onClick={onClose}>
+                 <Button variant="secondary" className="w-full py-4 text-sm font-black uppercase tracking-widest">
+                   My Learning
+                 </Button>
+               </Link>
+               <Link to="/student/profile" onClick={onClose}>
+                 <Button variant="primary" className="w-full py-4 text-sm font-black uppercase tracking-widest" size="lg">
+                   My Profile
+                 </Button>
+               </Link>
+             </>
+           ) : (
+             <>
+               <Link to="/login" onClick={onClose}>
+                 <Button variant="secondary" className="w-full py-4 text-sm font-black uppercase tracking-widest">
+                   Log In
+                 </Button>
+               </Link>
+               <Link to="/signup" onClick={onClose}>
+                 <Button variant="primary" className="w-full py-4 text-sm font-black uppercase tracking-widest" size="lg">
+                   Join for Free
+                 </Button>
+               </Link>
+             </>
+           )}
         </div>
       </div>
     </div>

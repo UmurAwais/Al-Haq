@@ -97,6 +97,55 @@ const AdminOrders = () => {
     setIsDetailsModalOpen(true);
   };
 
+  const [processing, setProcessing] = useState(false);
+
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    try {
+      setProcessing(true);
+      const token = localStorage.getItem('adminToken');
+      const response = await apiFetch(`/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': token 
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      const data = await response.json();
+      if (data.ok) {
+        setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status: newStatus } : o));
+        setSelectedOrder(prev => prev ? { ...prev, status: newStatus } : null);
+      }
+    } catch (err) {
+      console.error('Failed to update status:', err);
+      alert('Failed to update order status');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm('Are you sure you want to delete this order? This will revoke the student\'s access.')) return;
+    try {
+      setProcessing(true);
+      const token = localStorage.getItem('adminToken');
+      const response = await apiFetch(`/api/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-token': token }
+      });
+      const data = await response.json();
+      if (data.ok) {
+        setOrders(prev => prev.filter(o => o._id !== orderId));
+        setIsDetailsModalOpen(false);
+      }
+    } catch (err) {
+      console.error('Failed to delete order:', err);
+      alert('Failed to delete order');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const formatPrice = (price) => {
     const num = parseFloat(String(price || 0).replace(/[^0-9.]/g, ''));
     return `Rs. ${num.toLocaleString('en-PK')}`;
@@ -253,13 +302,15 @@ const AdminOrders = () => {
                                   <User size={20} />
                                </div>
                                <div>
-                                  <p className="text-sm font-black text-slate-800 tracking-tight leading-tight mb-0.5 group-hover:text-brand transition-colors">{order.name || 'Unknown Student'}</p>
+                                  <p className="text-sm font-black text-slate-800 tracking-tight leading-tight mb-0.5 group-hover:text-brand transition-colors uppercase">
+                                    {order.firstName ? `${order.firstName} ${order.lastName || ''}`.trim() : (order.name || 'Unknown Student')}
+                                  </p>
                                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{order.email || '-'}</p>
                                </div>
                             </div>
                          </td>
                          <td className="px-6 py-6">
-                            <p className="text-xs font-bold text-slate-600 leading-snug max-w-[200px] line-clamp-2 uppercase tracking-tight">
+                            <p className="text-xs font-bold text-slate-600 leading-snug max-w-50 line-clamp-2 uppercase tracking-tight">
                                {order.courseName || order.courseId || 'Enrolled Course'}
                             </p>
                          </td>
@@ -342,10 +393,11 @@ const AdminOrders = () => {
                         <User size={14} className="text-brand" /> Student Information
                     </h3>
                     <div className="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden">
-                        <div className="divide-y divide-slate-200/50 px-6">
-                            <div className="flex justify-between items-center py-4">
+                        <div className="divide-y divide-slate-200/50 px-6">                             <div className="flex justify-between items-center py-4">
                                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Full Name</span>
-                                <span className="text-sm font-bold text-slate-800">{selectedOrder.name || 'N/A'}</span>
+                                <span className="text-sm font-bold text-slate-800">
+                                  {selectedOrder.firstName ? `${selectedOrder.firstName} ${selectedOrder.lastName || ''}`.trim() : (selectedOrder.name || 'N/A')}
+                                </span>
                             </div>
                             <div className="flex justify-between items-center py-4">
                                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Email</span>
@@ -353,8 +405,9 @@ const AdminOrders = () => {
                             </div>
                             <div className="flex justify-between items-center py-4">
                                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Phone</span>
-                                <span className="text-sm font-bold text-slate-800">{selectedOrder.whatsapp || selectedOrder.phone || 'N/A'}</span>
+                                <span className="text-sm font-bold text-slate-800">{selectedOrder.phone || selectedOrder.whatsapp || 'N/A'}</span>
                             </div>
+
                         </div>
                     </div>
                   </section>
@@ -367,7 +420,7 @@ const AdminOrders = () => {
                         <div className="divide-y divide-slate-200/50 px-6">
                             <div className="flex justify-between items-start py-4">
                                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">Course</span>
-                                <span className="text-sm font-bold text-slate-800 text-right max-w-[200px]">{selectedOrder.courseName || 'N/A'}</span>
+                                <span className="text-sm font-bold text-slate-800 text-right max-w-50">{selectedOrder.courseName || 'N/A'}</span>
                             </div>
                             <div className="flex justify-between items-center py-4">
                                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Status</span>
@@ -398,7 +451,7 @@ const AdminOrders = () => {
                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                        <DollarSign size={14} className="text-brand" /> Payment verification
                    </h3>
-                   <div className="relative group rounded-2xl border-2 border-slate-100 shadow-lg overflow-hidden aspect-[3/4] bg-slate-50">
+                   <div className="relative group rounded-2xl border-2 border-slate-100 shadow-lg overflow-hidden aspect-3/4 bg-slate-50">
                       {selectedOrder.screenshotUrl || selectedOrder.screenshot ? (
                           <>
                             <img 
@@ -429,17 +482,29 @@ const AdminOrders = () => {
             {/* Modal Footer */}
             <div className="shrink-0 p-6 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-b-2xl">
                <div className="flex items-center gap-3 w-full sm:w-auto">
-                   <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-red-500 rounded-xl font-bold text-xs hover:bg-red-50 transition-all active:scale-95 shadow-sm">
-                       <Trash2 size={16} /> Delete
+                   <button 
+                     disabled={processing}
+                     onClick={() => handleDeleteOrder(selectedOrder._id)}
+                     className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-red-500 rounded-xl font-bold text-xs hover:bg-red-50 transition-all active:scale-95 shadow-sm disabled:opacity-50"
+                   >
+                       {processing ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />} Delete
                    </button>
                </div>
                
                <div className="flex items-center gap-3 w-full sm:w-auto">
-                   <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all active:scale-95">
+                   <button 
+                     disabled={processing}
+                     onClick={() => handleUpdateStatus(selectedOrder._id, 'Rejected')}
+                     className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all active:scale-95 disabled:opacity-50"
+                   >
                        Reject
                    </button>
-                   <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-10 py-3 bg-brand text-white rounded-xl font-bold text-xs shadow-lg shadow-brand/10 transition-all active:scale-95 hover:scale-[1.02]">
-                       <CheckCircle size={16} /> Verify payment
+                   <button 
+                     disabled={processing}
+                     onClick={() => handleUpdateStatus(selectedOrder._id, 'Verified')}
+                     className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-10 py-3 bg-brand text-white rounded-xl font-bold text-xs shadow-lg shadow-brand/10 transition-all active:scale-95 hover:scale-[1.02] disabled:opacity-50"
+                   >
+                       {processing ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />} Verify payment
                    </button>
                </div>
             </div>
