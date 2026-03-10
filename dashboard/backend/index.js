@@ -401,15 +401,6 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Test endpoint
-app.get("/api/test", (req, res) => {
-  res.json({
-    ok: true,
-    message: "Server is working!",
-    timestamp: new Date().toISOString(),
-  });
-});
-
 // Serve test page
 app.get("/test", (req, res) => {
   res.sendFile(path.join(__dirname, "test.html"));
@@ -3008,17 +2999,19 @@ app.get("/api/contacts", adminAuth, async (req, res) => {
 // Create contact form submission (public endpoint)
 app.post("/api/contacts", express.json(), async (req, res) => {
   try {
-    const { name, phone, course, message } = req.body;
+    const { name, email, phone, subject, course, message } = req.body;
 
-    if (!name || !phone || !course || !message) {
+    if (!name || !email || !message) {
       return res
         .status(400)
-        .json({ ok: false, message: "All fields are required" });
+        .json({ ok: false, message: "Name, email and message are required" });
     }
 
     const newContact = await Contact.create({
       name,
+      email,
       phone,
+      subject,
       course,
       message,
     });

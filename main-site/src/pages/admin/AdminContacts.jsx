@@ -18,18 +18,44 @@ import {
   Phone
 } from 'lucide-react';
 import { apiFetch } from '../../config';
-
 const AdminContacts = () => {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [submissionToDelete, setSubmissionToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
+    // 1. Initial Fetch
     fetchSubmissions();
+
+    // 2. Poll MongoDB in the background every 5 seconds (The "Immediate" Sync)
+    // This allows "No reload required" updates using your primary MongoDB database.
+    const pollInterval = setInterval(() => {
+      syncSubmissions();
+    }, 5000);
+
+    return () => clearInterval(pollInterval);
   }, []);
+
+  // Soft Sync function for periodic updates
+  const syncSubmissions = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await apiFetch('/api/contacts', {
+        headers: { 'x-admin-token': token }
+      });
+      const data = await res.json();
+      if (data.ok && data.contacts) {
+        setSubmissions(data.contacts);
+      }
+    } catch (err) {
+      console.log('Background sync temporarily paused...');
+    }
+  };
 
   const fetchSubmissions = async () => {
     try {
@@ -54,20 +80,28 @@ const AdminContacts = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this message permanently?')) return;
+  const handleDeleteClick = (e, submission) => {
+    e.stopPropagation();
+    setSubmissionToDelete(submission);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!submissionToDelete) return;
     
     setDeleting(true);
     try {
       const token = localStorage.getItem('adminToken');
-      const res = await apiFetch(`/api/contacts/${id}`, {
+      const res = await apiFetch(`/api/contacts/${submissionToDelete._id}`, {
         method: 'DELETE',
         headers: { 'x-admin-token': token }
       });
       const data = await res.json();
       if (data.ok) {
-        setSubmissions(prev => prev.filter(s => s._id !== id));
+        setSubmissions(prev => prev.filter(s => s._id !== submissionToDelete._id));
+        setIsDeleteModalOpen(false);
         setIsModalOpen(false);
+        setSubmissionToDelete(null);
       }
     } catch (err) {
       console.error('Delete error:', err);
@@ -192,7 +226,7 @@ const AdminContacts = () => {
                                     <Eye size={18} />
                                 </button>
                                 <button 
-                                  onClick={(e) => { e.stopPropagation(); handleDelete(sub._id); }}
+                                  onClick={(e) => handleDeleteClick(e, sub)}
                                   className="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-2xl transition-all shadow-sm border border-slate-100"
                                 >
                                     <Trash2 size={18} />
@@ -209,10 +243,10 @@ const AdminContacts = () => {
 
       {/* DETAIL MODAL */}
       {isModalOpen && selectedSubmission && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setIsModalOpen(false)}></div>
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute inset-0 bg-slate-900/60" onClick={() => setIsModalOpen(false)}></div>
           
-          <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-300 border border-slate-100">
              {/* Modal Header */}
              <div className="shrink-0 p-6 border-b border-slate-100 flex items-center justify-between bg-white">
                 <div>
@@ -268,7 +302,7 @@ const AdminContacts = () => {
               {/* Modal Footer */}
               <div className="shrink-0 p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-3">
                 <button 
-                   onClick={() => handleDelete(selectedSubmission._id)}
+                   onClick={(e) => handleDeleteClick(e, selectedSubmission)}
                    disabled={deleting}
                    className="px-5 py-2.5 rounded-2xl font-bold text-xs text-red-500 hover:bg-red-50 transition-all active:scale-95 disabled:opacity-50"
                 >
@@ -282,6 +316,44 @@ const AdminContacts = () => {
                 </a>
               </div>
           </div>
+        </div>
+      )}
+
+      {/* CUSTOM DELETE CONFIRMATION MODAL */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-200 flex items-center justify-center p-4">
+           <div className="absolute inset-0 bg-slate-900/60" onClick={() => !deleting && setIsDeleteModalOpen(false)}></div>
+           <div className="relative w-full max-w-sm bg-white rounded-3xl p-8 shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-300 text-center">
+              <div className="w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-red-100 shadow-sm">
+                 <Trash2 size={40} className="animate-bounce" />
+              </div>
+              
+              <h3 className="text-xl font-black text-slate-900 mb-2 leading-tight uppercase tracking-tight">Erase Submission?</h3>
+              <p className="text-sm text-slate-500 font-medium mb-8 leading-relaxed">
+                 You are about to permanently delete <span className="text-red-500 font-bold">{submissionToDelete?.name}'s</span> inquiry. This action cannot be reversed.
+              </p>
+
+              <div className="flex flex-col gap-3">
+                 <button 
+                   onClick={confirmDelete}
+                   disabled={deleting}
+                   className="w-full py-4 bg-red-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-red-200 hover:bg-red-600 transition-all active:scale-95 flex items-center justify-center gap-2"
+                 >
+                    {deleting ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <>Confirm Removal</>
+                    )}
+                 </button>
+                 <button 
+                   onClick={() => setIsDeleteModalOpen(false)}
+                   disabled={deleting}
+                   className="w-full py-4 bg-slate-50 text-slate-400 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-50"
+                 >
+                    Nevermind
+                 </button>
+              </div>
+           </div>
         </div>
       )}
     </div>
