@@ -326,18 +326,18 @@ const AdminOrders = () => {
                             </span>
                          </td>
                          <td className="px-6 py-6 text-center">
-                            {order.screenshotUrl || order.screenshot ? (
-                               <div className="flex justify-center">
-                                  <div className="w-12 h-8 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden relative group/ss shadow-sm">
-                                      <img src={order.screenshotUrl || order.screenshot} className="w-full h-full object-cover grayscale group-hover/ss:grayscale-0 transition-all" alt="Proof" />
-                                      <div className="absolute inset-0 bg-brand/40 opacity-0 group-hover/ss:opacity-100 flex items-center justify-center text-white transition-opacity">
-                                         <Eye size={12} />
-                                      </div>
+                           {order.paymentScreenshot || order.screenshotUrl || order.screenshot ? (
+                             <div className="flex justify-center">
+                               <div className="w-12 h-8 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden relative group/ss shadow-sm">
+                                  <img src={order.paymentScreenshot || order.screenshotUrl || order.screenshot} className="w-full h-full object-cover grayscale group-hover/ss:grayscale-0 transition-all" alt="Proof" />
+                                  <div className="absolute inset-0 bg-brand/40 opacity-0 group-hover/ss:opacity-100 flex items-center justify-center text-white transition-opacity">
+                                    <Eye size={12} />
                                   </div>
                                </div>
-                            ) : (
-                               <span className="text-[10px] font-black text-slate-200 uppercase tracking-widest">—</span>
-                            )}
+                             </div>
+                           ) : (
+                             <span className="text-[10px] font-black text-slate-200 uppercase tracking-widest">—</span>
+                           )}
                          </td>
                          <td className="px-8 py-6 text-right">
                             <p className="text-xs font-black text-slate-700 tracking-tighter mb-0.5">{formatDate(order.createdAt || order.date).split(',')[0]}</p>
@@ -452,28 +452,28 @@ const AdminOrders = () => {
                        <DollarSign size={14} className="text-brand" /> Payment verification
                    </h3>
                    <div className="relative group rounded-2xl border-2 border-slate-100 shadow-lg overflow-hidden aspect-3/4 bg-slate-50">
-                      {selectedOrder.screenshotUrl || selectedOrder.screenshot ? (
+                        {selectedOrder.paymentScreenshot || selectedOrder.screenshotUrl || selectedOrder.screenshot ? (
                           <>
-                            <img 
-                                src={selectedOrder.screenshotUrl || selectedOrder.screenshot} 
-                                alt="Payment Proof" 
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                            />
-                            <a 
-                                href={selectedOrder.screenshotUrl || selectedOrder.screenshot} 
-                                target="_blank" 
-                                rel="noreferrer"
-                                className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-6 py-3 bg-white/95 backdrop-blur-sm rounded-xl font-bold text-xs text-slate-800 shadow-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all hover:bg-white"
-                            >
-                                <ExternalLink size={14} /> Open full view
-                            </a>
+                          <img 
+                            src={selectedOrder.paymentScreenshot || selectedOrder.screenshotUrl || selectedOrder.screenshot} 
+                            alt="Payment Proof" 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          />
+                          <a 
+                            href={selectedOrder.paymentScreenshot || selectedOrder.screenshotUrl || selectedOrder.screenshot} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-6 py-3 bg-white/95 backdrop-blur-sm rounded-xl font-bold text-xs text-slate-800 shadow-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all hover:bg-white"
+                          >
+                            <ExternalLink size={14} /> Open full view
+                          </a>
                           </>
-                      ) : (
+                        ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
-                              <XCircle size={48} className="mb-4 opacity-10" />
-                              <p className="text-[10px] font-black uppercase tracking-[0.2em]">No Screenshot Provided</p>
+                            <XCircle size={48} className="mb-4 opacity-10" />
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em]">No Screenshot Provided</p>
                           </div>
-                      )}
+                        )}
                    </div>
                 </div>
               </div>
