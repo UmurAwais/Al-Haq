@@ -24,25 +24,24 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (currentUser) {
+        // Set basic user info immediately to unblock UI
+        setUser(prev => ({ ...prev, ...currentUser, uid: currentUser.uid }));
+        setLoading(false);
+
+        // Fetch extended data in background
         try {
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
-            setUser({ ...currentUser, ...userDoc.data(), uid: currentUser.uid });
-          } else {
-            // Keep existing user state if available from cache, otherwise fallback
-            setUser(prev => prev || currentUser);
+            setUser(prev => ({ ...prev, ...userDoc.data(), uid: currentUser.uid }));
           }
         } catch (error) {
-          console.error("Error fetching user data (offline or error):", error);
-          // Don't overwrite state with basic currentUser if we already have cached data
-          // This prevents data "disappearing" when network is flaky
-          setUser(prev => prev || currentUser);
+          console.error("Error fetching background user data:", error);
         }
       } else {
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();

@@ -13,7 +13,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getApiUrl } from '../../config';
+import { getApiUrl, apiFetch } from '../../config';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -90,12 +90,12 @@ const StudentDashboard = () => {
 
   const fetchEnrolledCourses = async () => {
     try {
-      const res = await fetch(`${getApiUrl()}/api/student/courses`, {
+      const response = await apiFetch('/api/student/courses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: user.email })
       });
-      const data = await res.json();
+      const data = await response.json();
       if (data.ok) {
         setCourses(data.courses || []);
         return data.courses;
@@ -103,6 +103,26 @@ const StudentDashboard = () => {
     } catch (err) {
       console.error("Failed to fetch dashboard courses:", err);
     }
+  };
+
+  const getFullImageUrl = (imagePath) => {
+    if (!imagePath || imagePath === 'null' || imagePath === 'undefined') {
+      return "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400";
+    }
+    if (imagePath.startsWith('http')) return imagePath;
+
+    // Harmonize paths (replace backslashes from Windows servers)
+    const normalizedPath = imagePath.replace(/\\/g, '/');
+    const baseUrl = getApiUrl().replace(/\/$/, '');
+    
+    // Ensure the path has a leading slash for concatenation
+    const finalPath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+    return `${baseUrl}${finalPath}`;
+  };
+
+  const handleImageError = (e) => {
+    e.target.src = "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400";
+    e.target.onerror = null; // Prevent infinite loop
   };
 
   const stats = [
@@ -159,7 +179,12 @@ const StudentDashboard = () => {
               <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm group">
                 <div className="flex flex-col md:flex-row gap-8 items-center">
                   <div className="w-full md:w-48 h-32 bg-slate-100 rounded-2xl overflow-hidden shrink-0">
-                    <img src={activeCourse.image || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400"} alt="Course" className="w-full h-full object-cover grayscale-0 hover:scale-110 transition-transform duration-700" />
+                    <img 
+                      src={getFullImageUrl(activeCourse.image)} 
+                      alt="Course" 
+                      onError={handleImageError}
+                      className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" 
+                    />
                   </div>
                   
                   <div className="flex-1 w-full">

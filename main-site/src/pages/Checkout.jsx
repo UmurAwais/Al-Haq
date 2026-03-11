@@ -81,8 +81,11 @@ const Checkout = () => {
         // 2. Update Profile
         await updateProfile(fbUser, { displayName: authData.name });
 
-        // 3. Register in Backend
-        const regRes = await apiFetch('/api/users/register', {
+        // Inform UI that auth part is done so it can transition
+        setAuthProcessing(false);
+
+        // 3. Register in Backend & Mirror (Background)
+        apiFetch('/api/users/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -91,24 +94,25 @@ const Checkout = () => {
             displayName: authData.name,
             phone: authData.phone
           })
-        });
-        const regData = await regRes.json();
-
-        // 4. Mirror to Firestore
-        await setDoc(doc(db, "users", fbUser.uid), {
-          uid: fbUser.uid,
-          email: fbUser.email,
-          displayName: authData.name,
-          phone: authData.phone,
-          referenceNumber: regData.referenceNumber || 'PENDING',
-          status: 'active',
-          createdAt: serverTimestamp(),
-          lastSignIn: serverTimestamp()
-        });
+        }).then(async (regRes) => {
+          const regData = await regRes.json();
+          // Mirror to Firestore
+          await setDoc(doc(db, "users", fbUser.uid), {
+            uid: fbUser.uid,
+            email: fbUser.email,
+            displayName: authData.name,
+            phone: authData.phone,
+            referenceNumber: regData.referenceNumber || 'PENDING',
+            status: 'active',
+            createdAt: serverTimestamp(),
+            lastSignIn: serverTimestamp()
+          });
+        }).catch(err => console.warn('Background registration failed:', err));
 
       } else {
-        // Firebase Login
+        // Firebase Login - Faster execution
         await signInWithEmailAndPassword(auth, authData.email, authData.password);
+        setAuthProcessing(false);
       }
     } catch (err) {
       console.error(err);
@@ -133,8 +137,8 @@ const Checkout = () => {
     setApplying(true);
     setCouponError('');
     try {
-      const res = await fetch(`${getApiUrl()}/api/coupons/validate/${couponCode}?amount=${subtotal}`);
-      const data = await res.json();
+      const response = await apiFetch(`/api/coupons/validate/${couponCode}?amount=${subtotal}`);
+      const data = await response.json();
       if (data.ok) {
         setAppliedCoupon(data.coupon);
         setCouponCode('');
@@ -182,12 +186,12 @@ const Checkout = () => {
         fd.append('courseTitle', cartItems[0].title);
       }
 
-      const res = await fetch(`${getApiUrl()}/api/orders`, {
+      const response = await apiFetch('/api/orders', {
         method: 'POST',
         body: fd
       });
 
-      const data = await res.json();
+      const data = await response.json();
       if (data.ok || data.success) {
         setOrderSuccess(true);
         clearCart();
@@ -213,16 +217,13 @@ const Checkout = () => {
   const subtotal = cartItems.reduce((sum, item) => sum + parsePrice(item.price), 0);
   const tax = 0;
   
-  let discount = 0;
-  if (appliedCoupon) {
-    if (appliedCoupon.type === 'percent') {
-      discount = (subtotal * appliedCoupon.value) / 100;
-    } else {
-      discount = appliedCoupon.value;
-    }
-  }
+  const discount = appliedCoupon ? (
+    appliedCoupon.type === 'percent' 
+      ? (subtotal * appliedCoupon.value) / 100 
+      : Number(appliedCoupon.value)
+  ) : 0;
 
-  const total = subtotal + tax - discount;
+  const total = Math.max(0, subtotal + tax - discount);
 
   if (authLoading) {
     return (

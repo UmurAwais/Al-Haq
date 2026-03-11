@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { getApiUrl } from '../../config';
+import { getApiUrl, apiFetch } from '../../config';
 
 const StudentCourses = () => {
   const { user } = useAuth();
@@ -23,7 +23,7 @@ const StudentCourses = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user?.uid) {
+    if (user?.email) {
       fetchEnrolledCourses();
     }
   }, [user]);
@@ -31,16 +31,40 @@ const StudentCourses = () => {
   const fetchEnrolledCourses = async () => {
      try {
        setLoading(true);
-       const res = await fetch(`${getApiUrl()}/api/student/enrolled-courses/${user.uid}`);
-       const data = await res.json();
+       const response = await apiFetch('/api/student/courses', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ email: user.email })
+       });
+       const data = await response.json();
        if (data.ok) {
-         setCourses(data.courses);
+         setCourses(data.courses || []);
        }
      } catch (err) {
        console.error("Failed to fetch enrolled courses:", err);
      } finally {
        setLoading(false);
      }
+  };
+
+  const getFullImageUrl = (imagePath) => {
+    if (!imagePath || imagePath === 'null' || imagePath === 'undefined') {
+      return 'https://placehold.co/600x400/f1f5f9/64748b?text=No+Image';
+    }
+    if (imagePath.startsWith('http')) return imagePath;
+
+    // Harmonize paths (replace backslashes from Windows servers)
+    const normalizedPath = imagePath.replace(/\\/g, '/');
+    const baseUrl = getApiUrl().replace(/\/$/, '');
+    
+    // Ensure the path has a leading slash for concatenation
+    const finalPath = normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+    return `${baseUrl}${finalPath}`;
+  };
+
+  const handleImageError = (e) => {
+    e.target.src = "https://images.unsplash.com/photo-1544161515-4af6b1d462c2?auto=format&fit=crop&q=80&w=800";
+    e.target.onerror = null;
   };
 
   const filteredCourses = courses.filter(course => 
@@ -108,8 +132,9 @@ const StudentCourses = () => {
                 
                 <div className="aspect-video w-full bg-slate-100 relative overflow-hidden">
                   <img 
-                    src={course.image ? (course.image.startsWith('http') ? course.image : `${getApiUrl().replace(/\/$/, '')}${course.image.startsWith('/') ? '' : '/'}${course.image}`) : 'https://placehold.co/600x400/f1f5f9/64748b?text=No+Image'} 
+                    src={getFullImageUrl(course.image)} 
                     alt={course.title} 
+                    onError={handleImageError}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
                   />
                   <div className="absolute inset-0 bg-brand/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
