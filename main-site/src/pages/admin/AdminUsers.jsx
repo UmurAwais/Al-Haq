@@ -22,9 +22,14 @@ import {
   Lock,
   User,
   AlertCircle,
-  ShieldCheck
+  ShieldCheck,
+  Download,
+  FileJson,
+  FileSpreadsheet,
+  ChevronDown
 } from 'lucide-react';
 import { apiFetch } from '../../config';
+import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../../firebaseConfig';
 import { collection, onSnapshot, query, orderBy, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -48,6 +53,7 @@ const AdminUsers = () => {
   const [syncResult, setSyncResult] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null); // For delete modal
   const [activeMenu, setActiveMenu] = useState(null); // For actions dropdown
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   // Real-time listener from Firestore (if users are mirrored there)
   // Fallback to backend fetch if Firestore is empty or for initial load
@@ -279,6 +285,49 @@ const AdminUsers = () => {
     }
   };
 
+  const downloadCSV = () => {
+    if (filteredUsers.length === 0) return;
+    
+    const headers = ['UID', 'Name', 'Email', 'Reference Number', 'Status', 'Joined'];
+    const rows = filteredUsers.map(user => [
+      user.uid || user.id,
+      user.displayName || 'Unnamed',
+      user.email,
+      user.referenceNumber || 'N/A',
+      user.status || 'active',
+      formatDate(user.createdAt)
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `alhaq_users_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setShowExportMenu(false);
+  };
+
+  const downloadJSON = () => {
+    if (filteredUsers.length === 0) return;
+    
+    const blob = new Blob([JSON.stringify(filteredUsers, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `alhaq_users_${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setShowExportMenu(false);
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
     setError(null);
@@ -334,22 +383,64 @@ const AdminUsers = () => {
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">User Directory</h1>
             <p className="text-sm text-slate-500 font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
-                <Activity size={14} className="text-emerald-500" /> 
+                <Activity size={14} className="text-brand-accent" /> 
                 {users.length} Registered Members
             </p>
           </div>
         </div>
         
         <div className="flex items-center gap-3">
+            <div className="relative">
+              <button 
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand-accent/30 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 cursor-pointer"
+              >
+                <Download size={16} className="text-brand-accent" /> Export <ChevronDown size={14} className={`transition-transform duration-300 ${showExportMenu ? 'rotate-180' : ''}`} />
+              </button>
+              
+              <AnimatePresence>
+                {showExportMenu && (
+                  <>
+                    <div className="fixed inset-0 z-40 cursor-default" onClick={() => setShowExportMenu(false)}></div>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 origin-top-right overflow-hidden"
+                    >
+                      <button 
+                        onClick={downloadCSV}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black text-slate-600 hover:bg-slate-50 hover:text-brand-accent transition-all uppercase tracking-widest text-left group cursor-pointer"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center group-hover:bg-brand-accent group-hover:text-white transition-all">
+                          <FileSpreadsheet size={14} />
+                        </div>
+                        Download Sheet (.csv)
+                      </button>
+                      <button 
+                        onClick={downloadJSON}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black text-slate-600 hover:bg-slate-50 hover:text-brand-accent transition-all uppercase tracking-widest text-left group cursor-pointer"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-brand/5 text-brand flex items-center justify-center group-hover:bg-brand-accent group-hover:text-white transition-all">
+                          <FileJson size={14} />
+                        </div>
+                        Download JSON Data
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+
             <button 
               onClick={handleSyncFirebase}
               disabled={syncing}
-              className={`flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand/30 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 ${syncing && 'opacity-70 pointer-events-none'}`}
+              className={`flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand/30 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 cursor-pointer ${syncing && 'opacity-70 pointer-events-none'}`}
             >
-              {syncing ? <RefreshCw size={16} className="animate-spin" /> : <RefreshCw size={16} />} 
-              {syncing ? 'Syncing...' : 'Sync from Firebase'}
+              {syncing ? <RefreshCw size={16} className="animate-spin" /> : <RefreshCw size={16} className="text-brand" />} 
+              {syncing ? 'Syncing...' : 'Firebase Sync'}
             </button>
-            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand/20 hover:-translate-y-0.5 active:scale-95">
+            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-6 py-3 bg-brand-accent text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand-accent/20 hover:-translate-y-0.5 active:scale-95 cursor-pointer">
               <Plus size={16} strokeWidth={3} /> Add User
             </button>
         </div>
@@ -448,7 +539,7 @@ const AdminUsers = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                    {filteredUsers.map((user) => (
-                      <tr key={user.uid || user.id} className="group hover:bg-slate-50/50 transition-all">
+                      <tr key={user.uid || user.id} className="group hover:bg-slate-50/50 transition-all cursor-pointer">
                          <td className="px-8 py-6">
                             <div className="flex items-center gap-4">
                                <div className="w-12 h-12 rounded-2xl bg-slate-100 p-0.5 border border-slate-200 overflow-hidden shadow-sm shadow-slate-100 group-hover:border-brand/30 transition-all">
