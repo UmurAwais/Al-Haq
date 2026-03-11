@@ -36,12 +36,12 @@ const Header = ({ searchQuery, onSearchChange, onSearchSubmit }) => {
           </div>
 
           {/* Right Side - Search & Actions */}
-          <div className="flex items-center gap-6">
-            <div className="hidden md:block w-100">
+          <div className="flex items-center gap-2 md:gap-6">
+            <div className="hidden lg:block w-80">
               <SearchBar value={searchQuery} onChange={onSearchChange} onSubmit={onSearchSubmit} />
             </div>
             
-            <div className="flex items-center gap-4 border-l border-slate-100 pl-2">
+            <div className="flex items-center gap-2 md:gap-4 border-l border-slate-100 pl-2">
               {user ? (
                 <>
                   <Link to="/student/dashboard">

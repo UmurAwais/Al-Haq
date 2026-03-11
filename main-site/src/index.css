@@ -9,6 +9,12 @@
   --color-dashboard-warning: #f59e0b;
   --color-dashboard-danger: #ef4444;
   --font-sans: "Outfit", sans-serif;
+  
+  --spacing-375: 93.75rem; /* 1500px */
+  --spacing-112\.5: 28.125rem;
+  --spacing-137\.5: 34.375rem;
+  --spacing-21\.25: 5.3125rem;
+  --spacing-6\.75: 1.6875rem;
 }
 
 :root {

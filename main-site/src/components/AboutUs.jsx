@@ -57,13 +57,13 @@ const AboutUs = () => {
                 />
               </div>
               {/* Minimal Achievement Badge */}
-              <div className="absolute -bottom-8 -left-8 bg-white p-6 rounded-xl shadow-xl border border-slate-50 flex items-center gap-4 max-w-xs">
-                <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 shrink-0">
-                  <Trophy className="w-6 h-6" />
+              <div className="absolute -bottom-4 md:-bottom-8 -left-4 md:-left-8 bg-white p-3 md:p-6 rounded-xl shadow-xl border border-slate-50 flex items-center gap-2 md:gap-4 max-w-[200px] md:max-w-xs transition-all">
+                <div className="w-8 h-8 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 shrink-0">
+                  <Trophy className="w-4 h-4 md:w-6 md:h-6" />
                 </div>
                 <div>
-                  <div className="text-2xl font-black text-slate-900 leading-none">#1</div>
-                  <div className="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">LMS Platform in the Region</div>
+                  <div className="text-xl md:text-2xl font-black text-slate-900 leading-none">#1</div>
+                  <div className="text-[8px] md:text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">LMS Platform in Pakistan</div>
                 </div>
               </div>
             </div>

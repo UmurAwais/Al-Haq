@@ -89,7 +89,7 @@ const FeaturedCourses = ({ searchQuery = '', onClearSearch }) => {
           </div>
           
           {/* Right Cards Grid */}
-          <div className="w-full lg:w-5xl grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 relative z-10">
+          <div className="w-full lg:flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 relative z-10">
             {filteredCourses.length > 0 ? (
               filteredCourses.map((course, i) => (
                 <CourseCard key={i} course={course} />
