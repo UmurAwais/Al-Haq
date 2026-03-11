@@ -48,20 +48,26 @@ const AdminActivityLog = () => {
 
   const filteredLogs = logs.filter(log => {
     const matchesSearch = 
-      log.adminEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.action?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.details?.toLowerCase().includes(searchTerm.toLowerCase());
+      log.user?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.message?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.type?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesFilter = typeFilter === 'all' || log.action?.split(' ')[0].toLowerCase() === typeFilter.toLowerCase();
+    const matchesFilter = typeFilter === 'all' || 
+      log.type?.toLowerCase() === typeFilter.toLowerCase() || 
+      log.title?.toLowerCase().includes(typeFilter.toLowerCase());
     
     return matchesSearch && matchesFilter;
   });
 
-  const getActionStyles = (action) => {
-    const act = action?.toLowerCase() || '';
-    if (act.includes('delete')) return { bg: 'bg-red-50 text-red-600 border-red-100', icon: <XCircle size={14} /> };
-    if (act.includes('create') || act.includes('upload')) return { bg: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: <CheckCircle2 size={14} /> };
-    if (act.includes('update')) return { bg: 'bg-blue-50 text-blue-600 border-blue-100', icon: <Info size={14} /> };
+  const getLogStyles = (log) => {
+    const type = log.type?.toLowerCase() || '';
+    const title = log.title?.toLowerCase() || '';
+    
+    if (type.includes('delete') || title.includes('delete')) return { bg: 'bg-red-50 text-red-600 border-red-100', icon: <XCircle size={14} /> };
+    if (type.includes('signup') || type.includes('create') || title.includes('create') || title.includes('registered')) return { bg: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: <CheckCircle2 size={14} /> };
+    if (type.includes('update') || type.includes('edit')) return { bg: 'bg-blue-50 text-blue-600 border-blue-100', icon: <Info size={14} /> };
+    if (type.includes('login')) return { bg: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: <Zap size={14} /> };
     return { bg: 'bg-slate-100 text-slate-500 border-slate-200', icon: <Activity size={14} /> };
   };
 
@@ -105,9 +111,10 @@ const AdminActivityLog = () => {
 
           <div className="flex items-center px-6 mt-4 gap-8 overflow-x-auto scrollbar-hide">
             {[
-              { label: 'All Actions', value: 'all' },
-              { label: 'Creation', value: 'create' },
+              { label: 'All Events', value: 'all' },
+              { label: 'Signups', value: 'signup' },
               { label: 'Updates', value: 'update' },
+              { label: 'Logins', value: 'login' },
               { label: 'Deletions', value: 'delete' }
             ].map(tab => (
               <button 
@@ -140,49 +147,53 @@ const AdminActivityLog = () => {
           ) : (
              <table className="w-full border-collapse">
                 <thead>
-                   <tr className="bg-slate-50/50 border-b border-slate-100">
-                      <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Administrator</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Action Type</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Detailed Trace</th>
-                      <th className="px-8 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Timestamp</th>
+                    <tr className="bg-slate-50/50 border-b border-slate-100">
+                      <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">User / Admin</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Event Type</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Activity Message</th>
+                      <th className="px-8 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Time</th>
                    </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                   {filteredLogs.map((log) => {
-                      const styles = getActionStyles(log.action);
+                    {filteredLogs.map((log) => {
+                      const styles = getLogStyles(log);
+                      const logTime = log.time || log.createdAt;
                       return (
-                        <tr key={log._id} className="group hover:bg-slate-50/50 transition-all">
+                        <tr key={log._id || log.id} className="group hover:bg-slate-50/50 transition-all">
                            <td className="px-8 py-5">
                               <div className="flex items-center gap-4">
                                  <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-brand group-hover:text-white transition-all shadow-sm">
                                     <User size={16} />
                                  </div>
-                                 <div>
-                                    <p className="text-sm font-bold text-slate-800 tracking-tight leading-tight group-hover:text-brand transition-colors truncate max-w-37.5 lowercase">{log.adminEmail}</p>
-                                    <p className="text-[10px] font-medium text-slate-400 tracking-tight mt-0.5">Management Seat</p>
+                                 <div className="min-w-0">
+                                    <p className="text-sm font-bold text-slate-800 tracking-tight leading-tight group-hover:text-brand transition-colors truncate max-w-37.5">{log.user || 'System'}</p>
+                                    <p className="text-[10px] font-medium text-slate-400 tracking-tight mt-0.5 uppercase">Origin Identity</p>
                                  </div>
                               </div>
                            </td>
                            <td className="px-6 py-5">
                               <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[9px] font-bold uppercase tracking-widest ${styles.bg}`}>
                                  {styles.icon}
-                                 {log.action}
+                                 {log.type || log.title}
                               </span>
                            </td>
                            <td className="px-6 py-5">
-                              <div className="flex items-center gap-3">
-                                 <ArrowRight size={12} className="text-slate-300" />
-                                 <p className="text-xs font-medium text-slate-500 line-clamp-1 max-w-75 italic">
-                                    {log.details || 'UNSPECIFIED EVENT DATA'}
-                                 </p>
+                              <div className="flex flex-col gap-0.5">
+                                 <p className="text-[11px] font-bold text-slate-700 leading-tight">{log.title}</p>
+                                 <div className="flex items-center gap-2">
+                                     <ArrowRight size={10} className="text-slate-300" />
+                                     <p className="text-[10px] font-medium text-slate-400 line-clamp-1 italic">
+                                        {log.message || 'No detailed data recorded'}
+                                     </p>
+                                 </div>
                               </div>
                            </td>
-                           <td className="px-8 py-5 text-right">
+                           <td className="px-8 py-5 text-right whitespace-nowrap">
                               <div className="flex items-center justify-end gap-2 text-slate-600 font-bold tracking-tight text-xs">
                                  <Clock size={12} className="text-slate-400" />
-                                 <span>{new Date(log.createdAt).toLocaleDateString()}</span>
+                                 <span>{logTime ? new Date(logTime).toLocaleDateString() : 'N/A'}</span>
                                  <span className="opacity-20 mx-1">|</span>
-                                 <span className="text-slate-400">{new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                 <span className="text-slate-400">{logTime ? new Date(logTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</span>
                               </div>
                            </td>
                         </tr>

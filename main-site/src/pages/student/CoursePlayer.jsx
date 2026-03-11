@@ -362,7 +362,7 @@ const CoursePlayer = () => {
                                   </p>
                                   <div className="flex items-center gap-3 mt-2">
                                     <span className="flex items-center gap-1 text-[9px] font-black text-slate-400 uppercase tracking-tighter">
-                                      <Play size={10} /> 12:45
+                                      <Play size={10} /> {lecture.duration || 'Session'}
                                     </span>
                                   </div>
                                 </div>

@@ -57,15 +57,17 @@ const AdminDashboard = () => {
       const headers = { 'x-admin-token': token };
 
       // Fetch all data in parallel
-      const [ordersRes, usersRes, onsiteRes, onlineRes] = await Promise.all([
+      const [ordersRes, usersRes, onsiteRes, onlineRes, logsRes] = await Promise.all([
         apiFetch('/api/orders', { headers }).then(r => r.json()).catch(() => ({ orders: [] })),
         apiFetch('/api/admin/users', { headers }).then(r => r.json()).catch(() => ({ users: [] })),
         apiFetch('/api/courses/onsite', { headers }).then(r => r.json()).catch(() => ({ ok: false, courses: [] })),
         apiFetch('/api/courses/online', { headers }).then(r => r.json()).catch(() => ({ ok: false, courses: [] })),
+        apiFetch('/api/admin/activity-logs', { headers }).then(r => r.json()).catch(() => ({ logs: [] })),
       ]);
 
       // Calculate stats
       const orders = ordersRes.orders || ordersRes || [];
+      const logs = (logsRes.logs || []).slice(0, 10); // Latest 10 logs
       const users = usersRes.users || [];
       const onsiteCourses = onsiteRes.courses || [];
       const onlineCourses = onlineRes.courses || [];
@@ -120,6 +122,25 @@ const AdminDashboard = () => {
       }
       setChartData(last7Days);
 
+      // Combine and sort recent activity for the Intelligence Feed
+      const activityFeed = [
+        ...(Array.isArray(orders) ? orders.map(o => ({
+          id: o._id,
+          type: 'order',
+          title: 'Enrollment Received',
+          message: `${o.firstName} ${o.lastName} joined ${o.courseTitle || 'items'}`,
+          user: o.email,
+          time: o.createdAt || o.date
+        })) : []),
+        ...logs.map(l => ({
+          ...l,
+          id: l._id || l.id,
+          time: l.time || l.createdAt
+        }))
+      ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 8);
+
+      setRecentOrders(activityFeed);
+
       setStats({
         revenue: totalRevenue,
         students: users.length,
@@ -127,8 +148,6 @@ const AdminDashboard = () => {
         ordersThisMonth,
         ordersGrowth: parseFloat(growth),
       });
-
-      setRecentOrders(sorted);
 
       // Persist to cache
       localStorage.setItem('admin_stats', JSON.stringify({
@@ -139,7 +158,7 @@ const AdminDashboard = () => {
           ordersThisMonth,
           ordersGrowth: parseFloat(growth),
         },
-        recentOrders: sorted,
+        recentOrders: activityFeed,
         lastUpdated: Date.now()
       }));
     } catch (err) {
@@ -382,16 +401,16 @@ const AdminDashboard = () => {
         <div className="xl:col-span-2 bg-white border border-slate-200 rounded-2xl p-8 shadow-sm overflow-hidden">
           <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-50">
             <div className="flex items-center gap-3">
-               <div className="w-10 h-10 rounded-xl bg-brand/5 flex items-center justify-center border border-brand/10">
-                  <ShoppingCart size={18} className="text-brand" />
+               <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center border border-brand/20 shadow-sm animate-pulse">
+                  <TrendingUp size={18} className="text-brand" />
                </div>
                <div>
-                  <h2 className="text-lg font-bold text-slate-900 tracking-tight leading-tight">Recent Activity</h2>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Latest Student Enrollments</p>
+                  <h2 className="text-lg font-bold text-slate-900 tracking-tight leading-tight">System Identity Feed</h2>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Real-time Platform Intelligence</p>
                </div>
             </div>
-            <Link to="/admin/orders" className="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-xl text-[10px] font-bold text-brand uppercase tracking-widest transition-all border border-slate-100">
-              View Audit Log
+            <Link to="/admin/activity" className="px-4 py-2 bg-brand/5 hover:bg-brand/10 rounded-xl text-[10px] font-bold text-brand uppercase tracking-widest transition-all border border-brand/10 shadow-sm">
+              Live Ledger
             </Link>
           </div>
  
@@ -405,56 +424,48 @@ const AdminDashboard = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/50">
-                    <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enrollment Details</th>
-                    <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Price Point</th>
-                    <th className="px-2 py-4 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Proof</th>
-                    <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Timestamp</th>
-                    <th className="px-4 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Audit</th>
+                  <tr className="border-b border-slate-50">
+                    <th className="px-4 pb-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Network Node</th>
+                    <th className="px-4 pb-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Spectral Shift</th>
+                    <th className="px-4 pb-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Time</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {recentOrders.map((order, i) => (
-                    <tr key={order._id || i} className="group hover:bg-slate-50/50 transition-all duration-300">
-                      <td className="px-4 py-5">
-                        <div className="flex items-center gap-3">
-                           <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-[11px] font-bold text-slate-600 border border-slate-200">
-                              {(order.name || 'U').charAt(0).toUpperCase()}
+                  {recentOrders.map((activity, i) => (
+                    <tr key={activity.id || i} className="group hover:bg-slate-50/30 transition-all cursor-default">
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-4">
+                           <div className={`w-9 h-9 rounded-xl flex items-center justify-center border shadow-sm group-hover:scale-110 group-hover:rotate-6 transition-all ${
+                             activity.type === 'order' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                             activity.type === 'signup' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                             activity.type === 'admin' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' :
+                             'bg-slate-50 text-slate-500 border-slate-200'
+                           }`}>
+                             {activity.type === 'order' ? <ShoppingCart size={16} /> : <Users size={16} />}
                            </div>
                            <div>
-                             <p className="text-sm font-bold text-slate-800 leading-tight group-hover:text-brand transition-colors">{order.name || 'Unknown User'}</p>
-                             <p className="text-[11px] text-slate-500 font-medium leading-tight mt-0.5 line-clamp-1 max-w-35">{order.courseName || order.courseId || '-'}</p>
+                              <p className="text-[11px] font-bold text-slate-900 line-clamp-1">{activity.user || 'Unknown Node'}</p>
+                              <p className="text-[9px] font-medium text-slate-400 uppercase tracking-tight">Identity verified</p>
                            </div>
                         </div>
                       </td>
-                      <td className="px-4 py-5">
-                        <span className="text-sm font-bold text-slate-900 tracking-tight">
-                          Rs. {parseFloat(String(order.price || order.amount || 0).replace(/[^0-9.]/g, '')).toLocaleString('en-PK')}
-                        </span>
+                      <td className="px-4 py-4">
+                         <div>
+                            <p className="text-[11px] font-bold text-slate-700 leading-tight">{activity.title}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1 italic">{activity.message}</p>
+                         </div>
                       </td>
-                      <td className="px-2 py-5 text-center">
-                        {order.screenshotUrl || order.screenshot ? (
-                          <a
-                            href={order.screenshotUrl || order.screenshot}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-emerald-100 transition-all border border-emerald-100/50"
-                          >
-                            <Eye size={12} strokeWidth={2.5} /> View
-                          </a>
-                        ) : (
-                          <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">No File</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-5">
-                        <span className="text-xs text-slate-500 font-medium">{formatDate(order.createdAt || order.date)}</span>
-                      </td>
-                      <td className="px-4 py-5 text-right">
-                        <button className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100 border border-transparent hover:border-red-100">
-                          <Trash2 size={16} />
-                        </button>
+                      <td className="px-4 py-4 text-right">
+                        <div className="flex flex-col items-end">
+                           <span className="text-[10px] font-bold text-slate-600 tabular-nums">
+                              {new Date(activity.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                           </span>
+                           <span className="text-[9px] font-medium text-slate-300">
+                              {new Date(activity.time).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                           </span>
+                        </div>
                       </td>
                     </tr>
                   ))}

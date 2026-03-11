@@ -16,41 +16,7 @@ import Footer from '../components/Footer';
 import Button from '../components/Button';
 import { useCart } from '../contexts/CartContext';
 
-// Mock course curriculum
-const MOCK_CURRICULUM = [
-  {
-    title: "Introduction",
-    lecturesCount: "1 lectures",
-    lectures: [
-      { title: "Introduction To The Course", duration: "2:00", active: true }
-    ],
-    isOpen: true
-  },
-  {
-    title: "English",
-    lecturesCount: "13 lectures",
-    lectures: [],
-    isOpen: false
-  },
-  {
-    title: "Pakistan Studies / Pakistan Affairs",
-    lecturesCount: "12 lectures",
-    lectures: [],
-    isOpen: false
-  },
-  {
-    title: "Islamic Studies",
-    lecturesCount: "7 lectures",
-    lectures: [],
-    isOpen: false
-  },
-  {
-    title: "Geography & General Knowledge",
-    lecturesCount: "10 lectures",
-    lectures: [],
-    isOpen: false
-  }
-];
+
 
 const CourseDetail = () => {
   const { id } = useParams();
@@ -170,9 +136,9 @@ const CourseDetail = () => {
                        <div className="w-1.5 h-5 bg-brand rounded-full"></div>
                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Course Preview</h2>
                     </div>
-                    <div className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold cursor-pointer hover:bg-slate-200 transition-colors">
+                    <div className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold cursor-default hover:bg-slate-200 transition-colors">
                        <PlayCircle size={12} className="inline mr-1 -mt-0.5" />
-                       117 lectures
+                       {(course.lectures || []).reduce((acc, s) => acc + (s.lectures?.length || 0), 0)} lectures
                     </div>
                  </div>
                  <div className="p-6 bg-slate-50/50">
@@ -193,33 +159,42 @@ const CourseDetail = () => {
                     <h2 className="text-lg font-bold text-slate-900 tracking-tight">Course Curriculum</h2>
                  </div>
                  <div className="p-0">
-                    {MOCK_CURRICULUM.map((section, idx) => (
-                       <div key={idx} className="border-b border-slate-100 last:border-0">
-                          <div className="w-full px-6 py-4 flex items-center justify-between bg-slate-50/50 hover:bg-slate-100 cursor-pointer transition-colors">
-                             <div className="flex items-center gap-3">
-                                <ChevronDown size={16} className="text-slate-500" />
-                                <span className="text-[15px] font-bold text-slate-900">{section.title}</span>
-                             </div>
-                             <span className="text-xs text-slate-500 font-medium">{section.lecturesCount}</span>
-                          </div>
-                          {section.isOpen && section.lectures && section.lectures.length > 0 && (
-                             <div className="bg-brand/5 border-l-2 border-brand mx-0 py-3 px-6">
-                                {section.lectures.map((lecture, lIdx) => (
-                                   <div key={lIdx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                      <div className="flex items-start gap-3">
-                                         <PlayCircle size={16} className="text-brand shrink-0 mt-0.5" />
-                                         <div>
-                                            <p className="text-[14px] font-bold text-brand leading-tight">{lecture.title}</p>
-                                            {lecture.active && <p className="text-[10px] uppercase font-bold text-brand/70 tracking-widest mt-1">Currently Watching</p>}
-                                         </div>
-                                      </div>
-                                      <span className="text-xs text-brand font-medium sm:ml-auto">{lecture.duration}</span>
-                                   </div>
-                                ))}
-                             </div>
-                          )}
-                       </div>
-                    ))}
+                    {(course.lectures || []).length > 0 ? (
+                      (course.lectures || []).map((section, idx) => (
+                        <div key={idx} className="border-b border-slate-100 last:border-0">
+                           <div className="w-full px-6 py-4 flex items-center justify-between bg-slate-50/50 hover:bg-slate-100 cursor-default transition-colors">
+                              <div className="flex items-center gap-3">
+                                 <ChevronDown size={16} className={`text-slate-500 transition-transform ${idx === 0 ? 'rotate-0' : 'rotate-180'}`} />
+                                 <span className="text-[15px] font-bold text-slate-900">{section.sectionTitle || section.title}</span>
+                              </div>
+                              <span className="text-xs text-slate-500 font-medium">{section.lectures?.length || 0} lectures</span>
+                           </div>
+                           {(idx === 0 || section.isOpen) && section.lectures && section.lectures.length > 0 && (
+                              <div className="bg-brand/5 border-l-2 border-brand mx-0 py-3 px-6">
+                                 {section.lectures.map((lecture, lIdx) => (
+                                    <div key={lIdx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-2">
+                                       <div className="flex items-start gap-3">
+                                          <PlayCircle size={16} className="text-brand shrink-0 mt-0.5" />
+                                          <div>
+                                             <p className="text-[14px] font-bold text-brand leading-tight">{lecture.title}</p>
+                                             {idx === 0 && lIdx === 0 && (
+                                               <p className="text-[10px] uppercase font-bold text-brand/70 tracking-widest mt-1">Available Preview</p>
+                                             )}
+                                          </div>
+                                       </div>
+                                       <span className="text-xs text-brand font-medium sm:ml-auto">{lecture.duration || 'Session'}</span>
+                                    </div>
+                                 ))}
+                              </div>
+                           )}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-10 text-center">
+                        <PlayCircle size={40} className="text-slate-200 mx-auto mb-3" />
+                        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Curriculum under synchronization</p>
+                      </div>
+                    )}
                     
                     <div className="p-6 bg-slate-50/80">
                        <div className="bg-brand/5 border border-brand/20 rounded-lg p-4 flex items-start gap-3">

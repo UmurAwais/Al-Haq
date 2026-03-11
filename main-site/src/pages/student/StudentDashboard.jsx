@@ -269,7 +269,7 @@ const StudentDashboard = () => {
 
         {/* Right Info */}
         <div className="lg:col-span-4 space-y-8">
-           <section className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm min-h-[400px] flex flex-col">
+           <section className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm min-h-100 flex flex-col">
               <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-8">Performance Feed</h2>
               <div className="space-y-6 flex-1">
                 {activities.length > 0 ? (
