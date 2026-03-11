@@ -15,10 +15,10 @@ const Footer = () => {
     {
       title: "Learning",
       links: [
-        { name: "PPSC General Ability", href: "#featured-courses" },
-        { name: "CSS Prep", href: "#featured-courses" },
-        { name: "Islamic Finance", href: "#featured-courses" },
-        { name: "All Courses", href: "#featured-courses" }
+        { name: "PPSC One-Paper MCQs", href: "#courses" },
+        { name: "FPSC General Ability", href: "#courses" },
+        { name: "CSS Special Prep", href: "#courses" },
+        { name: "GK & Pakistan Affairs", href: "#courses" }
       ]
     },
     {

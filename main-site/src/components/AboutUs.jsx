@@ -14,19 +14,19 @@ const AboutUs = () => {
             </div>
 
             <h2 className="text-4xl md:text-6xl font-black text-slate-900 mb-8 leading-[1.05] tracking-tight">
-              Start Your <span className='text-brand-accent'>PPSC</span> Course Today
+              Unlock Your <span className='text-brand-accent'>Potential</span> in Competitive Exams
             </h2>
             
             <p className="text-slate-600 text-lg md:text-xl leading-relaxed mb-12 max-w-2xl">
-              Al-Haq Learning Hub partners with top instructors and institutions to bring flexible, affordable, job-relevant online learning to individuals and organizations worldwide.
+              Al-Haq Learning Hub is Pakistan\'s premier digital portal for PPSC, FPSC, and CSS preparation. We simplify complex MCQs and provide the strategy needed to crack competitive exams in your first attempt.
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 mb-14">
               {[
-                'World-class content from experts',
-                'Earn certificates and degrees',
-                'Flexible scheduling that fits',
-                'Affordable paths to advancement'
+                'Expert-curated One-Paper MCQs',
+                'PPSC & FPSC Exam Strategies',
+                'Daily Mock Tests for Practice',
+                'Comprehensive GK & Pak Affairs'
               ].map((item) => (
                 <div key={item} className="flex items-center gap-3 text-slate-700 font-semibold text-base">
                   <div className="w-5 h-5 rounded-full bg-brand/10 text-brand flex items-center justify-center shrink-0">

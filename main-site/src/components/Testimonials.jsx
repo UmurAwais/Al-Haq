@@ -5,24 +5,24 @@ const Testimonials = () => {
   const testimonials = [
     {
       name: "Ali Hamza",
-      role: "PPSC Candidate",
-      text: "Al-Haq Learning Hub is the only platform that provides such deep insights into the PPSC General Ability syllabus. The expert-led videos are a game-changer for anyone serious about their career.",
+      role: "PPSC Aspirant",
+      text: "The best place for PPSC General Ability. The MCQ patterns and daily mock tests helped me understand exactly how the examiner thinks. I passed my screening test comfortably!",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
       rating: 5
     },
     {
-      name: "Sarah Ahmed",
-      role: "Cyber Security Analyst",
-      text: "Coming from a non-tech background, I was worried about the complexity. But the way Al-Haq simplifies technical concepts is amazing. I'm now working as an entry-level analyst!",
+      name: "Sana Malik",
+      role: "FPSC Candidate",
+      text: "I was struggling with Pakistan Affairs and Current Affairs, but Al-Haq's simplified notes and video lectures made everything so clear. The focus on one-paper MCQs is unmatched.",
       image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200",
       rating: 5
     },
     {
-      name: "Omar Farooq",
-      role: "Masters Student",
-      text: "The Islamic Finance course offered here is unparalleled. It covers the modern financial landscape while staying true to our principles. Highly recommended for every university student.",
+      name: "Usman Ghani",
+      role: "Govt Job Applicant",
+      text: "Joining the Al-Haq Hub was the best decision for my prep. Their test-taking strategies for PPSC are a goldmine. Highly recommend it to anyone aiming for a 16th or 17th scale job.",
       image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
-      rating: 4
+      rating: 5
     }
   ]
 
@@ -44,7 +44,7 @@ const Testimonials = () => {
             Loved by <span className="text-brand">Thousands</span> of Learners
           </h2>
           <p className="text-slate-500 text-lg max-w-2xl mx-auto">
-            Discover how Al-Haq Hub has helped students across Pakistan and beyond achieve their professional and academic goals.
+            See how Al-Haq Hub is helping students across Pakistan crack PPSC and FPSC exams to secure their dream government jobs.
           </p>
         </div>
 

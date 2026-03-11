@@ -4,18 +4,18 @@ import { Globe2, ShieldCheck, Trophy } from 'lucide-react'
 const CourseFeatures = () => {
   const pillars = [
     {
-      title: "Learn anything",
-      desc: "Explore any interest or trending topic, take prerequisites, and advance your skills.",
+      title: "One-Paper Mastery",
+      desc: "Master PPSC, FPSC, and NTS patterns with focused test series and expert techniques.",
       icon: Globe2
     },
     {
-      title: "Save money",
-      desc: "Spend less on your learning if you plan to take multiple courses this year.",
+      title: "Affordable Access",
+      desc: "Premium quality preparation material at a fraction of academy prices.",
       icon: ShieldCheck
     },
     {
-      title: "Flexible learning",
-      desc: "Learn at your own pace, move between courses, or switch to a different program.",
+      title: "Self-Paced Learning",
+      desc: "Access video lectures and mock tests 24/7. Study when you want, where you want.",
       icon: Trophy
     }
   ]

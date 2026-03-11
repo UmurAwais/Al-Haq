@@ -8,21 +8,24 @@ const Hero = () => {
   const slides = [
     {
       image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=2000',
-      title: 'Learn without <span class="text-transparent bg-clip-text bg-linear-to-r from-white to-brand-accent italic">Limits</span>',
-      description: 'Start, switch, or advance your career with world-class learning. Master in-demand skills and earn recognized credentials from industry leaders.',
-      tag: 'World-Class Learning'
+      title: 'Crack <span class="text-transparent bg-clip-text bg-linear-to-r from-white to-brand-accent italic">One-Paper</span> MCQs',
+      title_raw: 'Crack One-Paper MCQs',
+      description: 'Master PPSC, FPSC, and NTS exams with Pakistan\'s most focused MCQs preparation platform. Join Al-Haq to unlock verified study material and expert techniques.',
+      tag: 'Pakistan Exam Prep #1'
     },
     {
       image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=2000',
-      title: 'Learn from the <span class="text-transparent bg-clip-text bg-linear-to-r from-white to-brand-accent italic">Experts</span>',
-      description: 'Join a global community of 50,000+ professionals. Get 1-on-1 mentorship from specialists shaping the future of tech and business.',
-      tag: 'Expert-Led Faculty'
+      title: 'Elite <span class="text-transparent bg-clip-text bg-linear-to-r from-white to-brand-accent italic">PPSC & FPSC</span> Coaching',
+      title_raw: 'Elite PPSC & FPSC Coaching',
+      description: 'Learn exactly what examiners look for. From General Knowledge to Pakistan Affairs, get the edge you need to secure your government job.',
+      tag: 'Verified Success Rate'
     },
     {
       image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=2000',
-      title: 'Build Your <span class="text-transparent bg-clip-text bg-linear-to-r from-white to-brand-accent italic">Future</span> Now',
-      description: 'Get hands-on experience with project-based learning. Develop the job-ready skills you need to stand out in today\'s competitive market.',
-      tag: 'Professional Success'
+      title: 'Your <span class="text-transparent bg-clip-text bg-linear-to-r from-white to-brand-accent italic">Govt Job</span> Starts Here',
+      title_raw: 'Your Govt Job Starts Here',
+      description: 'Get access to 10,000+ top-tier MCQs, mock tests, and video lectures designed specifically for the Pakistani testing landscape.',
+      tag: 'Job-Ready Preparation'
     }
   ]
 

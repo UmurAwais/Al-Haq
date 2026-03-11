@@ -4,21 +4,21 @@ import { Award, Briefcase, GraduationCap } from 'lucide-react'
 const FeatureCards = () => {
   const cards = [
     {
-      title: 'Launch a new career',
+      title: 'PPSC Specialist Prep',
       icon: Award,
       color: 'bg-brand text-white',
       iconColor: 'text-white',
       shapeBg: 'bg-white/10'
     },
     {
-      title: 'Try Al-Haq for Business',
+      title: 'Crack One-Paper MCQs',
       icon: Briefcase,
       color: 'bg-brand-accent text-white',
       iconColor: 'text-white',
       shapeBg: 'bg-white/10'
     },
     {
-      title: 'Earn a degree',
+      title: 'FPSC & NTS Modules',
       icon: GraduationCap,
       color: 'bg-slate-800 text-white',
       iconColor: 'text-white',

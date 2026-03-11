@@ -9,10 +9,10 @@ const CTA = () => {
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-24">
           <div className="flex-1 text-center lg:text-left">
             <h2 className="text-3xl md:text-5xl font-black text-white mb-6 leading-tight tracking-tight">
-              Take the next step toward your <span className="text-brand-accent">personal</span> and professional goals with Al-Haq.
+              Secure Your <span className="text-brand-accent">Government Job</span> with Al-Haq's Strategic MCQs Training.
             </h2>
             <p className="text-white/80 text-lg md:text-xl font-medium max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              Join now to receive personalized recommendations from the Al-Haq Learning Hub expert team.
+              Don't just study hard, study smart. Join our hub to get the exact MCQs patterns and notes you need for PPSC, FPSC, and NTS success.
             </p>
           </div>
           
