@@ -123,7 +123,7 @@ const AdminLayout = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            <NotificationDropdown />
+            <NotificationDropdown isAdmin={true} />
             <div className="h-8 w-px bg-slate-200"></div>
             <div className="flex items-center gap-4 pl-2">
               <div className="text-right hidden sm:block">

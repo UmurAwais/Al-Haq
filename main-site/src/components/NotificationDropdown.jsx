@@ -1,64 +1,49 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, CheckCircle2, Clock, MessageSquare, AlertCircle, X, ExternalLink, Trash2 } from 'lucide-react';
+import { Bell, CheckCircle2, Clock, MessageSquare, AlertCircle, Trash2, ExternalLink, Loader2, User, Activity, RefreshCw } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { getApiUrl } from '../config';
 
-const NotificationDropdown = () => {
+const NotificationDropdown = ({ isAdmin = false }) => {
+    const { user } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(false);
     const dropdownRef = useRef(null);
 
-    // Initial dummy data for first-time use
-    const initialData = [
-        {
-            id: 1,
-            title: "New Course Launched",
-            description: "Advanced Tajweed Mastery is now available for enrollment.",
-            time: "2h ago",
-            type: "success",
-            icon: 'CheckCircle2',
-            read: false,
-        },
-        {
-            id: 2,
-            title: "Live Session Reminder",
-            description: "Weekly Halqa starts in 30 minutes. Don't forget to join!",
-            time: "30m ago",
-            type: "info",
-            icon: 'Clock',
-            read: false,
-        },
-        {
-            id: 3,
-            title: "Assignment Feedback",
-            description: "Your Arabic Grammar Level 1 submission has been reviewed.",
-            time: "1d ago",
-            type: "message",
-            icon: 'MessageSquare',
-            read: true,
-        }
-    ];
-
-    // Load from local storage or set initial data
     useEffect(() => {
-        const saved = localStorage.getItem('alhaq_notifications');
-        if (saved) {
-            try {
-                setNotifications(JSON.parse(saved));
-            } catch (e) {
-                setNotifications(initialData);
+        if (user?.email || isAdmin) {
+            fetchNotifications();
+            // Polling for new notifications every 30 seconds
+            const interval = setInterval(fetchNotifications, 30000);
+            return () => clearInterval(interval);
+        }
+    }, [user, isAdmin]);
+
+    const fetchNotifications = async () => {
+        try {
+            const url = isAdmin 
+                ? `${getApiUrl()}/api/admin/notifications`
+                : `${getApiUrl()}/api/notifications/${user?.email}`;
+            
+            const headers = {};
+            if (isAdmin) {
+                headers['x-admin-token'] = localStorage.getItem('adminToken');
             }
-        } else {
-            setNotifications(initialData);
-        }
-    }, []);
 
-    // Save to local storage whenever notifications change
-    useEffect(() => {
-        if (notifications.length > 0) {
-            localStorage.setItem('alhaq_notifications', JSON.stringify(notifications));
+            const res = await fetch(url, { headers });
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                return; // Silently fail for polling or log it
+            }
+            const data = await res.json();
+            if (data.ok) {
+                setNotifications(data.notifications);
+            }
+        } catch (err) {
+            console.error("Failed to fetch notifications:", err);
         }
-    }, [notifications]);
+    };
 
-    // Close when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -69,35 +54,65 @@ const NotificationDropdown = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const markAllRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    const markAllRead = async () => {
+        try {
+            await fetch(`${getApiUrl()}/api/notifications/read`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ all: true, email: isAdmin ? 'admin' : user?.email })
+            });
+            setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+        } catch (err) {
+            console.error(err);
+        }
     };
 
-    const markAsRead = (id) => {
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    const markAsRead = async (id) => {
+        try {
+            await fetch(`${getApiUrl()}/api/notifications/read`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+        } catch (err) {
+            console.error(err);
+        }
     };
 
-    const deleteNotification = (e, id) => {
-        e.stopPropagation();
-        setNotifications(prev => prev.filter(n => n.id !== id));
-    };
-
-    const clearAll = () => {
-        setNotifications([]);
-        localStorage.removeItem('alhaq_notifications');
+    const clearAll = async () => {
+        try {
+            await fetch(`${getApiUrl()}/api/notifications/clear`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: isAdmin ? 'admin' : user?.email })
+            });
+            setNotifications([]);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
     const getIcon = (iconName) => {
-        const icons = { CheckCircle2, Clock, MessageSquare, AlertCircle };
+        const icons = { CheckCircle2, Clock, MessageSquare, AlertCircle, Trash2, Bell, User, Activity, RefreshCw };
         const IconComp = icons[iconName] || Bell;
         return <IconComp size={18} />;
     };
 
+    const getTimeAgo = (date) => {
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        if (seconds < 60) return 'Just now';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        return new Date(date).toLocaleDateString();
+    };
+
     return (
         <div className="relative" ref={dropdownRef}>
-            {/* Toggle Button */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
                 className={`relative p-2.5 rounded-2xl transition-all group border ${isOpen ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20' : 'bg-slate-50 hover:bg-slate-100 text-slate-400 border-slate-100'}`}
@@ -108,18 +123,16 @@ const NotificationDropdown = () => {
                 )}
             </button>
 
-            {/* Dropdown Menu */}
             {isOpen && (
                 <div className="absolute right-0 mt-4 w-80 sm:w-96 bg-white rounded-3xl shadow-2xl border border-slate-100 p-2 z-50 animate-in zoom-in-95 fade-in duration-200 origin-top-right">
-                    {/* Header */}
                     <div className="flex items-center justify-between p-4 px-5 border-b border-slate-50 mb-2">
                         <div>
-                            <h3 className="text-sm font-bold text-slate-900 tracking-tight leading-none mb-1">Alert Hub</h3>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{unreadCount} New Signals</p>
+                            <h3 className="text-sm font-bold text-slate-900 tracking-tight leading-none mb-1">Signal Hub</h3>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{unreadCount} Active Pulse</p>
                         </div>
                         <div className="flex items-center gap-4">
                             {unreadCount > 0 && (
-                                <button onClick={markAllRead} className="text-[10px] font-bold text-brand hover:underline uppercase tracking-widest">Mark all read</button>
+                                <button onClick={markAllRead} className="text-[10px] font-bold text-brand hover:underline uppercase tracking-widest">Mark All Read</button>
                             )}
                             {notifications.length > 0 && (
                                 <button onClick={clearAll} className="text-[10px] font-bold text-red-500 hover:underline uppercase tracking-widest">Clear</button>
@@ -127,9 +140,12 @@ const NotificationDropdown = () => {
                         </div>
                     </div>
 
-                    {/* Scrollable Area */}
                     <div className="max-h-[70vh] overflow-y-auto px-2 pb-2 custom-scrollbar">
-                        {notifications.length > 0 ? (
+                        {loading ? (
+                            <div className="py-12 flex items-center justify-center">
+                                <Loader2 className="animate-spin text-brand/20" size={32} />
+                            </div>
+                        ) : notifications.length > 0 ? (
                             <div className="space-y-1">
                                 {notifications.map((notification) => (
                                     <div 
@@ -148,18 +164,12 @@ const NotificationDropdown = () => {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between mb-1">
                                                 <h4 className={`text-xs font-bold leading-tight line-clamp-1 group-hover:text-brand transition-colors ${!notification.read ? 'text-slate-900' : 'text-slate-500'}`}>{notification.title}</h4>
-                                                <span className="text-[9px] font-bold text-slate-300 uppercase shrink-0 ml-4">{notification.time}</span>
+                                                <span className="text-[9px] font-bold text-slate-300 uppercase shrink-0 ml-4">{getTimeAgo(notification.createdAt)}</span>
                                             </div>
                                             <p className="text-[10px] text-slate-400 font-medium leading-relaxed line-clamp-2">
                                                 {notification.description}
                                             </p>
                                         </div>
-                                        <button 
-                                            onClick={(e) => deleteNotification(e, notification.id)}
-                                            className="absolute top-4 right-4 p-1 rounded-lg bg-white/80 opacity-0 group-hover:opacity-100 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm border border-slate-100"
-                                        >
-                                            <Trash2 size={12} />
-                                        </button>
                                     </div>
                                 ))}
                             </div>
@@ -169,17 +179,16 @@ const NotificationDropdown = () => {
                                     <Bell size={24} />
                                 </div>
                                 <div>
-                                    <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">Zero Signals Found</p>
-                                    <p className="text-[10px] text-slate-400 font-medium mt-1 uppercase tracking-tight">Your notification vault is empty.</p>
+                                    <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">Zero Frequency</p>
+                                    <p className="text-[10px] text-slate-400 font-medium mt-1 uppercase tracking-tight">Your vault is clean for now.</p>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* Footer */}
                     <div className="p-3 bg-slate-50/50 rounded-2xl border-t border-slate-50 flex items-center justify-center">
-                        <button className="flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-brand uppercase tracking-widest transition-all">
-                             Audit Exploration <ExternalLink size={12} />
+                        <button onClick={fetchNotifications} className="flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-brand uppercase tracking-widest transition-all">
+                             Refresh Signals <Clock size={12} />
                         </button>
                     </div>
                 </div>
@@ -189,3 +198,4 @@ const NotificationDropdown = () => {
 };
 
 export default NotificationDropdown;
+

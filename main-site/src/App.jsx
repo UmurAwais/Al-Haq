@@ -16,6 +16,7 @@ import StudentProfile from './pages/student/StudentProfile'
 import StudentCourses from './pages/student/StudentCourses'
 import StudentCertificates from './pages/student/StudentCertificates'
 import CoursePlayer from './pages/student/CoursePlayer'
+import StudentLive from './pages/student/StudentLive'
 
 // Admin Components
 import AdminLogin from './pages/admin/AdminLogin'
@@ -38,13 +39,7 @@ import AdminProfile from './pages/admin/AdminProfile'
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
-      </div>
-    );
-  }
+  if (loading) return null; // Instant mount
   
   return user ? children : <Navigate to="/login" replace />;
 };
@@ -80,6 +75,7 @@ const App = () => {
             <Route path="profile" element={<StudentProfile />} />
             <Route path="courses" element={<StudentCourses />} />
             <Route path="achievements" element={<StudentCertificates />} />
+            <Route path="hub-live" element={<StudentLive />} />
           </Route>
  
           <Route path="/student/course/:courseId/play" element={

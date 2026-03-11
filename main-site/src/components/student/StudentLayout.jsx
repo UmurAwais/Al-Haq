@@ -98,9 +98,9 @@ const StudentLayout = () => {
             >
               <Menu size={20} />
             </button>
-            <div className="lg:hidden flex items-center gap-3">
-               <img src={logo} alt="Logo" className="h-12 w-12" />
-               <span className="text-xs font-black text-brand uppercase tracking-widest">Al-Haq</span>
+            <div className="lg:hidden flex items-center gap-2">
+               <img src={logo} alt="Logo" className="h-10 w-10 md:h-12 md:w-12" />
+               <span className="text-[10px] md:text-xs font-black text-brand uppercase tracking-widest truncate">Al-Haq Hub</span>
             </div>
             
             <div className="relative group hidden md:block">
@@ -117,15 +117,15 @@ const StudentLayout = () => {
             <NotificationDropdown />
             <div className="h-8 w-px bg-slate-200 hidden sm:block"></div>
             <div className="flex items-center gap-3 lg:gap-4 pl-0 sm:pl-2">
-              <div className="text-right hidden sm:block">
-                <div className="text-[11px] font-bold text-brand leading-none mb-1 uppercase tracking-widest">
+              <div className="text-right hidden md:block">
+                <div className="text-[10px] lg:text-[11px] font-bold text-brand leading-none mb-1 uppercase tracking-widest truncate max-w-[120px] lg:max-w-none">
                   {user?.displayName || 'Student'}
                 </div>
-                <div className="text-[9px] text-slate-400 font-medium uppercase tracking-[0.2em] leading-none">Registered Student</div>
+                <div className="text-[8px] lg:text-[9px] text-slate-400 font-medium uppercase tracking-[0.2em] leading-none">Cadet</div>
               </div>
-              <div className="h-10 w-10 rounded-2xl bg-slate-50 p-0.5 border border-slate-200 shadow-sm overflow-hidden group hover:border-brand transition-all cursor-pointer">
+              <div className="h-9 w-9 lg:h-10 lg:w-10 rounded-xl lg:rounded-2xl bg-slate-50 p-0.5 border border-slate-200 shadow-sm overflow-hidden group hover:border-brand transition-all cursor-pointer">
                 <img 
-                  src={`https://ui-avatars.com/api/?name=${user?.displayName || 'S'}&background=f1f5f9&color=07102e&bold=true`} 
+                  src={user?.photoURL || user?.profilePicture || `https://ui-avatars.com/api/?name=${user?.displayName || 'S'}&background=f1f5f9&color=07102e&bold=true`} 
                   alt="Avatar" 
                   className="w-full h-full object-cover rounded-xl group-hover:scale-110 transition-transform" 
                 />

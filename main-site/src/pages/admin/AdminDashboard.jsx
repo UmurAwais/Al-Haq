@@ -30,16 +30,29 @@ const AdminDashboard = () => {
   const [recentOrders, setRecentOrders] = useState([]);
   const [showTip, setShowTip] = useState(true);
   const [chartPeriod, setChartPeriod] = useState('Last 7 days');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
+    // 1. Initial Load from Cache
+    const cachedStats = localStorage.getItem('admin_stats');
+    if (cachedStats) {
+      try {
+        const parsed = JSON.parse(cachedStats);
+        setStats(parsed.stats || stats);
+        setRecentOrders(parsed.recentOrders || []);
+        console.log("⚡ Admin stats loaded from instant cache");
+      } catch (e) {
+        console.error("Cache corrupted");
+      }
+    }
+    
     fetchDashboardData();
   }, []);
 
   const fetchDashboardData = async () => {
     try {
-      setLoading(true);
+      // Background fetch
       const token = localStorage.getItem('adminToken');
       const headers = { 'x-admin-token': token };
 
@@ -115,11 +128,20 @@ const AdminDashboard = () => {
         ordersGrowth: parseFloat(growth),
       });
 
-      // Recent orders (last 10)
-      const sorted = Array.isArray(orders)
-        ? [...orders].sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)).slice(0, 8)
-        : [];
       setRecentOrders(sorted);
+
+      // Persist to cache
+      localStorage.setItem('admin_stats', JSON.stringify({
+        stats: {
+          revenue: totalRevenue,
+          students: users.length,
+          courses: totalCourses,
+          ordersThisMonth,
+          ordersGrowth: parseFloat(growth),
+        },
+        recentOrders: sorted,
+        lastUpdated: Date.now()
+      }));
     } catch (err) {
       console.error('Dashboard data fetch error:', err);
     } finally {
@@ -363,11 +385,7 @@ const AdminDashboard = () => {
             </Link>
           </div>
  
-          {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="w-10 h-10 border-4 border-brand/10 border-t-brand rounded-full animate-spin"></div>
-            </div>
-          ) : recentOrders.length === 0 ? (
+          {recentOrders.length === 0 ? (
             <div className="text-center py-20 text-slate-400">
               <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
                  <ShoppingCart size={32} className="opacity-30" />

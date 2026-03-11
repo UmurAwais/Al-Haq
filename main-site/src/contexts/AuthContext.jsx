@@ -7,8 +7,19 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('last_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [loading, setLoading] = useState(!localStorage.getItem('last_user'));
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('last_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('last_user');
+    }
+  }, [user]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
@@ -17,13 +28,16 @@ export const AuthProvider = ({ children }) => {
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
-            setUser({ ...userDoc.data(), ...currentUser, uid: currentUser.uid });
+            setUser({ ...currentUser, ...userDoc.data(), uid: currentUser.uid });
           } else {
-            setUser(currentUser);
+            // Keep existing user state if available from cache, otherwise fallback
+            setUser(prev => prev || currentUser);
           }
         } catch (error) {
-          console.error("Error fetching user data:", error);
-          setUser(currentUser);
+          console.error("Error fetching user data (offline or error):", error);
+          // Don't overwrite state with basic currentUser if we already have cached data
+          // This prevents data "disappearing" when network is flaky
+          setUser(prev => prev || currentUser);
         }
       } else {
         setUser(null);
@@ -38,6 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    setUser,
     loading,
     logout
   };

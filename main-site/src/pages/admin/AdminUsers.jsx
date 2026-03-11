@@ -439,6 +439,7 @@ const AdminUsers = () => {
                    <tr className="bg-slate-50/50 border-b border-slate-100">
                       <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">User Profile</th>
                       <th className="px-6 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact</th>
+                      <th className="px-6 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Region</th>
                       <th className="px-6 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Ref. Number</th>
                       <th className="px-6 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
                       <th className="px-6 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Joined</th>
@@ -480,6 +481,9 @@ const AdminUsers = () => {
                                     </div>
                                 )}
                             </div>
+                         </td>
+                         <td className="px-6 py-6">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{user.location || 'GLOBAL HUB'}</span>
                          </td>
                          <td className="px-6 py-6 font-mono">
                             <span className="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 font-bold text-[10px] border border-slate-200 shadow-sm uppercase tracking-tighter">
