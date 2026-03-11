@@ -25,6 +25,7 @@ const CourseDetail = () => {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showVideo, setShowVideo] = useState(false);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -79,6 +80,25 @@ const CourseDetail = () => {
   const priceToDisplay = coursePriceStr.toLowerCase() === 'free' 
     ? 'Free' 
     : (coursePriceStr.startsWith('Rs') ? coursePriceStr : `Rs. ${coursePriceStr}`);
+
+  // Determine the final preview video URL
+  const getPreviewVideo = () => {
+    // 1. Direct course videoUrl (MP4 upload)
+    if (course.videoUrl) return course.videoUrl;
+
+    // 2. Fallback: First lecture of first section
+    const firstSection = course.lectures?.[0];
+    const firstLecture = firstSection?.lectures?.[0];
+    
+    // Check for Google Drive video in the first lecture
+    if (firstLecture?.video?.id) {
+      return `https://drive.google.com/file/d/${firstLecture.video.id}/preview`;
+    }
+
+    return null;
+  };
+
+  const previewVideo = getPreviewVideo();
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] font-sans">
@@ -141,16 +161,62 @@ const CourseDetail = () => {
                        {(course.lectures || []).reduce((acc, s) => acc + (s.lectures?.length || 0), 0)} lectures
                     </div>
                  </div>
-                 <div className="p-6 bg-slate-50/50">
+                  <div className="p-6 bg-slate-50/50">
                     <div className="w-full aspect-video bg-slate-900 rounded-lg overflow-hidden relative group cursor-pointer border border-slate-200">
-                       <img src={imageUrl} alt="Preview" className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity" />
-                       <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                            <PlayCircle size={32} className="text-white fill-white/20" />
-                          </div>
-                       </div>
+                       {!showVideo || !previewVideo ? (
+                         <div className="w-full h-full relative" onClick={() => previewVideo && setShowVideo(true)}>
+                           <img src={imageUrl} alt="Preview" className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity" />
+                           <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                                <PlayCircle size={32} className="text-white fill-white/20" />
+                              </div>
+                           </div>
+                           {!previewVideo && (
+                             <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+                               <p className="text-white text-xs font-bold uppercase tracking-widest">No Preview Available</p>
+                             </div>
+                           )}
+                         </div>
+                       ) : (
+                         previewVideo.includes('drive.google.com') ? (
+                           <div className="relative w-full h-full">
+                             <iframe 
+                               src={previewVideo} 
+                               className="w-full h-full border-0" 
+                               allow="autoplay" 
+                               allowFullScreen
+                             />
+                             {/* Transparent overlay to block the pop-out button */}
+                             <div className="absolute top-0 right-0 w-24 h-12 bg-transparent z-10 cursor-default" title="Direct view only"></div>
+                           </div>
+                         ) : (
+                           <video 
+                             src={(() => {
+                               let url = previewVideo;
+                               if (url.includes('localhost:')) {
+                                 url = url.replace(/^http:\/\/localhost:\d+/, '');
+                               }
+                               if (url.startsWith('http')) return url;
+                               const base = getApiUrl().replace(/\/$/, '');
+                               const path = url.startsWith('/') ? url : `/${url}`;
+                               return `${base}${path}`;
+                             })()} 
+                             controls 
+                             autoPlay 
+                             disablePictureInPicture
+                             controlsList="nodownload nopictureinpicture"
+                             onContextMenu={(e) => e.preventDefault()}
+                             className="w-full h-full object-contain"
+                             onError={(e) => {
+                               console.error("Video play error:", e);
+                               alert("The video preview could not be loaded. Please ensure the file exists and is in a supported format (MP4).");
+                               setShowVideo(false);
+                             }}
+                           />
+                         )
+                       )}
                     </div>
-                 </div>
+                  </div>
               </div>
 
               {/* Card 2: Course Curriculum */}

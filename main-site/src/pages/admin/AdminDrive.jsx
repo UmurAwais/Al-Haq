@@ -244,12 +244,12 @@ const AdminDrive = () => {
                    {/* Right Col: Video Preview Mockup */}
                    <div className="space-y-6">
                       <div className="aspect-video bg-slate-100 rounded-3xl border border-slate-200 shadow-xl overflow-hidden relative group">
-                         <iframe 
-                           src={`https://drive.google.com/file/d/${selectedFile.id}/preview`}
-                           className="w-full h-full border-0"
-                           allow="autoplay"
-                         ></iframe>
-                      </div>
+                          <iframe 
+                            src={`https://drive.google.com/file/d/${selectedFile.id}/preview`}
+                            className="w-full h-full border-0"
+                            allow="autoplay"
+                          ></iframe>
+                        </div>
 
                       <div className="grid grid-cols-2 gap-4">
                          <a 

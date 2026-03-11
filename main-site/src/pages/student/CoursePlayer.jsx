@@ -170,13 +170,17 @@ const CoursePlayer = () => {
             {/* Aspect Ratio Video Container */}
             <div className="aspect-video bg-black relative group shadow-2xl overflow-hidden">
                {activeLecture?.video?.id ? (
-                 <iframe 
-                   src={`https://drive.google.com/file/d/${activeLecture.video.id}/preview`}
-                   className="w-full h-full border-0"
-                   allow="autoplay; encrypted-media"
-                   allowFullScreen
-                   title={activeLecture.title}
-                 ></iframe>
+                 <div className="relative w-full h-full">
+                   <iframe 
+                     src={`https://drive.google.com/file/d/${activeLecture.video.id}/preview`}
+                     className="w-full h-full border-0"
+                     allow="autoplay; encrypted-media"
+                     allowFullScreen
+                     title={activeLecture.title}
+                   ></iframe>
+                   {/* Blocking pop-out for security */}
+                   <div className="absolute top-2 right-2 w-32 h-16 bg-transparent z-10 cursor-default"></div>
+                 </div>
                ) : (
                  <div className="w-full h-full flex flex-col items-center justify-center text-white p-10 bg-linear-to-br from-slate-900 to-brand/20">
                    <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-6 animate-pulse">
