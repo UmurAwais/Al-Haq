@@ -159,13 +159,22 @@ const AdminDashboard = () => {
     return d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
   };
 
-  // Simple SVG line chart
+  // Professional SVG line chart with Bézier smoothing
   const maxChartVal = Math.max(...chartData.map(d => d.value), 1);
-  const chartPoints = chartData.map((d, i) => {
-    const x = (i / Math.max(chartData.length - 1, 1)) * 100;
-    const y = 100 - (d.value / maxChartVal) * 80 - 10;
-    return `${x},${y}`;
-  }).join(' ');
+  const dataPoints = chartData.map((d, i) => ({
+    x: (i / Math.max(chartData.length - 1, 1)) * 100,
+    y: 100 - (d.value / maxChartVal) * 80 - 10
+  }));
+
+  const chartPath = dataPoints.reduce((acc, point, i, a) => {
+    if (i === 0) return `M ${point.x},${point.y}`;
+    const prev = a[i - 1];
+    const cp1x = prev.x + (point.x - prev.x) / 2;
+    const cp2x = prev.x + (point.x - prev.x) / 2;
+    return `${acc} C ${cp1x},${prev.y} ${cp2x},${point.y} ${point.x},${point.y}`;
+  }, '');
+
+  const areaPath = `${chartPath} L 100,100 L 0,100 Z`;
 
   const statCards = [
     {
@@ -318,35 +327,36 @@ const AdminDashboard = () => {
               {[0, 25, 50, 75, 100].map((y) => (
                 <line key={y} x1="0" y1={y} x2="100" y2={y} stroke="#f1f5f9" strokeWidth="0.3" />
               ))}
-              {/* Area fill */}
-              <polygon
-                points={`0,100 ${chartPoints} 100,100`}
+              {/* Area fill with brand gradient */}
+              <path
+                d={areaPath}
                 fill="url(#chartGradient)"
-                opacity="0.3"
+                className="transition-all duration-1000"
               />
-              {/* Line */}
-              <polyline
-                points={chartPoints}
-                fill="none"
-                stroke="#07102E"
-                strokeWidth="0.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {/* Dots */}
-              {chartData.map((d, i) => {
-                const x = (i / Math.max(chartData.length - 1, 1)) * 100;
-                const y = 100 - (d.value / maxChartVal) * 80 - 10;
-                return (
-                  <circle key={i} cx={x} cy={y} r="1" fill="#07102E" />
-                );
-              })}
+              
+              {/* Glow filter definition */}
               <defs>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="1.5" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
                 <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#07102E" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#07102E" stopOpacity="0.02" />
+                  <stop offset="0%" stopColor="#570303" stopOpacity="0.15" />
+                  <stop offset="100%" stopColor="#570303" stopOpacity="0" />
                 </linearGradient>
               </defs>
+
+              {/* Main Revenue Line */}
+              <path
+                d={chartPath}
+                fill="none"
+                stroke="#570303"
+                strokeWidth="0.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                filter="url(#glow)"
+                className="transition-all duration-1000"
+              />
             </svg>
           )}
 
