@@ -126,7 +126,7 @@ const ContactForm = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-5 group">
+              {/* <div className="flex items-center gap-5 group">
                 <div className="w-12 h-12 bg-brand/5 text-brand rounded-2xl flex items-center justify-center group-hover:bg-brand group-hover:text-white transition-all duration-300">
                   <MessageSquare className="w-5 h-5" />
                 </div>
@@ -134,7 +134,7 @@ const ContactForm = () => {
                   <div className="text-xs font-black text-brand uppercase tracking-[0.2em] mb-0.5">WhatsApp</div>
                   <div className="text-lg font-bold text-slate-900">Chat with an advisor</div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 

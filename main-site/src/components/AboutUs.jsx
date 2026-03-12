@@ -18,7 +18,7 @@ const AboutUs = () => {
             </h2>
             
             <p className="text-slate-600 text-lg md:text-xl leading-relaxed mb-12 max-w-2xl">
-              Al-Haq Learning Hub is Pakistan\'s premier digital portal for PPSC, FPSC, and CSS preparation. We simplify complex MCQs and provide the strategy needed to crack competitive exams in your first attempt.
+              Al-Haq Learning Hub is Pakistan's premier digital portal for PPSC, FPSC, and CSS preparation. We simplify complex MCQs and provide the strategy needed to crack competitive exams in your first attempt.
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 mb-14">
@@ -42,7 +42,7 @@ const AboutUs = () => {
                  Join for Free
                </Button>
                <Button variant="secondary" className="text-base">
-                 Try for Business
+                 Try Now
                </Button>
             </div>
           </div>
@@ -51,13 +51,13 @@ const AboutUs = () => {
             <div className="relative">
               <div className="aspect-4/3 rounded-2xl overflow-hidden shadow-2xl">
                 <img 
-                  src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200" 
-                  alt="Modern Learning Environment"
-                  className="w-full h-full object-cover"
+                  src="/ppsc course.webp" 
+                  alt="Al-Haq Learning Hub PPSC Preparation"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
               </div>
               {/* Minimal Achievement Badge */}
-              <div className="absolute -bottom-4 md:-bottom-8 -left-4 md:-left-8 bg-white p-3 md:p-6 rounded-xl shadow-xl border border-slate-50 flex items-center gap-2 md:gap-4 max-w-[200px] md:max-w-xs transition-all">
+              <div className="absolute -bottom-4 md:-bottom-8 -left-4 md:-left-8 bg-white p-3 md:p-6 rounded-xl shadow-xl border border-slate-50 flex items-center gap-2 md:gap-4 max-w-50 md:max-w-xs transition-all">
                 <div className="w-8 h-8 md:w-12 md:h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 shrink-0">
                   <Trophy className="w-4 h-4 md:w-6 md:h-6" />
                 </div>
