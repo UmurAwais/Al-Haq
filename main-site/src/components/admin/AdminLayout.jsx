@@ -52,14 +52,14 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex overflow-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex overflow-hidden admin-dashboard">
       {/* Sidebar - Made Sticky */}
       <aside 
         className={`${
           isSidebarOpen ? 'w-64' : 'w-20'
         } bg-white border-r border-slate-200 transition-all duration-300 flex flex-col z-50 shadow-sm sticky top-0 h-screen`}
       >
-        <div className="pl-3 flex items-center justify-between shrink-0 mb-4 mt-2">
+        <div className="pl-3 flex items-center justify-between shrink-0 mb-0 mt-2">
           <Link to="/" className={`flex items-center gap-3 ${!isSidebarOpen && 'justify-center w-full'}`}>
             <img src={logo} alt="Logo" className="h-16 w-16 object-contain" />
             {isSidebarOpen && (

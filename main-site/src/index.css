@@ -31,3 +31,11 @@ html, body {
 * {
   font-family: "Outfit", sans-serif !important;
 }
+
+/* Admin Dashboard Pointer Fix */
+.admin-dashboard button, 
+.admin-dashboard a, 
+.admin-dashboard [role="button"],
+.admin-dashboard .cursor-pointer {
+  cursor: pointer !important;
+}

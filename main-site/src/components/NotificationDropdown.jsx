@@ -115,7 +115,7 @@ const NotificationDropdown = ({ isAdmin = false }) => {
         <div className="relative" ref={dropdownRef}>
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className={`relative p-2.5 rounded-2xl transition-all group border ${isOpen ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20' : 'bg-slate-50 hover:bg-slate-100 text-slate-400 border-slate-100'}`}
+                className={`relative p-2.5 rounded-2xl transition-all group border ${isOpen ? 'bg-brand text-white border-brand shadow-lg shadow-brand/20 cursor-pointer' : 'bg-slate-50 hover:bg-slate-100 text-slate-400 border-slate-100 cursor-pointer'}`}
             >
                 <Bell size={20} className={`${!isOpen && 'group-hover:rotate-12'} transition-transform`} />
                 {unreadCount > 0 && (
@@ -132,10 +132,10 @@ const NotificationDropdown = ({ isAdmin = false }) => {
                         </div>
                         <div className="flex items-center gap-4">
                             {unreadCount > 0 && (
-                                <button onClick={markAllRead} className="text-[10px] font-bold text-brand hover:underline uppercase tracking-widest">Mark All Read</button>
+                                <button onClick={markAllRead} className="text-[10px] font-bold text-brand hover:underline uppercase tracking-widest cursor-pointer">Mark All Read</button>
                             )}
                             {notifications.length > 0 && (
-                                <button onClick={clearAll} className="text-[10px] font-bold text-red-500 hover:underline uppercase tracking-widest">Clear</button>
+                                <button onClick={clearAll} className="text-[10px] font-bold text-red-500 hover:underline uppercase tracking-widest cursor-pointer">Clear</button>
                             )}
                         </div>
                     </div>

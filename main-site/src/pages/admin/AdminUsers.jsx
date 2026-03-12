@@ -246,6 +246,7 @@ const AdminUsers = () => {
   const handleDeleteUser = async () => {
     if (!confirmDelete) return;
     setSaving(true);
+    setError(null);
     try {
       const token = localStorage.getItem('adminToken');
       const res = await apiFetch(`/api/admin/users/${confirmDelete.uid}`, {
@@ -253,12 +254,20 @@ const AdminUsers = () => {
         headers: { 'x-admin-token': token }
       });
       
+      const data = await res.json();
+      
       if (res.ok) {
+        // Optimistic update
         setUsers(prev => prev.filter(u => u.uid !== confirmDelete.uid));
         setConfirmDelete(null);
+        // Reset active menu if open
+        setActiveMenu(null);
+      } else {
+        setError(data.message || 'Expulsion failed. Security protocol remained active.');
       }
     } catch (err) {
       console.error('Delete error:', err);
+      setError('Connection failure during registry purge.');
     } finally {
       setSaving(false);
     }
@@ -668,14 +677,14 @@ const AdminUsers = () => {
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-slate-900/50" onClick={closeModal}></div>
           
-          <div className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
+          <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
             {/* Modal Header */}
             <div className="shrink-0 p-6 border-b border-slate-100 flex items-center justify-between bg-white">
               <div>
                 <h2 className="text-xl font-bold text-slate-900 tracking-tight">{successInfo ? 'User Added' : 'Add New User'}</h2>
                 <p className="text-xs text-slate-500 font-medium">{successInfo ? 'Registration complete' : 'Enter member details below'}</p>
               </div>
-              <button onClick={closeModal} className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-xl transition-all active:scale-95 border border-slate-100">
+              <button onClick={closeModal} className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-xl transition-all active:scale-95 border border-slate-100 cursor-pointer">
                 <X size={20} />
               </button>
             </div>
@@ -793,29 +802,29 @@ const AdminUsers = () => {
 
       {/* DELETE CONFIRMATION MODAL */}
       {confirmDelete && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setConfirmDelete(null)}></div>
-          <div className="relative w-full max-w-sm bg-white rounded-[32px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 animate-in fade-in duration-300 pointer-events-auto">
+          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setConfirmDelete(null)}></div>
+          <div className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200">
             <div className="p-8 text-center">
-                <div className="w-20 h-20 bg-red-50 text-red-500 rounded-[35px] flex items-center justify-center mx-auto mb-6 border-2 border-red-100 shadow-sm animate-bounce">
+                <div className="w-20 h-20 bg-red-50 text-red-500 rounded-[30px] flex items-center justify-center mx-auto mb-6 border-2 border-red-100 shadow-sm animate-bounce">
                     <Trash2 size={32} />
                 </div>
-                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">Expel Member?</h3>
+                <h3 className="text-xl font-bold text-slate-900 uppercase tracking-tight mb-2">Expel Member?</h3>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-loose mb-8 px-4">
-                    You are about to permanently remove <span className="text-red-500">{confirmDelete.displayName}</span> from the registry. This action is irreversible.
+                    You are about to permanently remove <span className="text-red-500 font-extrabold">{confirmDelete.displayName}</span>. This action is irreversible.
                 </p>
 
                 <div className="flex flex-col gap-3">
                     <button 
                         onClick={handleDeleteUser}
                         disabled={saving}
-                        className="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-red-200 hover:bg-red-600 transition-all active:scale-95 disabled:opacity-50"
+                        className="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-red-200 hover:bg-red-600 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
                     >
-                        {saving ? 'Terminating...' : 'Confirm Expulsion'}
+                        {saving ? 'Terminating Registry...' : 'Confirm Expulsion'}
                     </button>
                     <button 
                         onClick={() => setConfirmDelete(null)}
-                        className="w-full py-4 bg-slate-100 text-slate-400 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-slate-200 transition-all"
+                        className="w-full py-4 bg-slate-100 text-slate-400 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-slate-200 transition-all cursor-pointer"
                     >
                         Cancel
                     </button>
@@ -830,7 +839,7 @@ const AdminUsers = () => {
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-slate-900/50" onClick={() => setSyncResult(null)}></div>
           
-          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
+          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
             <div className="p-8 text-center">
               <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 border shadow-sm transition-all duration-500 ${syncResult.success ? 'bg-emerald-50 border-emerald-100 text-emerald-500' : 'bg-red-50 border-red-100 text-red-500'}`}>
                 {syncResult.success ? <CheckCircle size={32} /> : <XCircle size={32} />}
@@ -844,22 +853,11 @@ const AdminUsers = () => {
                 {syncResult.message}
               </p>
 
-              {syncResult.success && (
-                <div className="grid grid-cols-2 gap-3 mb-8">
-                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">New Users</p>
-                    <p className="text-xl font-bold text-slate-900">{syncResult.imported || 0}</p>
-                  </div>
-                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Updated</p>
-                    <p className="text-xl font-bold text-slate-900">{syncResult.updated || 0}</p>
-                  </div>
-                </div>
-              )}
+
 
               <button 
                 onClick={() => setSyncResult(null)}
-                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all active:scale-95 ${syncResult.success ? 'bg-brand text-white' : 'bg-slate-200 text-slate-700'}`}
+                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all active:scale-95 cursor-pointer ${syncResult.success ? 'bg-brand text-white' : 'bg-slate-200 text-slate-700'}`}
               >
                 Close
               </button>

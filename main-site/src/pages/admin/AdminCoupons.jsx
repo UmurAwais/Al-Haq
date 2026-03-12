@@ -32,6 +32,7 @@ const AdminCoupons = () => {
   const [editingCoupon, setEditingCoupon] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [confirmDeleteCoupon, setConfirmDeleteCoupon] = useState(null); // For delete modal
 
   const [formData, setFormData] = useState({
     code: '',
@@ -145,21 +146,28 @@ const AdminCoupons = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this coupon?')) return;
-
+  const handleConfirmDelete = async () => {
+    if (!confirmDeleteCoupon) return;
+    
+    setSaving(true);
     try {
       const token = localStorage.getItem('adminToken');
-      const res = await apiFetch(`/api/admin/coupons/${id}`, {
+      const res = await apiFetch(`/api/admin/coupons/${confirmDeleteCoupon._id}`, {
         method: 'DELETE',
         headers: { 'x-admin-token': token }
       });
       const data = await res.json();
       if (data.ok) {
         fetchCoupons();
+        setConfirmDeleteCoupon(null);
+      } else {
+        setError(data.message || 'Failed to delete coupon');
       }
     } catch (err) {
       console.error('Delete error:', err);
+      setError('Connection failure during registry purge.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -340,12 +348,12 @@ const AdminCoupons = () => {
                                 >
                                     <Edit size={16} className="group-hover/btn:scale-110 transition-transform" />
                                 </button>
-                                <button 
-                                    onClick={() => handleDelete(coupon._id)}
-                                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-100 group/btn"
-                                >
-                                    <Trash2 size={16} className="group-hover/btn:scale-110 transition-transform" />
-                                </button>
+                                 <button 
+                                     onClick={() => setConfirmDeleteCoupon(coupon)}
+                                     className="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-100 group/btn"
+                                 >
+                                     <Trash2 size={16} className="group-hover/btn:scale-110 transition-transform" />
+                                 </button>
                                 <button className="p-2 text-slate-400 hover:text-slate-900 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-100">
                                     <MoreVertical size={16} />
                                 </button>
@@ -519,6 +527,40 @@ const AdminCoupons = () => {
                   {saving ? 'Processing...' : (editingCoupon ? 'Save Changes' : 'Launch Campaign')}
                 </button>
               </div>
+          </div>
+        </div>
+      )}
+      
+      {/* DELETE CONFIRMATION MODAL */}
+      {confirmDeleteCoupon && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setConfirmDeleteCoupon(null)}></div>
+          <div className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200">
+            <div className="p-8 text-center">
+                <div className="w-20 h-20 bg-red-50 text-red-500 rounded-[30px] flex items-center justify-center mx-auto mb-6 border-2 border-red-100 shadow-sm animate-bounce">
+                    <Trash2 size={32} />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 uppercase tracking-tight mb-2">Delete Coupon?</h3>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-loose mb-8 px-4">
+                    You are about to permanently remove campaign <span className="text-red-500 font-extrabold">{confirmDeleteCoupon.code}</span>. This action is irreversible.
+                </p>
+
+                <div className="flex flex-col gap-3">
+                    <button 
+                        onClick={handleConfirmDelete}
+                        disabled={saving}
+                        className="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-red-200 hover:bg-red-600 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                    >
+                        {saving ? 'Terminating Registry...' : 'Confirm Deletion'}
+                    </button>
+                    <button 
+                        onClick={() => setConfirmDeleteCoupon(null)}
+                        className="w-full py-4 bg-slate-100 text-slate-400 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-slate-200 transition-all cursor-pointer"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
           </div>
         </div>
       )}

@@ -4,28 +4,28 @@ import Button from './Button'
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const slides = [
     {
-      image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=2000',
+      desktop: '/bannerdesktop2.jpeg',
+      mobile: '/bannermobile2.jpeg',
       title: 'Crack <span class="text-transparent bg-clip-text bg-linear-to-r from-white to-brand-accent italic">One-Paper</span> MCQs',
-      title_raw: 'Crack One-Paper MCQs',
       description: 'Master PPSC, FPSC, and NTS exams with Pakistan\'s most focused MCQs preparation platform. Join Al-Haq to unlock verified study material and expert techniques.',
       tag: 'Pakistan Exam Prep #1'
     },
     {
-      image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=2000',
-      title: 'Elite <span class="text-transparent bg-clip-text bg-linear-to-r from-white to-brand-accent italic">PPSC & FPSC</span> Coaching',
-      title_raw: 'Elite PPSC & FPSC Coaching',
-      description: 'Learn exactly what examiners look for. From General Knowledge to Pakistan Affairs, get the edge you need to secure your government job.',
-      tag: 'Verified Success Rate'
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=2000',
-      title: 'Your <span class="text-transparent bg-clip-text bg-linear-to-r from-white to-brand-accent italic">Govt Job</span> Starts Here',
-      title_raw: 'Your Govt Job Starts Here',
-      description: 'Get access to 10,000+ top-tier MCQs, mock tests, and video lectures designed specifically for the Pakistani testing landscape.',
-      tag: 'Job-Ready Preparation'
+      desktop: '/bannerdesktop.jpeg',
+      mobile: '/bannermobile.jpeg',
+      title: 'Expert Led <span class="text-transparent bg-clip-text bg-linear-to-r from-white to-brand-accent italic">Preparation</span>',
+      description: 'Join thousands of successful candidates who prepared with Al-Haq. Get access to premium test series and comprehensive study notes.',
+      tag: 'Success Guaranteed'
     }
   ]
 
@@ -38,9 +38,9 @@ const Hero = () => {
   }
 
   useEffect(() => {
-    const timer = setInterval(nextSlide, 6000)
+    const timer = setInterval(nextSlide, 8000)
     return () => clearInterval(timer)
-  }, [])
+  }, [slides.length])
 
   return (
     <section id="home" className="relative h-112.5 md:h-137.5 overflow-hidden rounded-[18px] mt-2">
@@ -54,9 +54,17 @@ const Hero = () => {
         >
           {/* Background Image with Overlay */}
           <div 
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover bg-center hidden md:block"
             style={{ 
-              backgroundImage: `url(${slide.image})`,
+              backgroundImage: `url(${slide.desktop})`,
+            }}
+          >
+            <div className="absolute inset-0"></div>
+          </div>
+          <div 
+            className="absolute inset-0 bg-cover md:bg-center bg-top block md:hidden"
+            style={{ 
+              backgroundImage: `url(${slide.mobile})`,
             }}
           >
             <div className="absolute inset-0"></div>
@@ -92,35 +100,39 @@ const Hero = () => {
       ))}
 
       {/* Navigation Buttons */}
-      <div className="absolute bottom-12 right-4 sm:right-6 lg:right-8 flex items-center gap-4 z-20">
-        <button 
-          onClick={prevSlide}
-          className="p-3 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-full hover:bg-brand-accent hover:border-brand-accent transition-all cursor-pointer group"
-        >
-          <ChevronLeft className="w-6 h-6 group-active:scale-90 transition-transform" />
-        </button>
-        <button 
-          onClick={nextSlide}
-          className="p-3 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-full hover:bg-brand-accent hover:border-brand-accent transition-all cursor-pointer group"
-        >
-          <ChevronRight className="w-6 h-6 group-active:scale-90 transition-transform" />
-        </button>
-      </div>
+      {slides.length > 1 && (
+        <div className="absolute bottom-12 right-4 sm:right-6 lg:right-8 flex items-center gap-4 z-20">
+          <button 
+            onClick={prevSlide}
+            className="p-3 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-full hover:bg-brand-accent hover:border-brand-accent transition-all cursor-pointer group"
+          >
+            <ChevronLeft className="w-6 h-6 group-active:scale-90 transition-transform" />
+          </button>
+          <button 
+            onClick={nextSlide}
+            className="p-3 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-full hover:bg-brand-accent hover:border-brand-accent transition-all cursor-pointer group"
+          >
+            <ChevronRight className="w-6 h-6 group-active:scale-90 transition-transform" />
+          </button>
+        </div>
+      )}
 
       {/* Pagination Dots */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentSlide(index)}
-            className={`transition-all duration-300 rounded-full cursor-pointer ${
-              index === currentSlide 
-                ? 'w-12 h-3 bg-brand-accent' 
-                : 'w-3 h-3 bg-white/40 hover:bg-white/60'
-            }`}
-          ></button>
-        ))}
-      </div>
+      {slides.length > 1 && (
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`transition-all duration-300 rounded-full cursor-pointer ${
+                index === currentSlide 
+                  ? 'w-12 h-3 bg-brand-accent' 
+                  : 'w-3 h-3 bg-white/40 hover:bg-white/60'
+              }`}
+            ></button>
+          ))}
+        </div>
+      )}
     </section>
   )
 }
