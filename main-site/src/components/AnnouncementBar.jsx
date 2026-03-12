@@ -24,17 +24,16 @@ const AnnouncementBar = () => {
         isVisible ? 'h-6.75 opacity-100' : 'h-0 opacity-0 pointer-events-none shadow-none'
       }`}
     >
-      <div className="max-w-375 mx-auto h-full px-4 flex items-center justify-center gap-4 text-xs md:text-sm font-bold tracking-wide">
-        <div className="flex items-center gap-2">
-          {/* <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse" />
-          <span className="opacity-80 uppercase text-[10px] md:text-xs tracking-widest border-r border-white/20 pr-4 hidden sm:block">Ramadan Special</span> */}
-          <span className="truncate">Get 50% Off on all Premium Islamic & Tech Courses!</span>
+      <div className="max-w-375 mx-auto h-full px-4 flex items-center justify-center gap-4 text-[10px] md:text-sm font-bold tracking-wide">
+        <div className="flex items-center gap-2 text-center truncate">
+          <Sparkles className="w-3 h-3 text-yellow-300 animate-pulse hidden sm:block" />
+          <span>Join Pakistan's Most Trusted MCQ Preparation Hub for PPSC, FPSC & NTS Exams</span>
         </div>
         <a 
           href="#courses" 
           className="flex items-center gap-1.5 group whitespace-nowrap"
         >
-          Enroll Now
+          Explore Now
           <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
         </a>
       </div>
