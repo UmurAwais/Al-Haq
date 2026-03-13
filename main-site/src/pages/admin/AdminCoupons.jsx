@@ -20,7 +20,11 @@ import {
   Settings2,
   Eye,
   ToggleLeft as Toggle,
-  Activity
+  Activity,
+  Download,
+  FileJson,
+  FileSpreadsheet,
+  ChevronDown
 } from 'lucide-react';
 import { apiFetch } from '../../config';
 
@@ -33,6 +37,7 @@ const AdminCoupons = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [confirmDeleteCoupon, setConfirmDeleteCoupon] = useState(null); // For delete modal
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   const [formData, setFormData] = useState({
     code: '',
@@ -191,6 +196,44 @@ const AdminCoupons = () => {
     }
   };
 
+  const downloadCSV = () => {
+    if (filteredCoupons.length === 0) return;
+    const headers = ['Code', 'Label', 'Type', 'Value', 'Min Purchase', 'Usage Limit', 'Used', 'Expiry', 'Status'];
+    const rows = filteredCoupons.map(c => [
+      c.code,
+      c.label,
+      c.type,
+      c.value,
+      c.minPurchaseAmount || 0,
+      c.usageLimit || 'Unlimited',
+      c.usedCount || 0,
+      c.expiryDate ? new Date(c.expiryDate).toLocaleDateString() : 'Never',
+      c.isActive ? 'Active' : 'Disabled'
+    ]);
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `alhaq_coupons_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    setShowExportMenu(false);
+  };
+
+  const downloadJSON = () => {
+    if (filteredCoupons.length === 0) return;
+    const blob = new Blob([JSON.stringify(filteredCoupons, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `alhaq_coupons_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    setShowExportMenu(false);
+  };
+
   const filteredCoupons = coupons.filter(c => 
     c.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.label.toLowerCase().includes(searchTerm.toLowerCase())
@@ -205,17 +248,54 @@ const AdminCoupons = () => {
             <Ticket className="w-8 h-8 text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Discount Engine</h1>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Campaign Center</h1>
             <p className="text-sm text-slate-500 font-medium">Manage and monitor your active coupon campaigns ({coupons.length} campaigns)</p>
           </div>
         </div>
         
-        <button 
-          onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand/10 hover:-translate-y-0.5 active:scale-95"
-        >
-          <Plus size={16} strokeWidth={3} /> Create Coupon
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <button 
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand/20 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95"
+            >
+              <Download size={16} className="text-brand" /> Export <ChevronDown size={14} className={`transition-transform duration-300 ${showExportMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showExportMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowExportMenu(false)}></div>
+                <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 origin-top-right overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                  <button 
+                    onClick={downloadCSV}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-bold text-slate-600 hover:bg-slate-50 hover:text-brand transition-all uppercase tracking-widest text-left"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
+                      <FileSpreadsheet size={14} />
+                    </div>
+                    Download CSV
+                  </button>
+                  <button 
+                    onClick={downloadJSON}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-bold text-slate-600 hover:bg-slate-50 hover:text-brand transition-all uppercase tracking-widest text-left"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-brand/5 text-brand flex items-center justify-center">
+                      <FileJson size={14} />
+                    </div>
+                    Download JSON
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+          
+          <button 
+            onClick={() => handleOpenModal()}
+            className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand/10 hover:-translate-y-0.5 active:scale-95"
+          >
+            <Plus size={16} strokeWidth={3} /> Create Coupon
+          </button>
+        </div>
       </div>
 
       {/* Main Container */}

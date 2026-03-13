@@ -136,12 +136,12 @@ const AdminActivityLog = () => {
           {loading ? (
              <div className="py-32 flex flex-col items-center justify-center">
                <Loader2 className="w-12 h-12 text-brand animate-spin mb-4 opacity-20" />
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Querying Event History...</p>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Querying event history...</p>
              </div>
           ) : filteredLogs.length === 0 ? (
              <div className="py-32 text-center text-slate-300">
                 <Activity size={64} className="mx-auto mb-4 opacity-10" />
-                <h3 className="text-xl font-black uppercase tracking-tight">No Events Logged</h3>
+                <h3 className="text-xl font-bold uppercase tracking-tight">No Events Logged</h3>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">System activity will appear here</p>
              </div>
           ) : (

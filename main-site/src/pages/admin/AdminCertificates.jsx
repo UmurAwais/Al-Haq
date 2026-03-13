@@ -142,10 +142,10 @@ const AdminCertificates = () => {
             <Award className="w-8 h-8 text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">Credential Forge</h1>
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
-                <FileCheck size={14} className="text-brand-accent" /> 
-                Course Certificate Management
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Certificate Registry</h1>
+            <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
+                <Award size={14} className="text-brand" /> 
+                {courses.length} Managed Course Credentials
             </p>
           </div>
         </div>
@@ -159,10 +159,10 @@ const AdminCertificates = () => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand transition-colors" />
               <input 
                 type="text" 
-                placeholder="SEARCH COURSES BY TITLE..." 
+                placeholder="Search for courses or templates..." 
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-4 text-xs font-black border border-slate-200 rounded-2xl outline-none focus:border-brand/30 focus:ring-4 focus:ring-brand/5 transition-all text-slate-700 placeholder:text-slate-300 tracking-widest uppercase"
+                className="w-full pl-11 pr-4 py-4 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-brand/30 focus:ring-4 focus:ring-brand/5 transition-all text-slate-700 placeholder:text-slate-300"
               />
            </div>
 
@@ -178,12 +178,12 @@ const AdminCertificates = () => {
           {loading ? (
              <div className="py-32 flex flex-col items-center justify-center">
                <Loader2 className="w-12 h-12 text-brand animate-spin mb-4 opacity-20" />
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Querying Certificate Registry...</p>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Querying Certificate Registry...</p>
              </div>
           ) : filteredCourses.length === 0 ? (
              <div className="py-20 text-center text-slate-300">
                 <Award size={64} className="mx-auto mb-4 opacity-10" />
-                <h3 className="text-xl font-black uppercase tracking-tight">No Courses Found</h3>
+                <h3 className="text-xl font-bold uppercase tracking-tight">No Courses Found</h3>
              </div>
           ) : (
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -217,7 +217,7 @@ const AdminCertificates = () => {
                            <BookOpen size={12} className="text-brand-accent" />
                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{course.id}</span>
                         </div>
-                        <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight truncate group-hover:text-brand transition-colors">{course.title}</h3>
+                        <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tight truncate group-hover:text-brand transition-colors">{course.title}</h3>
                         
                         {course.certificateTemplate && (
                            <button onClick={() => handleOpenUpload(course)} className="mt-6 w-full py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border border-dashed border-slate-200 rounded-2xl hover:border-brand hover:text-brand transition-all flex items-center justify-center gap-2">

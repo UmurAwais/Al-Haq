@@ -158,19 +158,19 @@ const AdminBadges = () => {
             <BadgeCheck className="w-8 h-8 text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">Achievement Vault</h1>
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
-                <Star size={14} className="text-brand-accent" /> 
-                Student Recognition System
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Achievement Vault</h1>
+            <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
+                <BadgeCheck size={14} className="text-brand" /> 
+                {badges.length} Managed Student Merits
             </p>
           </div>
         </div>
 
         <button 
           onClick={() => openModal()}
-          className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand/20 hover:-translate-y-0.5 active:scale-95"
+          className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand/20 hover:-translate-y-0.5 active:scale-95"
         >
-          <Plus size={16} strokeWidth={3} /> Forge Achievement
+          <Plus size={16} strokeWidth={3} /> Issue Achievement
         </button>
       </div>
 
@@ -182,10 +182,10 @@ const AdminBadges = () => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand transition-colors" />
               <input 
                 type="text" 
-                placeholder="SEARCH ACHIEVEMENTS..." 
+                placeholder="Search for achievements or medals..." 
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-4 text-xs font-black border border-slate-200 rounded-2xl outline-none focus:border-brand/30 focus:ring-4 focus:ring-brand/5 transition-all text-slate-700 placeholder:text-slate-300 tracking-widest uppercase"
+                className="w-full pl-11 pr-4 py-4 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-brand/30 focus:ring-4 focus:ring-brand/5 transition-all text-slate-700 placeholder:text-slate-300"
               />
            </div>
 
@@ -201,12 +201,12 @@ const AdminBadges = () => {
           {loading ? (
              <div className="py-32 flex flex-col items-center justify-center">
                <Loader2 className="w-12 h-12 text-brand animate-spin mb-4 opacity-20" />
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Querying Merit History...</p>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Querying merit history...</p>
              </div>
           ) : filteredBadges.length === 0 ? (
              <div className="py-20 text-center text-slate-300">
                 <BadgeCheck size={64} className="mx-auto mb-4 opacity-10" />
-                <h3 className="text-xl font-black uppercase tracking-tight">No Merit Found</h3>
+                <h3 className="text-xl font-bold uppercase tracking-tight">No Merit Found</h3>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Create merit awards to reward students</p>
              </div>
           ) : (
@@ -227,7 +227,7 @@ const AdminBadges = () => {
                         <div className="absolute inset-0 bg-brand/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                      </div>
 
-                     <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight mb-2 group-hover:text-brand transition-colors text-nowrap truncate">{badge.title}</h3>
+                     <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tight mb-2 group-hover:text-brand transition-colors text-nowrap truncate">{badge.title}</h3>
                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed line-clamp-2 h-10 mb-6 px-4">{badge.description}</p>
                      
                      <div className="flex flex-wrap gap-1.5 justify-center">

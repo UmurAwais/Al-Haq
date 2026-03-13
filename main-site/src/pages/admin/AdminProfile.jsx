@@ -127,7 +127,7 @@ const AdminProfile = () => {
      return (
         <div className="flex flex-col items-center justify-center py-40 animate-in fade-in duration-500">
            <Loader2 className="w-12 h-12 text-brand animate-spin mb-4 opacity-20" />
-           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Querying Account Authority...</p>
+           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Querying profile registry...</p>
         </div>
      );
   }
@@ -141,10 +141,10 @@ const AdminProfile = () => {
             <UserCog className="w-8 h-8 text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">Admin Identity</h1>
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
-                <ShieldCheck size={14} className="text-brand-accent" /> 
-                System Access Profile
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">System Profile</h1>
+            <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
+                <ShieldCheck size={14} className="text-brand" /> 
+                Managed Administrator Account
             </p>
           </div>
         </div>
@@ -164,23 +164,23 @@ const AdminProfile = () => {
                </div>
 
                <div className="pt-16 pb-12 px-8 text-center">
-                  <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-1">{profile.name || 'ADMINISTRATOR'}</h2>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">{profile.email}</p>
+                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight mb-1">{profile.name || 'Administrator'}</h2>
+                  <p className="text-xs font-medium text-slate-400 mb-6">{profile.email}</p>
                   
                   <div className="flex items-center justify-center gap-2 mb-8">
-                     <span className="px-4 py-1.5 bg-brand/5 text-brand rounded-full border border-brand/10 text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                        <BadgeCheck size={14} /> {profile.role || 'SUPER_ADMIN'} ACCESS
+                     <span className="px-4 py-1.5 bg-brand/5 text-brand rounded-full border border-brand/10 text-[9px] font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+                        <BadgeCheck size={14} /> {profile.role || 'Super Admin'} Access
                      </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 border-t border-slate-50 pt-8">
                      <div className="text-center">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
-                        <p className="text-xs font-black text-emerald-600 uppercase tracking-tight">Active Duty</p>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Status</p>
+                        <p className="text-xs font-bold text-emerald-600">Active Account</p>
                      </div>
                      <div className="text-center">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Protection</p>
-                        <p className="text-xs font-black text-blue-600 uppercase tracking-tight">SSL Secured</p>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Protection</p>
+                        <p className="text-xs font-bold text-blue-600">SSL Secured</p>
                      </div>
                   </div>
                </div>
@@ -191,13 +191,13 @@ const AdminProfile = () => {
                   <ShieldCheck size={160} fill="white" />
                </div>
                <div className="relative z-10">
-                  <h3 className="text-[10px] font-black text-brand-accent uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                  <h3 className="text-[10px] font-bold text-brand-accent uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
                      <Activity size={12} /> Security Protocol
                   </h3>
                   <p className="text-sm font-bold opacity-70 leading-relaxed mb-6 uppercase tracking-widest">
                      Multi-factor authorization is managed through Al-Haq's internal directory services.
                   </p>
-                  <p className="text-[9px] font-black italic opacity-30 mt-10">* Contact HQ for policy overrides.</p>
+                  <p className="text-[9px] font-bold italic opacity-30 mt-10">* Contact HQ for policy overrides.</p>
                </div>
             </div>
          </div>
@@ -206,14 +206,14 @@ const AdminProfile = () => {
          <div className="lg:col-span-2 space-y-8">
             {/* General Info */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden p-8 sm:p-12">
-               <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
-                  <Settings2 size={16} className="text-brand" /> Identity Configuration
+               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
+                  <Settings2 size={16} className="text-brand" /> Profile Configuration
                </h3>
 
                <form onSubmit={handleUpdateProfile} className="space-y-8">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Full Management Name</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Full Management Name</label>
                         <div className="relative group">
                            <User size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" />
                            <input 
@@ -226,7 +226,7 @@ const AdminProfile = () => {
                         </div>
                      </div>
                      <div className="space-y-2 opacity-50">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Primary Email Address</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Primary Email Address</label>
                         <div className="relative">
                            <Mail size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
                            <input 
@@ -240,13 +240,13 @@ const AdminProfile = () => {
                   </div>
 
                   <div className="flex items-center justify-between pt-4">
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">Identity visible to teammates <br/> and system logs.</p>
+                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Identity visible to teammates <br/> and system logs.</p>
                      <button 
                         disabled={saving}
-                        className="flex items-center gap-3 px-10 py-5 bg-slate-900 border border-slate-900 hover:bg-brand hover:border-brand hover:shadow-xl hover:shadow-brand/20 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all active:scale-[0.98] disabled:opacity-50"
+                        className="flex items-center gap-3 px-10 py-5 bg-slate-900 border border-slate-900 hover:bg-brand hover:border-brand hover:shadow-xl hover:shadow-brand/20 text-white rounded-2xl font-bold uppercase tracking-[0.2em] text-xs transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                      >
                         {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                        Finalize Update
+                        Save Profile Changes
                      </button>
                   </div>
                </form>
@@ -256,12 +256,12 @@ const AdminProfile = () => {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden p-8 sm:p-12 relative">
                <div className="absolute top-0 right-0 w-px h-full bg-linear-to-b from-transparent via-slate-100 to-transparent"></div>
                
-               <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
-                  <Key size={16} className="text-brand" /> Credential Rotation
-               </h3>
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
+                   <Key size={16} className="text-brand" /> Security Rotation
+                </h3>
 
                {(error || success) && (
-                  <div className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest mb-8 flex items-center gap-3 animate-in fade-in duration-300 ${error ? 'bg-red-50 border border-red-100 text-red-600' : 'bg-emerald-50 border border-emerald-100 text-emerald-600'}`}>
+                  <div className={`p-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest mb-8 flex items-center gap-3 animate-in fade-in duration-300 ${error ? 'bg-red-50 border border-red-100 text-red-600' : 'bg-emerald-50 border border-emerald-100 text-emerald-600'}`}>
                      {error ? <AlertCircle size={14} /> : <CheckCircle2 size={14} />}
                      {error || success}
                   </div>
@@ -270,7 +270,7 @@ const AdminProfile = () => {
                <form onSubmit={handleChangePassword} className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                      <div className="space-y-2 col-span-2 sm:col-span-1">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Current Password</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Current Password</label>
                         <div className="relative group">
                            <Lock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" />
                            <input 
@@ -287,7 +287,7 @@ const AdminProfile = () => {
                      </div>
 
                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">New Authority Key</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">New Security Password</label>
                         <div className="relative group">
                            <Key size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" />
                            <input 
@@ -295,7 +295,7 @@ const AdminProfile = () => {
                               required
                               value={passwordData.newPassword}
                               onChange={e => setPasswordData({...passwordData, newPassword: e.target.value})}
-                              className="w-full bg-white border border-slate-200 rounded-[22px] pl-14 pr-12 py-5 text-sm font-black text-slate-800 focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all"
+                              className="w-full bg-white border border-slate-200 rounded-[22px] pl-14 pr-12 py-5 text-sm font-bold text-slate-800 focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all"
                            />
                            <button type="button" onClick={() => setShowPass({...showPass, new: !showPass.new})} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand transition-colors">
                               {showPass.new ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -304,7 +304,7 @@ const AdminProfile = () => {
                      </div>
 
                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Confirm Matrix</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Confirm New Password</label>
                         <div className="relative group">
                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors"><ShieldCheck size={18} /></div>
                            <input 
@@ -312,7 +312,7 @@ const AdminProfile = () => {
                               required
                               value={passwordData.confirmPassword}
                               onChange={e => setPasswordData({...passwordData, confirmPassword: e.target.value})}
-                              className="w-full bg-white border border-slate-200 rounded-[22px] pl-14 pr-12 py-5 text-sm font-black text-slate-800 focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all"
+                              className="w-full bg-white border border-slate-200 rounded-[22px] pl-14 pr-12 py-5 text-sm font-bold text-slate-800 focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all"
                            />
                            <button type="button" onClick={() => setShowPass({...showPass, confirm: !showPass.confirm})} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand transition-colors">
                               {showPass.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -324,7 +324,7 @@ const AdminProfile = () => {
                   <div className="flex justify-end pt-6">
                      <button 
                         disabled={saving}
-                        className="flex items-center gap-3 px-10 py-5 bg-brand hover:opacity-90 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-brand/20 transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50"
+                        className="flex items-center gap-3 px-10 py-5 bg-brand hover:opacity-90 text-white rounded-2xl font-bold uppercase tracking-[0.2em] text-xs shadow-xl shadow-brand/20 transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50"
                      >
                         {saving ? <Loader2 size={16} className="animate-spin" /> : <Lock size={16} />}
                         Update Security Key

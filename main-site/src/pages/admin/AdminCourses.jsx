@@ -24,7 +24,10 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
-  MousePointer2
+  MousePointer2,
+  Download,
+  FileJson,
+  FileSpreadsheet
 } from 'lucide-react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { apiFetch, getApiUrl } from '../../config';
@@ -54,6 +57,7 @@ const AdminCourses = () => {
   const [isDriveMock, setIsDriveMock] = useState(false);
   const [isDriveSettingsOpen, setIsDriveSettingsOpen] = useState(false);
   const [activeLectureId, setActiveLectureId] = useState(null); // Which lecture is being edited/expanded
+  const [showExportMenu, setShowExportMenu] = useState(false);
   
   // Form State
   const [formData, setFormData] = useState({
@@ -460,6 +464,41 @@ const AdminCourses = () => {
     }
   };
 
+  const downloadCSV = () => {
+    if (filteredCourses.length === 0) return;
+    const headers = ['Title', 'Price', 'Duration', 'Language', 'Rating', 'Enrolled'];
+    const rows = filteredCourses.map(c => [
+      c.title,
+      c.price,
+      c.duration,
+      c.language,
+      c.rating,
+      c.ratingCount
+    ]);
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `alhaq_courses_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    setShowExportMenu(false);
+  };
+
+  const downloadJSON = () => {
+    if (filteredCourses.length === 0) return;
+    const blob = new Blob([JSON.stringify(filteredCourses, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `alhaq_courses_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    setShowExportMenu(false);
+  };
+
   const filteredCourses = courses.filter(course => 
     course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (course.instructor || '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -474,23 +513,60 @@ const AdminCourses = () => {
             <BookOpen className="w-8 h-8 text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Courses</h1>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Course Registry</h1>
             <p className="text-sm text-slate-500 font-medium">Manage and refine your interactive course catalog ({courses.length} courses)</p>
           </div>
         </div>
-        <button 
-          onClick={() => openModal()} 
-          className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand/10 hover:-translate-y-0.5 active:scale-95"
-        >
-          <Plus size={16} strokeWidth={3} /> Add New Course
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <button 
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand/20 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95"
+            >
+              <Download size={16} className="text-brand" /> Export <ChevronDown size={14} className={`transition-transform duration-300 ${showExportMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showExportMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowExportMenu(false)}></div>
+                <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 origin-top-right overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                  <button 
+                    onClick={downloadCSV}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-bold text-slate-600 hover:bg-slate-50 hover:text-brand transition-all uppercase tracking-widest text-left"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
+                      <FileSpreadsheet size={14} />
+                    </div>
+                    Download CSV
+                  </button>
+                  <button 
+                    onClick={downloadJSON}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-bold text-slate-600 hover:bg-slate-50 hover:text-brand transition-all uppercase tracking-widest text-left"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-brand/5 text-brand flex items-center justify-center">
+                      <FileJson size={14} />
+                    </div>
+                    Download JSON
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
+          <button 
+            onClick={() => openModal()} 
+            className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand/10 hover:-translate-y-0.5 active:scale-95"
+          >
+            <Plus size={16} strokeWidth={3} /> Add New Course
+          </button>
+        </div>
       </div>
 
       {/* Main Container */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden p-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 border-b border-slate-50 pb-6">
            <div className="space-y-1">
-              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Learning Inventory</h2>
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight">Main Catalog</h2>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{filteredCourses.length} Matches Found</p>
            </div>
            

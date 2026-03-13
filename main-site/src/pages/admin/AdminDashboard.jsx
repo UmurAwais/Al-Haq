@@ -200,7 +200,7 @@ const AdminDashboard = () => {
 
   const statCards = [
     {
-      label: 'TOTAL REVENUE',
+      label: 'Total Revenue',
       value: formatCurrency(stats.revenue),
       sub: 'Lifetime earnings',
       icon: DollarSign,
@@ -209,7 +209,7 @@ const AdminDashboard = () => {
       barColor: 'bg-emerald-500',
     },
     {
-      label: 'TOTAL STUDENTS',
+      label: 'Total Students',
       value: stats.students,
       sub: 'Unique enrollments',
       icon: Users,
@@ -218,7 +218,7 @@ const AdminDashboard = () => {
       barColor: 'bg-indigo-500',
     },
     {
-      label: 'ACTIVE COURSES',
+      label: 'Active Courses',
       value: stats.courses,
       sub: 'Published courses',
       icon: BookOpen,
@@ -227,7 +227,7 @@ const AdminDashboard = () => {
       barColor: 'bg-amber-400',
     },
     {
-      label: 'ORDERS THIS MONTH',
+      label: 'Monthly Orders',
       value: stats.ordersThisMonth,
       sub: 'From all sources',
       icon: ShoppingCart,
@@ -248,14 +248,14 @@ const AdminDashboard = () => {
             <LayoutGrid size={24} className="text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Analytics Dashboard</h1>
-            <p className="text-sm text-slate-500 font-medium">Welcome back, Administrator. Monitoring Al-Haq's presence today.</p>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Intelligence Center</h1>
+            <p className="text-sm text-slate-500 font-medium">Welcome back, Administrator. Monitoring Al-Haq's operations today.</p>
           </div>
         </div>
         
         <div className="px-5 py-2.5 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-            <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">System Status: Active</span>
+            <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">System Engine: Active</span>
         </div>
       </div>
 

@@ -150,7 +150,7 @@ const AdminRoles = () => {
             <ShieldCheck className="w-8 h-8 text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Access Control</h1>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Authority Matrix</h1>
             <p className="text-sm text-slate-500 font-medium">Manage administrative roles and permissions system-wide ({roles.length} roles)</p>
           </div>
         </div>
@@ -180,7 +180,7 @@ const AdminRoles = () => {
           {loading ? (
              <div className="py-32 flex flex-col items-center justify-center">
                <Loader2 className="w-12 h-12 text-brand animate-spin mb-4 opacity-20" />
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Querying Permission Schema...</p>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Querying access matrix...</p>
              </div>
           ) : roles.length === 0 ? (
              <div className="py-32 text-center text-slate-300">

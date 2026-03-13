@@ -26,7 +26,8 @@ import {
   Download,
   FileJson,
   FileSpreadsheet,
-  ChevronDown
+  ChevronDown,
+  FileText
 } from 'lucide-react';
 import { apiFetch } from '../../config';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -55,8 +56,19 @@ const AdminUsers = () => {
   const [activeMenu, setActiveMenu] = useState(null); // For actions dropdown
   const [showExportMenu, setShowExportMenu] = useState(false);
 
-  // Real-time listener from Firestore (if users are mirrored there)
-  // Fallback to backend fetch if Firestore is empty or for initial load
+  // Helper function for date formatting
+  const formatDate = (date) => {
+    if (!date) return '-';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  };
+
+  // Real-time listener from Firestore
   useEffect(() => {
     let unsubscribe = () => {};
 
@@ -72,33 +84,20 @@ const AdminUsers = () => {
             createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt
           }));
           
-          console.log(`📡 Firestore emitted ${firestoreUsers.length} users`);
-          
           setUsers(prevUsers => {
-            if (firestoreUsers.length === 0 && prevUsers.length > 0) {
-                console.log("📡 Firestore returned empty, preserving existing users from MongoDB");
-                return prevUsers;
-            }
+            if (firestoreUsers.length === 0 && prevUsers.length > 0) return prevUsers;
             
             const merged = [...prevUsers];
             firestoreUsers.forEach(fUser => {
               const index = merged.findIndex(u => u.uid === fUser.uid);
               if (index >= 0) {
-                merged[index] = { 
-                  ...merged[index],
-                  ...fUser, 
-                  referenceNumber: merged[index].referenceNumber || fUser.referenceNumber 
-                };
+                merged[index] = { ...merged[index], ...fUser };
               } else {
                 merged.push(fUser);
               }
             });
             
-            return merged.sort((a,b) => {
-                const dateA = new Date(a.createdAt || 0);
-                const dateB = new Date(b.createdAt || 0);
-                return dateB - dateA;
-            });
+            return merged.sort((a,b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
           });
           setLoading(false);
         }, (err) => {
@@ -158,17 +157,11 @@ const AdminUsers = () => {
         });
         fetchUsers();
       } else {
-        setSyncResult({
-          success: false,
-          message: data.message || 'Sync failed.'
-        });
+        setSyncResult({ success: false, message: data.message || 'Sync failed.' });
       }
     } catch (err) {
       console.error('Sync error:', err);
-      setSyncResult({
-        success: false,
-        message: 'Error connecting to sync service.'
-      });
+      setSyncResult({ success: false, message: 'Error connecting to sync service.' });
     } finally {
       setSyncing(false);
     }
@@ -193,7 +186,6 @@ const AdminUsers = () => {
       const data = await res.json();
       
       if (data.ok) {
-        // MIRROR TO FIRESTORE (important for real-time dashboard)
         await setDoc(doc(db, "users", data.user.uid), {
           uid: data.user.uid,
           email: data.user.email,
@@ -234,7 +226,6 @@ const AdminUsers = () => {
       
       const data = await res.json();
       if (data.ok) {
-        // Optimistic update or wait for Firestore listener
         setUsers(prev => prev.map(u => u.uid === user.uid ? { ...u, status: newStatus } : u));
         setActiveMenu(null);
       }
@@ -249,21 +240,17 @@ const AdminUsers = () => {
     setError(null);
     try {
       const token = localStorage.getItem('adminToken');
-      const res = await apiFetch(`/api/admin/users/${confirmDelete.uid}`, {
+      const response = await apiFetch(`/api/admin/users/${confirmDelete.uid}`, {
         method: 'DELETE',
         headers: { 'x-admin-token': token }
       });
-      
-      const data = await res.json();
-      
-      if (res.ok) {
-        // Optimistic update
+      const data = await response.json();
+      if (data.ok) {
         setUsers(prev => prev.filter(u => u.uid !== confirmDelete.uid));
         setConfirmDelete(null);
-        // Reset active menu if open
         setActiveMenu(null);
       } else {
-        setError(data.message || 'Expulsion failed. Security protocol remained active.');
+        setError(data.message || 'Expulsion failed.');
       }
     } catch (err) {
       console.error('Delete error:', err);
@@ -296,46 +283,51 @@ const AdminUsers = () => {
 
   const downloadCSV = () => {
     if (filteredUsers.length === 0) return;
-    
-    const headers = ['UID', 'Name', 'Email', 'Reference Number', 'Status', 'Joined'];
+    const headers = ['UID', 'Name', 'Email', 'Phone', 'Location', 'Reference Number', 'Status', 'Joined'];
     const rows = filteredUsers.map(user => [
       user.uid || user.id,
       user.displayName || 'Unnamed',
       user.email,
+      user.phone || '',
+      user.location || '',
       user.referenceNumber || 'N/A',
       user.status || 'active',
       formatDate(user.createdAt)
     ]);
-
     const csvContent = [
       headers.join(','),
       ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
     ].join('\n');
-
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `alhaq_users_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
+    link.href = url;
+    link.download = `alhaq_users_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
-    document.body.removeChild(link);
     setShowExportMenu(false);
   };
 
   const downloadJSON = () => {
     if (filteredUsers.length === 0) return;
-    
     const blob = new Blob([JSON.stringify(filteredUsers, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `alhaq_users_${new Date().toISOString().split('T')[0]}.json`);
-    document.body.appendChild(link);
+    link.href = url;
+    link.download = `alhaq_users_${new Date().toISOString().split('T')[0]}.json`;
     link.click();
-    document.body.removeChild(link);
     setShowExportMenu(false);
   };
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = 
+      (user.displayName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.uid || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.referenceNumber || '').toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFilter = statusFilter === 'all' || (user.status || 'active').toLowerCase() === statusFilter.toLowerCase();
+    return matchesSearch && matchesFilter;
+  });
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -346,39 +338,11 @@ const AdminUsers = () => {
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
-      case 'active':
-        return 'bg-emerald-50 text-emerald-600 border-emerald-100';
-      case 'inactive':
-        return 'bg-red-50 text-red-600 border-red-100';
-      case 'banned':
-        return 'bg-slate-900 text-slate-400 border-slate-800';
-      default:
-        return 'bg-blue-50 text-blue-600 border-blue-100';
+      case 'active': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+      case 'inactive': return 'bg-red-50 text-red-600 border-red-100';
+      case 'banned': return 'bg-slate-900 text-slate-400 border-slate-800';
+      default: return 'bg-blue-50 text-blue-600 border-blue-100';
     }
-  };
-
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = 
-      (user.displayName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (user.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (user.referenceNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (user.uid || '').toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFilter = statusFilter === 'all' || (user.status || 'active').toLowerCase() === statusFilter.toLowerCase();
-    
-    return matchesSearch && matchesFilter;
-  });
-
-  const formatDate = (date) => {
-    if (!date) return '-';
-    // Handle both Date objects and string/timestamps
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return '-';
-    return d.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
   };
 
   return (
@@ -390,10 +354,10 @@ const AdminUsers = () => {
             <Users className="w-8 h-8 text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">User Directory</h1>
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest opacity-60 flex items-center gap-2">
-                <Activity size={14} className="text-brand-accent" /> 
-                {users.length} Registered Members
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">User Directory</h1>
+            <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
+                <Users size={14} className="text-brand" /> 
+                {users.length} Managed User Accounts
             </p>
           </div>
         </div>
@@ -402,7 +366,7 @@ const AdminUsers = () => {
             <div className="relative">
               <button 
                 onClick={() => setShowExportMenu(!showExportMenu)}
-                className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand-accent/30 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 cursor-pointer"
+                className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand-accent/30 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 cursor-pointer"
               >
                 <Download size={16} className="text-brand-accent" /> Export <ChevronDown size={14} className={`transition-transform duration-300 ${showExportMenu ? 'rotate-180' : ''}`} />
               </button>
@@ -415,22 +379,22 @@ const AdminUsers = () => {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 origin-top-right overflow-hidden"
+                      className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 origin-top-right overflow-hidden"
                     >
                       <button 
                         onClick={downloadCSV}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black text-slate-600 hover:bg-slate-50 hover:text-brand-accent transition-all uppercase tracking-widest text-left group cursor-pointer"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-bold text-slate-600 hover:bg-slate-50 hover:text-emerald-600 transition-all uppercase tracking-widest text-left group cursor-pointer"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center group-hover:bg-brand-accent group-hover:text-white transition-all">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-all">
                           <FileSpreadsheet size={14} />
                         </div>
                         Download Sheet (.csv)
                       </button>
                       <button 
                         onClick={downloadJSON}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black text-slate-600 hover:bg-slate-50 hover:text-brand-accent transition-all uppercase tracking-widest text-left group cursor-pointer"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-bold text-slate-600 hover:bg-slate-50 hover:text-brand transition-all uppercase tracking-widest text-left group cursor-pointer"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-brand/5 text-brand flex items-center justify-center group-hover:bg-brand-accent group-hover:text-white transition-all">
+                        <div className="w-8 h-8 rounded-lg bg-brand/5 text-brand flex items-center justify-center group-hover:bg-brand group-hover:text-white transition-all">
                           <FileJson size={14} />
                         </div>
                         Download JSON Data
@@ -444,13 +408,13 @@ const AdminUsers = () => {
             <button 
               onClick={handleSyncFirebase}
               disabled={syncing}
-              className={`flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand/30 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 cursor-pointer ${syncing && 'opacity-70 pointer-events-none'}`}
+              className={`flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand/30 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 cursor-pointer ${syncing && 'opacity-70 pointer-events-none'}`}
             >
               {syncing ? <RefreshCw size={16} className="animate-spin" /> : <RefreshCw size={16} className="text-brand" />} 
-              {syncing ? 'Syncing...' : 'Firebase Sync'}
+              {syncing ? 'Syncing...' : 'Sync Registry'}
             </button>
-            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-6 py-3 bg-brand-accent text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand-accent/20 hover:-translate-y-0.5 active:scale-95 cursor-pointer">
-              <Plus size={16} strokeWidth={3} /> Add User
+            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-6 py-3 bg-brand-accent text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand-accent/20 hover:-translate-y-0.5 active:scale-95 cursor-pointer">
+              <Plus size={16} strokeWidth={3} /> Add Member
             </button>
         </div>
       </div>
@@ -465,8 +429,8 @@ const AdminUsers = () => {
         ].map((stat, i) => (
           <div key={i} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between hover:border-brand/20 transition-all group cursor-pointer hover:shadow-xl hover:shadow-slate-200/50">
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-slate-500 transition-colors">{stat.label}</p>
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight group-hover:scale-110 origin-left transition-transform">{stat.count}</h3>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 group-hover:text-slate-500 transition-colors">{stat.label}</p>
+              <h3 className="text-2xl font-bold text-slate-900 tracking-tight group-hover:scale-105 origin-left transition-transform">{stat.count}</h3>
             </div>
             <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center border border-transparent group-hover:rotate-6 transition-all`}>
               <stat.icon size={24} />
@@ -484,7 +448,7 @@ const AdminUsers = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand transition-colors" />
                 <input 
                   type="text" 
-                  placeholder="Search by name, email or ID..." 
+                  placeholder="Search for members or registry ID..." 
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   className="w-full pl-11 pr-4 py-2.5 text-xs font-bold border border-slate-100 rounded-xl outline-none focus:border-brand/30 focus:bg-slate-50/50 transition-all text-slate-600 placeholder:text-slate-300"
@@ -523,27 +487,27 @@ const AdminUsers = () => {
           {loading ? (
              <div className="py-32 flex flex-col items-center justify-center">
                <Loader2 className="w-12 h-12 text-brand animate-spin mb-4 opacity-20" />
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Connecting to User Database...</p>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Querying User Database...</p>
              </div>
           ) : filteredUsers.length === 0 ? (
              <div className="py-32 text-center">
                 <div className="w-20 h-20 bg-slate-50 rounded-[30px] flex items-center justify-center mx-auto mb-6 border border-slate-100 shadow-inner">
                     <Users size={40} className="text-slate-200" />
                 </div>
-                <h3 className="text-xl font-black text-slate-700 uppercase tracking-tight mb-2">Registry Empty</h3>
+                <h3 className="text-xl font-bold text-slate-700 uppercase tracking-tight mb-2">Registry Empty</h3>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No users found matching your current filter set</p>
              </div>
           ) : (
              <table className="w-full border-collapse">
                 <thead>
                    <tr className="bg-slate-50/50 border-b border-slate-100">
-                      <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">User Profile</th>
-                      <th className="px-6 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact</th>
-                      <th className="px-6 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Region</th>
-                      <th className="px-6 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Ref. Number</th>
-                      <th className="px-6 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
-                      <th className="px-6 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Joined</th>
-                      <th className="px-8 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Manage</th>
+                      <th className="px-8 py-6 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">User Profile</th>
+                      <th className="px-6 py-6 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Contact</th>
+                      <th className="px-6 py-6 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Region</th>
+                      <th className="px-6 py-6 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Ref. Number</th>
+                      <th className="px-6 py-6 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                      <th className="px-6 py-6 text-right text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Joined</th>
+                      <th className="px-8 py-6 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Manage</th>
                    </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -561,7 +525,7 @@ const AdminUsers = () => {
                                   )}
                                </div>
                                <div>
-                                  <p className="text-sm font-black text-slate-800 tracking-tight leading-tight mb-0.5 group-hover:text-brand transition-colors uppercase">{user.displayName || 'Unnamed Cadet'}</p>
+                                  <p className="text-sm font-bold text-slate-800 tracking-tight leading-tight mb-0.5 group-hover:text-brand transition-colors uppercase">{user.displayName || 'Unnamed Cadet'}</p>
                                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                                       <Hash size={10} /> {user.uid?.slice(-8).toUpperCase() || 'EXTERNAL'}
                                   </p>
@@ -659,14 +623,14 @@ const AdminUsers = () => {
                   <RefreshCw size={32} className={syncing ? 'animate-spin' : ''} />
               </div>
               <div>
-                  <h4 className="text-xl font-black uppercase tracking-tight mb-1">Firebase Sync Assistant</h4>
-                  <p className="text-sm text-white/60 font-medium max-w-md">Ensure your local MongoDB user data matches Firebase Authentication records. This process imports new members and updates session statuses.</p>
+                  <h4 className="text-xl font-bold uppercase tracking-tight mb-1">Account Sync Assistant</h4>
+                  <p className="text-sm text-white/60 font-medium max-w-md">Synchronize your local user directory with Firebase Authentication records. This process ensures all member profiles and session statuses are up to date.</p>
               </div>
           </div>
           <button 
                 onClick={handleSyncFirebase}
                 disabled={syncing}
-                className="relative z-10 px-8 py-4 bg-white text-brand rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50"
+                className="relative z-10 px-8 py-4 bg-white text-brand rounded-2xl font-bold text-xs uppercase tracking-[0.2em] shadow-xl hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50"
           >
               {syncing ? 'Processing Data...' : 'Begin Synchronization'}
           </button>
@@ -674,11 +638,9 @@ const AdminUsers = () => {
 
       {/* CREATE USER MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-slate-900/50" onClick={closeModal}></div>
-          
           <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
-            {/* Modal Header */}
             <div className="shrink-0 p-6 border-b border-slate-100 flex items-center justify-between bg-white">
               <div>
                 <h2 className="text-xl font-bold text-slate-900 tracking-tight">{successInfo ? 'User Added' : 'Add New User'}</h2>
@@ -688,8 +650,6 @@ const AdminUsers = () => {
                 <X size={20} />
               </button>
             </div>
-
-            {/* Modal Body */}
             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
               {successInfo ? (
                   <div className="text-center py-6">
@@ -698,7 +658,6 @@ const AdminUsers = () => {
                       </div>
                       <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">Member Added Successfully</h3>
                       <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-8">System has generated the following credentials</p>
-                      
                       <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100 space-y-4 text-left">
                           <div className="flex justify-between items-center py-3 border-b border-slate-200/50">
                               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Email Address</span>
@@ -723,69 +682,41 @@ const AdminUsers = () => {
                       <AlertCircle size={16} /> {error}
                     </div>
                   )}
-
                   <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Full Name</label>
                       <div className="relative group">
                         <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand transition-colors" />
-                        <input 
-                            required 
-                            type="text" 
-                            value={formData.displayName} 
-                            onChange={e => setFormData({...formData, displayName: e.target.value})} 
-                            className="w-full bg-slate-50 border border-slate-100 rounded-[22px] pl-14 pr-6 py-4 text-sm font-bold text-slate-700 focus:bg-white focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all placeholder:text-slate-300 uppercase tracking-wider" 
-                            placeholder="CADET NAME" 
-                        />
+                        <input required type="text" value={formData.displayName} onChange={e => setFormData({...formData, displayName: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-[22px] pl-14 pr-6 py-4 text-sm font-bold text-slate-700 focus:bg-white focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all placeholder:text-slate-300 uppercase tracking-wider" placeholder="CADET NAME" />
                       </div>
                   </div>
-
                   <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Email Address</label>
                       <div className="relative group">
                         <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand transition-colors" />
-                        <input 
-                            required 
-                            type="email" 
-                            value={formData.email} 
-                            onChange={e => setFormData({...formData, email: e.target.value})} 
-                            className="w-full bg-slate-50 border border-slate-100 rounded-[22px] pl-14 pr-6 py-4 text-sm font-bold text-slate-700 focus:bg-white focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all placeholder:text-slate-300 uppercase tracking-widest" 
-                            placeholder="CADET@ALHAQ.COM" 
-                        />
+                        <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-[22px] pl-14 pr-6 py-4 text-sm font-bold text-slate-700 focus:bg-white focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all placeholder:text-slate-300 uppercase tracking-widest" placeholder="CADET@ALHAQ.COM" />
                       </div>
                   </div>
-
                   <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1 flex justify-between">
                         Password (Optional) <span className="text-[8px] opacity-40">AUTO-GENERATES IF EMPTY</span>
                       </label>
                       <div className="relative group">
                         <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand transition-colors" />
-                        <input 
-                            type="password" 
-                            value={formData.password} 
-                            onChange={e => setFormData({...formData, password: e.target.value})} 
-                            className="w-full bg-slate-50 border border-slate-100 rounded-[22px] pl-14 pr-6 py-4 text-sm font-bold text-slate-700 focus:bg-white focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all placeholder:text-slate-200 uppercase" 
-                            placeholder="••••••••" 
-                        />
+                        <input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full bg-slate-50 border border-slate-100 rounded-[22px] pl-14 pr-6 py-4 text-sm font-bold text-slate-700 focus:bg-white focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all placeholder:text-slate-200 uppercase" placeholder="••••••••" />
                       </div>
                   </div>
-                  
                   <div className="bg-blue-50/50 rounded-2xl p-4 flex gap-3 border border-blue-100/50">
                     <ShieldCheck size={24} className="text-brand shrink-0" />
                     <p className="text-[9px] font-bold text-blue-800 leading-relaxed uppercase tracking-wider">
-                        Enrollment to Al-Haq Learning Hub will be processed automatically. A welcome email with credentials will be sent to the student.
+                        Enrollment will be processed automatically. A welcome email with credentials will be sent to the student.
                     </p>
                   </div>
                 </form>
               )}
             </div>
-
-            {/* Modal Footer */}
             <div className="shrink-0 p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3 rounded-b-2xl">
               {successInfo ? (
-                  <button onClick={closeModal} className="flex-1 sm:flex-none px-10 py-4 bg-brand text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-brand/20 transition-all hover:-translate-y-0.5 active:scale-95">
-                      Dismiss & Continue
-                  </button>
+                  <button onClick={closeModal} className="flex-1 sm:flex-none px-10 py-4 bg-brand text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-brand/20 transition-all hover:-translate-y-0.5 active:scale-95">Dismiss & Continue</button>
               ) : (
                 <>
                   <button disabled={saving} onClick={closeModal} type="button" className="px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-200 transition-all disabled:opacity-50">Cancel</button>
@@ -810,24 +741,12 @@ const AdminUsers = () => {
                     <Trash2 size={32} />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 uppercase tracking-tight mb-2">Expel Member?</h3>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-loose mb-8 px-4">
-                    You are about to permanently remove <span className="text-red-500 font-extrabold">{confirmDelete.displayName}</span>. This action is irreversible.
-                </p>
-
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-loose mb-8 px-4">You are about to permanently remove <span className="text-red-500 font-extrabold">{confirmDelete.displayName}</span>.</p>
                 <div className="flex flex-col gap-3">
-                    <button 
-                        onClick={handleDeleteUser}
-                        disabled={saving}
-                        className="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-red-200 hover:bg-red-600 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
-                    >
+                    <button onClick={handleDeleteUser} disabled={saving} className="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-red-200 hover:bg-red-600 transition-all active:scale-95 disabled:opacity-50 cursor-pointer">
                         {saving ? 'Terminating Registry...' : 'Confirm Expulsion'}
                     </button>
-                    <button 
-                        onClick={() => setConfirmDelete(null)}
-                        className="w-full py-4 bg-slate-100 text-slate-400 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-slate-200 transition-all cursor-pointer"
-                    >
-                        Cancel
-                    </button>
+                    <button onClick={() => setConfirmDelete(null)} className="w-full py-4 bg-slate-100 text-slate-400 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-slate-200 transition-all cursor-pointer">Cancel</button>
                 </div>
             </div>
           </div>
@@ -838,29 +757,14 @@ const AdminUsers = () => {
       {syncResult && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-slate-900/50" onClick={() => setSyncResult(null)}></div>
-          
           <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
             <div className="p-8 text-center">
               <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 border shadow-sm transition-all duration-500 ${syncResult.success ? 'bg-emerald-50 border-emerald-100 text-emerald-500' : 'bg-red-50 border-red-100 text-red-500'}`}>
                 {syncResult.success ? <CheckCircle size={32} /> : <XCircle size={32} />}
               </div>
-
-              <h3 className="text-xl font-bold text-slate-900 mb-2">
-                {syncResult.success ? 'Sync Complete' : 'Sync Failed'}
-              </h3>
-              
-              <p className="text-sm font-medium text-slate-500 mb-6 leading-relaxed">
-                {syncResult.message}
-              </p>
-
-
-
-              <button 
-                onClick={() => setSyncResult(null)}
-                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all active:scale-95 cursor-pointer ${syncResult.success ? 'bg-brand text-white' : 'bg-slate-200 text-slate-700'}`}
-              >
-                Close
-              </button>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">{syncResult.success ? 'Sync Complete' : 'Sync Failed'}</h3>
+              <p className="text-sm font-medium text-slate-500 mb-6 leading-relaxed">{syncResult.message}</p>
+              <button onClick={() => setSyncResult(null)} className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all active:scale-95 cursor-pointer ${syncResult.success ? 'bg-brand text-white' : 'bg-slate-200 text-slate-700'}`}>Close</button>
             </div>
           </div>
         </div>

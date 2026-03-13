@@ -15,7 +15,11 @@ import {
   Filter,
   CheckCircle,
   Eye,
-  Phone
+  Phone,
+  Download,
+  FileJson,
+  FileSpreadsheet,
+  ChevronDown
 } from 'lucide-react';
 import { apiFetch } from '../../config';
 const AdminContacts = () => {
@@ -27,6 +31,7 @@ const AdminContacts = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [submissionToDelete, setSubmissionToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   useEffect(() => {
     // 1. Initial Fetch
@@ -116,6 +121,41 @@ const AdminContacts = () => {
     s.subject?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const downloadCSV = () => {
+    if (filteredSubmissions.length === 0) return;
+    const headers = ['Name', 'Email', 'Phone', 'Subject', 'Message', 'Date'];
+    const rows = filteredSubmissions.map(sub => [
+      sub.name,
+      sub.email,
+      sub.phone || 'N/A',
+      sub.subject || 'N/A',
+      sub.message,
+      new Date(sub.createdAt).toLocaleString()
+    ]);
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `alhaq_contacts_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    setShowExportMenu(false);
+  };
+
+  const downloadJSON = () => {
+    if (filteredSubmissions.length === 0) return;
+    const blob = new Blob([JSON.stringify(filteredSubmissions, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `alhaq_contacts_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    setShowExportMenu(false);
+  };
+
   const formatDate = (dateStr) => {
     const d = new Date(dateStr);
     return d.toLocaleDateString('en-US', { 
@@ -136,7 +176,7 @@ const AdminContacts = () => {
             <Mail className="w-8 h-8 text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Inquiry Inbox</h1>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Support Desk</h1>
             <p className="text-sm text-slate-500 font-medium">Manage and respond to student inquiries ({submissions.length} messages)</p>
           </div>
         </div>
@@ -157,10 +197,47 @@ const AdminContacts = () => {
               />
            </div>
 
-           <div className="px-4 py-2 bg-brand/5 rounded-xl border border-brand/5">
-                <span className="text-[10px] font-bold text-brand uppercase tracking-widest flex items-center gap-2">
-                    <CheckCircle2 size={12} /> Live Sync Active
-                </span>
+           <div className="flex items-center gap-3">
+             <div className="relative">
+                <button 
+                  onClick={() => setShowExportMenu(!showExportMenu)}
+                  className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand/30 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95"
+                >
+                  <Download size={16} className="text-brand" /> Export <ChevronDown size={14} className={`transition-transform duration-300 ${showExportMenu ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showExportMenu && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowExportMenu(false)}></div>
+                    <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 origin-top-right overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                      <button 
+                        onClick={downloadCSV}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-bold text-slate-600 hover:bg-slate-50 hover:text-brand transition-all uppercase tracking-widest text-left"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
+                          <FileSpreadsheet size={14} />
+                        </div>
+                        Download CSV
+                      </button>
+                      <button 
+                        onClick={downloadJSON}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-bold text-slate-600 hover:bg-slate-50 hover:text-brand transition-all uppercase tracking-widest text-left"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-brand/5 text-brand flex items-center justify-center">
+                          <FileJson size={14} />
+                        </div>
+                        Download JSON
+                      </button>
+                    </div>
+                  </>
+                )}
+             </div>
+
+             <div className="px-4 py-3 bg-brand/5 rounded-xl border border-brand/5 hidden sm:block">
+                  <span className="text-[10px] font-bold text-brand uppercase tracking-widest flex items-center gap-2">
+                      <CheckCircle2 size={12} /> Live Sync Active
+                  </span>
+             </div>
            </div>
         </div>
 

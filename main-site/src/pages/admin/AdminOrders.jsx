@@ -16,7 +16,10 @@ import {
   DollarSign,
   User,
   ArrowUpDown,
-  FileText
+  FileText,
+  FileJson,
+  FileSpreadsheet,
+  ChevronDown
 } from 'lucide-react';
 import { apiFetch, getApiUrl } from '../../config';
 
@@ -27,6 +30,7 @@ const AdminOrders = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   const fetchOrders = async () => {
     try {
@@ -151,6 +155,43 @@ const AdminOrders = () => {
     return `Rs. ${num.toLocaleString('en-PK')}`;
   };
 
+  const downloadCSV = () => {
+    if (filteredOrders.length === 0) return;
+    const headers = ['Order ID', 'FirstName', 'LastName', 'Email', 'Course', 'Amount', 'Status', 'Date'];
+    const rows = filteredOrders.map(order => [
+      order._id,
+      order.firstName || '',
+      order.lastName || '',
+      order.email || '',
+      order.courseName || order.courseId || '',
+      order.price || order.amount || 0,
+      order.status || 'pending',
+      new Date(order.createdAt || order.date).toLocaleString()
+    ]);
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `alhaq_orders_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    setShowExportMenu(false);
+  };
+
+  const downloadJSON = () => {
+    if (filteredOrders.length === 0) return;
+    const blob = new Blob([JSON.stringify(filteredOrders, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `alhaq_orders_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    setShowExportMenu(false);
+  };
+
   const formatDate = (dateStr) => {
     if (!dateStr) return '-';
     const d = new Date(dateStr);
@@ -183,8 +224,11 @@ const AdminOrders = () => {
             <ShoppingBag className="w-8 h-8 text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">Orders</h1>
-            <p className="text-sm text-slate-500 font-bold uppercase tracking-wider opacity-60">Manage student enrollments and payments</p>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Financial Registry</h1>
+            <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
+                <ShoppingBag size={14} className="text-brand" /> 
+                {orders.length} Managed Enrollment Records
+            </p>
           </div>
         </div>
         
@@ -193,9 +237,40 @@ const AdminOrders = () => {
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Earnings</span>
                 <span className="text-xl font-bold text-brand tracking-tight">{formatPrice(totalRevenue)}</span>
             </div>
-            <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand/20 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95">
-              <Download size={16} /> Export CSV
-            </button>
+             <div className="relative">
+                <button 
+                  onClick={() => setShowExportMenu(!showExportMenu)}
+                  className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-brand/20 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95"
+                >
+                  <Download size={16} className="text-brand" /> Export <ChevronDown size={14} className={`transition-transform duration-300 ${showExportMenu ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showExportMenu && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowExportMenu(false)}></div>
+                    <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 origin-top-right overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                      <button 
+                        onClick={downloadCSV}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-bold text-slate-600 hover:bg-slate-50 hover:text-brand transition-all uppercase tracking-widest text-left"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
+                          <FileSpreadsheet size={14} />
+                        </div>
+                        Download CSV
+                      </button>
+                      <button 
+                        onClick={downloadJSON}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-bold text-slate-600 hover:bg-slate-50 hover:text-brand transition-all uppercase tracking-widest text-left"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-brand/5 text-brand flex items-center justify-center">
+                          <FileJson size={14} />
+                        </div>
+                        Download JSON
+                      </button>
+                    </div>
+                  </>
+                )}
+             </div>
         </div>
       </div>
 
@@ -273,26 +348,26 @@ const AdminOrders = () => {
           {loading ? (
              <div className="py-32 flex flex-col items-center justify-center">
                <Loader2 className="w-12 h-12 text-brand animate-spin mb-4 opacity-20" />
-               <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Initialising Order Ledger...</p>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Querying order ledger...</p>
              </div>
           ) : filteredOrders.length === 0 ? (
              <div className="py-32 text-center">
                 <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-100">
                     <ShoppingBag size={40} className="text-slate-200" />
                 </div>
-                <h3 className="text-xl font-black text-slate-700 uppercase tracking-tight mb-2">No Records Found</h3>
+                <h3 className="text-xl font-bold text-slate-700 uppercase tracking-tight mb-2">No Records Found</h3>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Adjust your filters or try a different search term</p>
              </div>
           ) : (
              <table className="w-full border-collapse">
                 <thead>
                    <tr className="bg-slate-50/50 border-b border-slate-100">
-                      <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Order Details</th>
-                      <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Course</th>
-                      <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Amount</th>
-                      <th className="px-6 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
-                      <th className="px-6 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Proof</th>
-                      <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Date</th>
+                      <th className="px-8 py-5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Order Details</th>
+                      <th className="px-6 py-5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Course</th>
+                      <th className="px-6 py-5 text-left text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Amount</th>
+                      <th className="px-6 py-5 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                      <th className="px-6 py-5 text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Proof</th>
+                      <th className="px-8 py-5 text-right text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Date</th>
                    </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -304,10 +379,10 @@ const AdminOrders = () => {
                                   <User size={20} />
                                </div>
                                <div>
-                                  <p className="text-sm font-black text-slate-800 tracking-tight leading-tight mb-0.5 group-hover:text-brand transition-colors uppercase">
+                                  <p className="text-sm font-bold text-slate-800 tracking-tight leading-tight mb-0.5 group-hover:text-brand transition-colors uppercase">
                                     {order.firstName ? `${order.firstName} ${order.lastName || ''}`.trim() : (order.name || 'Unknown Student')}
                                   </p>
-                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{order.email || '-'}</p>
+                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{order.email || '-'}</p>
                                </div>
                             </div>
                          </td>
@@ -317,12 +392,12 @@ const AdminOrders = () => {
                             </p>
                          </td>
                          <td className="px-6 py-6 font-mono">
-                            <span className="text-sm font-black text-slate-900 tracking-tighter">
+                            <span className="text-sm font-bold text-slate-900 tracking-tighter">
                                {formatPrice(order.price || order.amount)}
                             </span>
                          </td>
                          <td className="px-6 py-6 text-center">
-                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-widest ${getStatusColor(order.status)}`}>
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[9px] font-bold uppercase tracking-widest ${getStatusColor(order.status)}`}>
                                {getStatusIcon(order.status)}
                                {order.status || 'PENDING'}
                             </span>
@@ -338,11 +413,11 @@ const AdminOrders = () => {
                                </div>
                              </div>
                            ) : (
-                             <span className="text-[10px] font-black text-slate-200 uppercase tracking-widest">—</span>
+                             <span className="text-[10px] font-bold text-slate-200 uppercase tracking-widest">—</span>
                            )}
                          </td>
                          <td className="px-8 py-6 text-right">
-                            <p className="text-xs font-black text-slate-700 tracking-tighter mb-0.5">{formatDate(order.createdAt || order.date).split(',')[0]}</p>
+                            <p className="text-xs font-bold text-slate-700 tracking-tighter mb-0.5">{formatDate(order.createdAt || order.date).split(',')[0]}</p>
                             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{formatDate(order.createdAt || order.date).split(',')[1]}</p>
                          </td>
                       </tr>
@@ -359,7 +434,7 @@ const AdminOrders = () => {
                     <button disabled className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-slate-300 cursor-not-allowed transition-all">
                         <Calendar size={18} className="rotate-90" />
                     </button>
-                    <div className="px-5 py-2.5 rounded-xl bg-white border border-brand/20 text-brand font-black text-xs tracking-widest shadow-sm">PAGE 1 OF 1</div>
+                    <div className="px-5 py-2.5 rounded-xl bg-white border border-brand/20 text-brand font-bold text-xs tracking-widest shadow-sm">PAGE 1 OF 1</div>
                     <button disabled className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-slate-300 cursor-not-allowed transition-all">
                         <Calendar size={18} className="-rotate-90" />
                     </button>
@@ -440,7 +515,7 @@ const AdminOrders = () => {
                   
                   {selectedOrder.notes && (
                       <section>
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Order Notes</h3>
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Order Notes</h3>
                         <div className="bg-amber-50/30 border border-amber-100 rounded-2xl p-4 text-sm font-bold text-amber-900/70 italic">
                             "{selectedOrder.notes}"
                         </div>
@@ -473,7 +548,7 @@ const AdminOrders = () => {
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
                             <XCircle size={48} className="mb-4 opacity-10" />
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em]">No Screenshot Provided</p>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em]">No Screenshot Provided</p>
                           </div>
                         )}
                    </div>
