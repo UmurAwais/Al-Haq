@@ -73,9 +73,11 @@ const AdminDashboard = () => {
       const onlineCourses = onlineRes.courses || [];
       const totalCourses = onsiteCourses.length + onlineCourses.length;
 
-      // Revenue calculation
+      // Revenue calculation - Only count Completed or Verified orders
       const totalRevenue = Array.isArray(orders)
         ? orders.reduce((sum, o) => {
+            const status = (o.status || 'pending').toLowerCase();
+            if (status !== 'completed' && status !== 'verified') return sum;
             const price = parseFloat(String(o.price || o.amount || 0).replace(/[^0-9.]/g, ''));
             return sum + (isNaN(price) ? 0 : price);
           }, 0)
@@ -111,7 +113,8 @@ const AdminDashboard = () => {
           ? orders
               .filter(o => {
                 const od = new Date(o.createdAt || o.date);
-                return od.toDateString() === d.toDateString();
+                const status = (o.status || 'pending').toLowerCase();
+                return od.toDateString() === d.toDateString() && (status === 'completed' || status === 'verified');
               })
               .reduce((sum, o) => {
                 const price = parseFloat(String(o.price || o.amount || 0).replace(/[^0-9.]/g, ''));

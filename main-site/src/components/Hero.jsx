@@ -14,15 +14,15 @@ const Hero = () => {
 
   const slides = [
     {
-      desktop: '/bannerdesktop2.jpeg',
-      mobile: '/bannermobile2.jpeg',
+      desktop: '/bannerdesktop2.webp',
+      mobile: '/bannermobile2.webp',
       title: 'Crack <span class="text-transparent bg-clip-text bg-linear-to-r from-white to-brand-accent italic">One-Paper</span> MCQs',
       description: 'Master PPSC, FPSC, and NTS exams with Pakistan\'s most focused MCQs preparation platform. Join Al-Haq to unlock verified study material and expert techniques.',
       tag: 'Pakistan Exam Prep #1'
     },
     {
-      desktop: '/bannerdesktop.jpeg',
-      mobile: '/bannermobile.jpeg',
+      desktop: '/bannerdesktop.webp',
+      mobile: '/bannermobile.webp',
       title: 'Expert Led <span class="text-transparent bg-clip-text bg-linear-to-r from-white to-brand-accent italic">Preparation</span>',
       description: 'Join thousands of successful candidates who prepared with Al-Haq. Get access to premium test series and comprehensive study notes.',
       tag: 'Success Guaranteed'

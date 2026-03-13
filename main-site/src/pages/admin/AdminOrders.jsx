@@ -163,8 +163,10 @@ const AdminOrders = () => {
     });
   };
 
-  // Stats calculation
+  // Stats calculation - Only count confirmed revenue
   const totalRevenue = orders.reduce((sum, o) => {
+    const status = (o.status || 'pending').toLowerCase();
+    if (status !== 'completed' && status !== 'verified') return sum;
     const price = parseFloat(String(o.price || o.amount || 0).replace(/[^0-9.]/g, ''));
     return sum + (isNaN(price) ? 0 : price);
   }, 0);
