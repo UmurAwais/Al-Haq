@@ -368,22 +368,21 @@ const AdminDashboard = () => {
                 </linearGradient>
               </defs>
 
-              {/* Main Revenue Line */}
+              {/* Main Line - Clean, Sharp, Brand Color */}
               <path
                 d={chartPath}
                 fill="none"
                 stroke="#570303"
-                strokeWidth="0.7"
+                strokeWidth="1.2"
+                vectorEffect="non-scaling-stroke"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                filter="url(#glow)"
                 className="transition-all duration-1000"
               />
             </svg>
           )}
-
           {/* Y-axis labels */}
-          <div className="absolute -left-0 top-0 h-full flex flex-col justify-between text-[10px] text-slate-400 font-medium py-1">
+          <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-slate-400 font-medium py-1">
             {[maxChartVal, maxChartVal * 0.75, maxChartVal * 0.5, maxChartVal * 0.25, 0].map((val, i) => (
               <span key={i}>Rs.{val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val.toFixed(0)}</span>
             ))}
