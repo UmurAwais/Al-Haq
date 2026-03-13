@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { ArrowRight, Loader2 } from 'lucide-react'
+import { ArrowRight, Loader2, GraduationCap, Trophy } from 'lucide-react'
 import CourseCard from './CourseCard'
 import Button from './Button'
 import { apiFetch, getApiUrl } from '../config'
@@ -68,19 +68,22 @@ const FeaturedCourses = ({ searchQuery = '', onClearSearch }) => {
   return (
     <section id='courses' className="pb-24 scroll-mt-24">
       <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-linear-to-r from-brand via-brand/90 to-brand-accent rounded-4xl p-8 md:p-12 lg:p-16 flex flex-col lg:flex-row items-center gap-12 relative overflow-hidden group">
+        <div className="bg-linear-to-r from-brand via-brand/90 to-brand-accent rounded-4xl p-8 md:p-12 lg:p-16 flex flex-col lg:flex-row items-center lg:justify-between gap-12 lg:gap-8 relative overflow-hidden group">
           {/* Overlay Decoration */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl group-hover:bg-white/10 transition-colors"></div>
           
           {/* Left Text Content */}
-          <div className="w-full lg:w-1/4 relative z-10 text-center lg:text-left">
-            <h2 className="text-3xl md:text-4xl font-black text-white mb-8 tracking-tight leading-tight">
+          <div className="w-full lg:max-w-md relative z-10 text-center lg:text-left">
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight leading-[1.1]">
               {searchQuery ? 'Found' : 'Learn from'} <span className="opacity-80">{searchQuery ? filteredCourses.length : 'Al-Haq'}</span> {searchQuery ? 'Results' : 'Experts'}
             </h2>
+            <p className="text-white/70 text-base md:text-lg mb-10 max-w-sm mx-auto lg:mx-0 leading-relaxed font-medium">
+              Master the art of competitive exams with Pakistan's most focused MCQ preparation material. Join thousands of candidates who have already secured their future.
+            </p>
             <div className="flex justify-center lg:justify-start">
                 <Button 
                   variant="secondary" 
-                  className="px-6 py-3 text-sm flex items-center gap-3"
+                  className="px-8 py-3.5 text-sm font-bold flex items-center gap-3 shadow-xl"
                   onClick={searchQuery ? onClearSearch : undefined}
                 >
                     {searchQuery ? 'Clear Search' : 'Explore courses'} <ArrowRight className="w-4 h-4" />
@@ -88,12 +91,19 @@ const FeaturedCourses = ({ searchQuery = '', onClearSearch }) => {
             </div>
           </div>
           
+          {/* Decorative Divider Icon - The "Success Bridge" */}
+          <div className="hidden lg:flex flex-col items-center gap-6 opacity-20 group-hover:opacity-40 transition-opacity translate-x-4">
+             <div className="w-px h-20 bg-linear-to-b from-transparent via-white to-transparent"></div>
+             <div className="p-3 rounded-full border border-white/40 shadow-inner">
+                 <Trophy className="w-8 h-8 text-white animate-pulse" />
+             </div>
+             <div className="w-px h-20 bg-linear-to-t from-transparent via-white to-transparent"></div>
+          </div>
+          
           {/* Right Cards Grid */}
-          <div className="w-full lg:flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 relative z-10">
+          <div className="w-full lg:max-w-md relative z-10">
             {filteredCourses.length > 0 ? (
-              filteredCourses.map((course, i) => (
-                <CourseCard key={i} course={course} />
-              ))
+              <CourseCard course={filteredCourses[0]} />
             ) : (
               <div className="col-span-full py-20 text-center">
                  <p className="text-white/60 font-bold text-xl italic">No courses found matching "{searchQuery}"</p>

@@ -6,6 +6,7 @@ import FeatureCards from '../components/FeatureCards'
 import AboutUs from '../components/AboutUs'
 import CourseFeatures from '../components/CourseFeatures'
 import FeaturedCourses from '../components/FeaturedCourses'
+import SuccessStories from '../components/SuccessStories'
 import Testimonials from '../components/Testimonials'
 import ContactForm from '../components/ContactForm'
 import CTA from '../components/CTA'
@@ -46,6 +47,8 @@ const Home = () => {
           searchQuery={searchQuery} 
           onClearSearch={() => setSearchQuery('')}
         />
+        
+        <SuccessStories />
 
         <Testimonials id="testimonials" />
 

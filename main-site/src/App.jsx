@@ -8,6 +8,7 @@ import Signup from './pages/Signup'
 import CourseDetail from './pages/CourseDetail'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
+import SuccessStoriesPage from './pages/SuccessStoriesPage'
 
 // Student Components
 import StudentLayout from './components/student/StudentLayout'
@@ -63,6 +64,7 @@ const App = () => {
           <Route path="/course/:id" element={<CourseDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/success-stories" element={<SuccessStoriesPage />} />
 
           {/* Student Routes */}
           <Route path="/student" element={

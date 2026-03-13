@@ -14,7 +14,7 @@ const CourseFeatures = () => {
       icon: ShieldCheck
     },
     {
-      title: "Self-Paced Learning",
+      title: "Self-Based Learning",
       desc: "Access video lectures and mock tests 24/7. Study when you want, where you want.",
       icon: Trophy
     }

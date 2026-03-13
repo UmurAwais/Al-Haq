@@ -51,7 +51,7 @@ const CourseCard = ({ course }) => {
 
           
           <div className="px-2.5 py-1 rounded-lg border border-slate-100 bg-[#F8FAFC] text-[12px] text-[#64748B] font-bold flex items-center">
-            {course.reviews || '0'} ratings
+            {course.reviews || '0'}
           </div>
         </div>
 
