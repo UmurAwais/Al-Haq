@@ -27,8 +27,11 @@ const Header = ({ searchQuery, onSearchChange, onSearchSubmit }) => {
         <div className="flex justify-between items-center h-16">
           {/* Logo and Nav */}
           <div className="flex items-center gap-10">
-            <Link to="/" className="shrink-0 cursor-pointer">
+            <Link to="/" className="shrink-0 cursor-pointer flex items-center">
               <img src={logo} alt="Al-Haq Logo" className="h-21.25 w-auto object-contain" />
+              <span className="hidden lg:block text-2xl font-black tracking-tighter text-brand">
+                Al-<span className='text-brand-accent'>Haq</span>
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
