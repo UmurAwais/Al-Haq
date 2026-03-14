@@ -586,7 +586,7 @@ const AdminUsers = () => {
                                     {activeMenu === user.uid && (
                                         <>
                                             <div className="fixed inset-0 z-40" onClick={() => setActiveMenu(null)}></div>
-                                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[70] animate-in zoom-in-95 fade-in duration-200 origin-top-right">
+                                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-70 animate-in zoom-in-95 fade-in duration-200 origin-top-right">
                                                 <div className="px-4 py-2 border-b border-slate-50 mb-1">
                                                     <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Admin Actions</p>
                                                 </div>
@@ -616,7 +616,7 @@ const AdminUsers = () => {
       </div>
       
       {/* Sync Banner */}
-      <div className="mt-8 p-8 rounded-[40px] bg-gradient-to-r from-brand to-[#0a1b4d] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-brand/20 overflow-hidden relative">
+      <div className="mt-8 p-8 rounded-[40px] bg-linear-to-r from-brand to-[#0a1b4d] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-brand/20 overflow-hidden relative">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
           <div className="flex items-center gap-6 relative z-10">
               <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center border border-white/10">
@@ -638,7 +638,7 @@ const AdminUsers = () => {
 
       {/* CREATE USER MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-slate-900/50" onClick={closeModal}></div>
           <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
             <div className="shrink-0 p-6 border-b border-slate-100 flex items-center justify-between bg-white">
@@ -733,7 +733,7 @@ const AdminUsers = () => {
 
       {/* DELETE CONFIRMATION MODAL */}
       {confirmDelete && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 animate-in fade-in duration-300 pointer-events-auto">
+        <div className="fixed inset-0 z-120 flex items-center justify-center p-4 animate-in fade-in duration-300 pointer-events-auto">
           <div className="absolute inset-0 bg-slate-900/50" onClick={() => setConfirmDelete(null)}></div>
           <div className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200">
             <div className="p-8 text-center">
@@ -755,7 +755,7 @@ const AdminUsers = () => {
 
       {/* SYNC RESULT MODAL */}
       {syncResult && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-110 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-slate-900/50" onClick={() => setSyncResult(null)}></div>
           <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-slate-200">
             <div className="p-8 text-center">

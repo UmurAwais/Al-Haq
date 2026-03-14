@@ -106,7 +106,7 @@ const SuccessStories = () => {
       <div className="max-w-375 mx-auto px-4 sm:px-6 lg:px-8 mt-2">
         <div className="flex justify-center">
            <button 
-             className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-brand shadow-xl hover:shadow-brand/20 transition-all active:scale-95 flex items-center gap-3 cursor-pointer"
+             className="px-8 py-4 bg-brand text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-brand-accent/90 hover:text-white shadow-xl hover:shadow-brand/20 transition-all active:scale-95 flex items-center gap-3 cursor-pointer"
              onClick={() => navigate('/success-stories')}
            >
               View All 500+ Posted Officers

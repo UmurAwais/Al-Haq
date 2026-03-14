@@ -21,7 +21,7 @@ const CourseCard = ({ course }) => {
       {/* 2. Badge Wrapper */}
       <div className="mb-3">
         <div className="inline-flex items-center gap-1.5 bg-[#5022C3] text-white px-3 py-1.5 rounded-full shadow-sm shadow-brand/10">
-          <ShieldCheck size={14} className="stroke-[3]" />
+          <ShieldCheck size={14} className="stroke-3" />
           <span className="text-[11px] font-black uppercase tracking-tight">
             {course.badgeLabel || 'Premium • Online'}
           </span>

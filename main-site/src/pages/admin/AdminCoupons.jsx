@@ -613,7 +613,7 @@ const AdminCoupons = () => {
       
       {/* DELETE CONFIRMATION MODAL */}
       {confirmDeleteCoupon && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-120 flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-slate-900/50" onClick={() => setConfirmDeleteCoupon(null)}></div>
           <div className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200">
             <div className="p-8 text-center">

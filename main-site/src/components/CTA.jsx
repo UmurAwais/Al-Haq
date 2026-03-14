@@ -9,7 +9,7 @@ const CTA = () => {
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-24">
           <div className="flex-1 text-center lg:text-left">
             <h2 className="text-3xl md:text-5xl font-black text-white mb-6 leading-tight tracking-tight">
-              Secure Your <span className="text-brand-accent">Government Job</span> with Al-Haq's Strategic MCQs Training.
+              Secure Your <span className="text-[#F1C71F]">Government Job</span> with Al-Haq's Strategic MCQs Training.
             </h2>
             <p className="text-white/80 text-lg md:text-xl font-medium max-w-2xl mx-auto lg:mx-0 leading-relaxed">
               Don't just study hard, study smart. Join our hub to get the exact MCQs patterns and notes you need for PPSC, FPSC, and NTS success.
@@ -21,7 +21,7 @@ const CTA = () => {
               <Button 
                 variant="primary" 
                 size="xl" 
-                className="px-12 py-6 text-xl font-extrabold bg-brand-accent text-white border-0 hover:bg-brand-accent/90 shadow-2xl shadow-black/20 cursor-pointer transition-all hover:-translate-y-1 active:scale-95"
+                className="px-12 py-6 text-xl font-extrabold bg-[#F1C71F]! text-brand! border-0 hover:bg-brand-accent/90! hover:text-white! shadow-2xl shadow-black/20 cursor-pointer transition-all hover:-translate-y-1 active:scale-95"
               >
                 Join for Free
               </Button>
