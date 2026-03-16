@@ -29,16 +29,19 @@ const AdminDrive = () => {
   const [fileDetails, setFileDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [currentFolder, setCurrentFolder] = useState({ id: '1EwrHXO5kSCk-heyiUZAk_38zv_PUpHgT', name: 'Root' });
+  const [breadcrumbs, setBreadcrumbs] = useState([{ id: '1EwrHXO5kSCk-heyiUZAk_38zv_PUpHgT', name: 'Root' }]);
 
   useEffect(() => {
-    fetchFiles();
-  }, []);
+    fetchFiles(currentFolder.id);
+  }, [currentFolder.id]);
 
-  const fetchFiles = async () => {
+  const fetchFiles = async (folderId) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('adminToken');
-      const res = await apiFetch('/api/drive/list', {
+      const url = folderId ? `/api/drive/list?folderId=${folderId}` : '/api/drive/list';
+      const res = await apiFetch(url, {
         headers: { 'x-admin-token': token }
       });
       const data = await res.json();
@@ -53,6 +56,11 @@ const AdminDrive = () => {
   };
 
   const handleOpenFileDetails = async (file) => {
+    if (file.mimeType === 'application/vnd.google-apps.folder') {
+      setCurrentFolder({ id: file.id, name: file.name });
+      setBreadcrumbs(prev => [...prev, { id: file.id, name: file.name }]);
+      return;
+    }
     setSelectedFile(file);
     setIsModalOpen(true);
     setFileDetails(null);
@@ -72,6 +80,11 @@ const AdminDrive = () => {
     } finally {
       setLoadingDetails(false);
     }
+  };
+
+  const handleBreadcrumbClick = (crumb, index) => {
+    setCurrentFolder({ id: crumb.id, name: crumb.name });
+    setBreadcrumbs(prev => prev.slice(0, index + 1));
   };
 
   const filteredFiles = files.filter(f => 
@@ -98,6 +111,21 @@ const AdminDrive = () => {
 
       {/* Main Container */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+        {/* Breadcrumbs */}
+        <div className="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide">
+           {breadcrumbs.map((crumb, index) => (
+             <React.Fragment key={crumb.id}>
+               <button 
+                 onClick={() => handleBreadcrumbClick(crumb, index)}
+                 className={`text-[10px] font-black uppercase tracking-widest transition-colors hover:text-brand ${index === breadcrumbs.length - 1 ? 'text-brand' : 'text-slate-400'}`}
+               >
+                 {crumb.name}
+               </button>
+               {index < breadcrumbs.length - 1 && <ChevronRight size={12} className="text-slate-300" />}
+             </React.Fragment>
+           ))}
+        </div>
+
         {/* Search & Controls */}
         <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/30">
            <div className="relative group w-full md:w-96">
@@ -133,23 +161,26 @@ const AdminDrive = () => {
              </div>
           ) : (
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredFiles.map((file) => (
-                  <div 
-                    key={file.id} 
-                    onClick={() => handleOpenFileDetails(file)}
-                    className="group bg-slate-50 border border-slate-200 rounded-2xl p-5 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden active:scale-95 duration-300"
-                  >
-                     <div className="w-14 h-14 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center justify-center text-brand mb-4 group-hover:bg-brand group-hover:text-white transition-all">
-                        <Video size={24} />
-                     </div>
-                     <h3 className="text-sm font-bold text-slate-800 leading-tight mb-2 line-clamp-2 uppercase tracking-tight group-hover:text-brand transition-colors">
-                        {file.name}
-                     </h3>
-                     <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        <Calendar size={12} /> Created Over Cloud
-                     </div>
-                  </div>
-                ))}
+                 {filteredFiles.map((file) => {
+                    const isFolder = file.mimeType === 'application/vnd.google-apps.folder';
+                    return (
+                      <div 
+                        key={file.id} 
+                        onClick={() => handleOpenFileDetails(file)}
+                        className="group bg-slate-50 border border-slate-200 rounded-2xl p-5 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden active:scale-95 duration-300"
+                      >
+                         <div className={`w-14 h-14 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center justify-center mb-4 transition-all ${isFolder ? 'text-amber-500 group-hover:bg-amber-500 group-hover:text-white' : 'text-brand group-hover:bg-brand group-hover:text-white'}`}>
+                            {isFolder ? <FolderOpen size={24} /> : (file.mimeType.includes('pdf') || file.mimeType.includes('document') ? <FileText size={24} /> : <Video size={24} />)}
+                         </div>
+                         <h3 className="text-sm font-bold text-slate-800 leading-tight mb-2 line-clamp-2 uppercase tracking-tight group-hover:text-brand transition-colors">
+                            {file.name}
+                         </h3>
+                         <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <Calendar size={12} /> {isFolder ? 'Directory' : 'Managed Resource'}
+                         </div>
+                      </div>
+                    );
+                  })}
              </div>
           )}
         </div>

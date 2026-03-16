@@ -57,6 +57,8 @@ const AdminCourses = () => {
   const [isDriveMock, setIsDriveMock] = useState(false);
   const [isDriveSettingsOpen, setIsDriveSettingsOpen] = useState(false);
   const [activeLectureId, setActiveLectureId] = useState(null); // Which lecture is being edited/expanded
+  const [driveCurrentFolder, setDriveCurrentFolder] = useState({ id: '1EwrHXO5kSCk-heyiUZAk_38zv_PUpHgT', name: 'Root' });
+  const [driveBreadcrumbs, setDriveBreadcrumbs] = useState([{ id: '1EwrHXO5kSCk-heyiUZAk_38zv_PUpHgT', name: 'Root' }]);
   const [showExportMenu, setShowExportMenu] = useState(false);
   
   // Form State
@@ -161,14 +163,17 @@ const AdminCourses = () => {
     setCurrentCourseForCurriculum(course);
     setCurriculumSections(course.lectures || []);
     setIsCurriculumModalOpen(true);
-    fetchDriveFiles();
+    setDriveCurrentFolder({ id: '1EwrHXO5kSCk-heyiUZAk_38zv_PUpHgT', name: 'Root' });
+    setDriveBreadcrumbs([{ id: '1EwrHXO5kSCk-heyiUZAk_38zv_PUpHgT', name: 'Root' }]);
+    fetchDriveFiles('1EwrHXO5kSCk-heyiUZAk_38zv_PUpHgT');
   };
 
-  const fetchDriveFiles = async () => {
+  const fetchDriveFiles = async (folderId) => {
     try {
       setIsDriveLoading(true);
       const token = localStorage.getItem('adminToken');
-      const res = await apiFetch('/api/drive/list', {
+      const url = folderId ? `/api/drive/list?folderId=${folderId}` : '/api/drive/list';
+      const res = await apiFetch(url, {
         headers: { 'x-admin-token': token }
       });
       const data = await res.json();
@@ -181,6 +186,18 @@ const AdminCourses = () => {
     } finally {
       setIsDriveLoading(false);
     }
+  };
+
+  const handleDriveFolderClick = (folder) => {
+    setDriveCurrentFolder({ id: folder.id, name: folder.name });
+    setDriveBreadcrumbs(prev => [...prev, { id: folder.id, name: folder.name }]);
+    fetchDriveFiles(folder.id);
+  };
+
+  const handleDriveBreadcrumbClick = (crumb, index) => {
+    setDriveCurrentFolder({ id: crumb.id, name: crumb.name });
+    setDriveBreadcrumbs(prev => prev.slice(0, index + 1));
+    fetchDriveFiles(crumb.id);
   };
 
   const closeCurriculumModal = () => {
@@ -1078,6 +1095,21 @@ const AdminCourses = () => {
                      </h3>
                   </div>
 
+                  {/* Drive Breadcrumbs */}
+                  <div className="px-4 py-2 border-b border-slate-50 flex items-center gap-1 overflow-x-auto scrollbar-hide bg-slate-50/10">
+                    {driveBreadcrumbs.map((crumb, index) => (
+                      <React.Fragment key={crumb.id}>
+                        <button 
+                          onClick={() => handleDriveBreadcrumbClick(crumb, index)}
+                          className={`text-[9px] font-black uppercase tracking-tighter transition-all hover:text-brand ${index === driveBreadcrumbs.length - 1 ? 'text-brand' : 'text-slate-400'}`}
+                        >
+                          {crumb.name === 'Root' ? 'DRIVE' : crumb.name}
+                        </button>
+                        {index < driveBreadcrumbs.length - 1 && <ChevronRight size={10} className="text-slate-300" />}
+                      </React.Fragment>
+                    ))}
+                  </div>
+
                   {isDriveMock && (
                     <div className="mx-4 mt-4 p-3 bg-amber-50 rounded-xl border border-amber-100">
                       <div className="flex items-start gap-2">
@@ -1108,45 +1140,50 @@ const AdminCourses = () => {
                       </div>
                     ) : (
                       driveFiles.map((file) => {
+                        const isFolder = file.mimeType === 'application/vnd.google-apps.folder';
                         const isVideo = file.mimeType.includes('video');
                         const isPdf = file.mimeType.includes('pdf') || file.mimeType.includes('document');
                         
                         return (
                           <div 
                             key={file.id} 
-                            className="bg-white border border-slate-200 rounded-xl p-3 hover:border-brand/30 hover:shadow-md transition-all group/drive cursor-pointer"
+                            onClick={() => isFolder ? handleDriveFolderClick(file) : null}
+                            className={`bg-white border rounded-xl p-3 transition-all group/drive relative ${isFolder ? 'border-amber-100 hover:border-amber-300 bg-amber-50/10 cursor-pointer' : 'border-slate-200 hover:border-brand/30 cursor-default hover:shadow-md'}`}
                           >
                             <div className="flex items-center gap-3">
-                              {file.thumbnailLink ? (
+                              {file.thumbnailLink && !isFolder ? (
                                 <img src={file.thumbnailLink} className="w-10 h-10 rounded-lg object-cover border border-slate-200" alt="" />
                               ) : (
-                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isVideo ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'}`}>
-                                  {isVideo ? <Video size={16} /> : <FileText size={16} />}
+                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${isFolder ? 'bg-amber-100 text-amber-600' : (isVideo ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500')}`}>
+                                  {isFolder ? <FolderOpen size={16} /> : (isVideo ? <Video size={16} /> : <FileText size={16} />)}
                                 </div>
                               )}
                               <div className="flex-1 min-w-0">
-                                <p className="text-[11px] font-black text-slate-700 truncate group-hover/drive:text-brand transition-colors">{file.name}</p>
-                                <p className="text-[8px] text-slate-400 font-bold uppercase tracking-tighter">{file.mimeType.split('/').pop()}</p>
+                                <p className={`text-[11px] font-black truncate transition-colors ${isFolder ? 'text-amber-900 group-hover/drive:text-amber-600' : 'text-slate-700 group-hover/drive:text-brand'}`}>{file.name}</p>
+                                <p className="text-[8px] text-slate-400 font-bold uppercase tracking-tighter">{isFolder ? 'Directory' : file.mimeType.split('/').pop()}</p>
                               </div>
+                              {isFolder && <ChevronRight size={14} className="text-amber-300 group-hover/drive:translate-x-1 transition-transform" />}
                             </div>
                             
-                            <div className="mt-3 flex gap-2">
-                               {activeLectureId ? (
-                                 <button 
-                                   onClick={() => {
-                                      const section = curriculumSections.find(s => s.lectures.some(l => l.id === activeLectureId));
-                                      if (section) handleAssignFileToLecture(section.id, activeLectureId, file, isVideo ? 'video' : 'pdf');
-                                   }}
-                                   className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${isVideo ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white'}`}
-                                 >
-                                   <PlusCircle size={12} /> Assign to active
-                                 </button>
-                               ) : (
-                                 <div className="flex-1 py-1.5 border border-slate-100 rounded-lg text-[8px] font-bold text-slate-300 uppercase tracking-widest text-center">
-                                   Select lesson to assign
-                                 </div>
-                               )}
-                            </div>
+                            {!isFolder && (
+                              <div className="mt-3 flex gap-2">
+                                 {activeLectureId ? (
+                                   <button 
+                                     onClick={() => {
+                                        const section = curriculumSections.find(s => s.lectures.some(l => l.id === activeLectureId));
+                                        if (section) handleAssignFileToLecture(section.id, activeLectureId, file, isVideo ? 'video' : 'pdf');
+                                     }}
+                                     className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer ${isVideo ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white'}`}
+                                   >
+                                     <PlusCircle size={12} /> Assign to active
+                                   </button>
+                                 ) : (
+                                   <div className="flex-1 py-1.5 border border-slate-100 rounded-lg text-[8px] font-bold text-slate-300 uppercase tracking-widest text-center">
+                                     Select lesson to assign
+                                   </div>
+                                 )}
+                              </div>
+                            )}
                           </div>
                         );
                       })
