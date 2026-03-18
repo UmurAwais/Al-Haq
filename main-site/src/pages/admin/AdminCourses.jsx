@@ -27,7 +27,9 @@ import {
   MousePointer2,
   Download,
   FileJson,
-  FileSpreadsheet
+  FileSpreadsheet,
+  FolderOpen,
+  ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { apiFetch, getApiUrl } from '../../config';
