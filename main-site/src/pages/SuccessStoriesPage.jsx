@@ -14,69 +14,472 @@ const SuccessStoriesPage = () => {
   }, [])
 
   const allStories = [
+    // PHP ASI Batch - Record Breaking Success (30 Students)
     {
-      name: "Ahmed Raza",
-      exam: "PPSC One-Paper",
-      achievement: "Allocated as AD-IB",
+      name: "Abdul Basit Khan",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
       year: "2024",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
-      dept: "Intelligence Bureau"
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      dept: "Police"
     },
     {
-      name: "Zainab Fatima",
-      exam: "FPSC Inspector",
-      achievement: "Posted in FIA",
-      year: "2023",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400",
-      dept: "Federal Investigation Agency"
-    },
-    {
-      name: "Muhammed Bilal",
-      exam: "PPSC Lecturer",
-      achievement: "Allocated in Higher Ed",
-      year: "2023",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400",
-      dept: "Higher Education Department"
-    },
-    {
-      name: "Iqra Aziz",
-      exam: "FPSC Assistant",
-      achievement: "Allocated in MOD",
+      name: "Atif Mustaq",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
       year: "2024",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Fahad Chaema",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Abdul Waheed",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1519085360753-af0119e43470?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Shahbaz Raja",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Abdul Sattar",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Liaqat Ali",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "M. Qasim",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "M. Shamoon",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "M. Yasir",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1519085360753-af0119e43470?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Ahmad Saleem",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Zulfiqar Ali",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Nouman Nasir",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Abdul Khaliq",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1519085360753-af0119e43470?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Zahid Hussain",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Muzammil Amen",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Waseem Ahmad",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Akhtar Abbas",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Habib ur Rehman",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1519085360753-af0119e43470?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "M Awais Wajid",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Ijaz Sanghero",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "M. Akram Khan",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "M. Asif",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Ali Zaib Lashari",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Rana Fayyaz",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1519085360753-af0119e43470?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Shafqat Abbas",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Asif Khan",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Rashid Hussain",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Muzzam Ali",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Mirfan Yousaf",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+
+    // Proud Achievers - Various Positions
+    {
+      name: "Faizan Zafar",
+      exam: "BPS-17",
+      achievement: "Posted as Agriculture Officer",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+      dept: "Agriculture Department"
+    },
+    {
+      name: "Kamran Saleem",
+      exam: "BPS-16",
+      achievement: "Posted as Excise Inspector",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      dept: "Excise Department"
+    },
+    {
+      name: "Parsa Shabbir",
+      exam: "BPS-16",
+      achievement: "Posted as Excise Inspector",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+      dept: "Excise Department"
+    },
+    {
+      name: "Sidra Kamal",
+      exam: "BPS-16",
+      achievement: "Posted as Assistant",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+      dept: "Administrative Department"
+    },
+    {
+      name: "Areesha Mazhar",
+      exam: "SI",
+      achievement: "Posted in Ministry of Defence",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1507876466836-bc7706f854ec?w=400&h=400&fit=crop",
       dept: "Ministry of Defence"
     },
     {
-      name: "Usama Pervez",
-      exam: "PPSC Tehsildar",
-      achievement: "Posted in Revenue",
-      year: "2024",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400",
+      name: "Haliz Haseeb",
+      exam: "SI",
+      achievement: "Posted in Punjab Police",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      dept: "Punjab Police"
+    },
+    {
+      name: "Khadija Afzal",
+      exam: "Various",
+      achievement: "Allocated in Madrassah",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+      dept: "Education"
+    },
+    {
+      name: "M. Zubair Amjad",
+      exam: "Food Grain",
+      achievement: "Posted as Supervisor",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
+      dept: "Food Department"
+    },
+    {
+      name: "Nazir Ahmad",
+      exam: "Food Grain",
+      achievement: "Posted as Supervisor",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1519085360753-af0119e43470?w=400&h=400&fit=crop",
+      dept: "Food Department"
+    },
+    {
+      name: "Zeya Imtiaz",
+      exam: "Food Grain",
+      achievement: "Posted as Supervisor",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+      dept: "Food Department"
+    },
+    {
+      name: "M Irfan",
+      exam: "ASF",
+      achievement: "Posted in Armed Forces",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      dept: "Armed Forces"
+    },
+    {
+      name: "Ali Raza",
+      exam: "ASF",
+      achievement: "Posted in Armed Forces",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      dept: "Armed Forces"
+    },
+    {
+      name: "Muhammad Zafar",
+      exam: "Rescue",
+      achievement: "Posted as Rescue Officer",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
+      dept: "Rescue Department"
+    },
+    {
+      name: "Maria Aslam",
+      exam: "Canal",
+      achievement: "Posted as Patwari",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
       dept: "Revenue Department"
     },
     {
-      name: "Maria Qureshi",
-      exam: "FPSC Custom Officer",
-      achievement: "Allocated in FBR",
+      name: "Waseem Akhtar",
+      exam: "PPP",
+      achievement: "Posted in Punjab Police",
       year: "2023",
-      image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400",
-      dept: "Federal Board of Revenue"
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      dept: "Punjab Police"
     },
     {
-        name: "Hassan Ali",
-        exam: "PPSC Sub-Inspector",
-        achievement: "Posted in Punjab Police",
-        year: "2024",
-        image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400",
-        dept: "Punjab Police"
+      name: "Yasir Iqbal",
+      exam: "PPP",
+      achievement: "Posted in Punjab Police",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+      dept: "Punjab Police"
     },
     {
-        name: "Nimra Sheikh",
-        exam: "FPSC Appraising Officer",
-        achievement: "Allocated in Customs",
-        year: "2023",
-        image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=400",
-        dept: "Pakistan Customs"
+      name: "Muqadas Aslam",
+      exam: "SPU",
+      achievement: "Posted in Special Police Unit",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1507876466836-bc7706f854ec?w=400&h=400&fit=crop",
+      dept: "Special Police Unit"
+    },
+    {
+      name: "Hammad",
+      exam: "PHP",
+      achievement: "Posted as Police Officer",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      dept: "Police"
+    },
+    {
+      name: "Adnaa Waheed",
+      exam: "CTD",
+      achievement: "Posted in Counter Terrorism",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+      dept: "Counter Terrorism Department"
+    },
+    {
+      name: "Shahboz Mahar",
+      exam: "CTD",
+      achievement: "Posted in Counter Terrorism",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
+      dept: "Counter Terrorism Department"
+    },
+    {
+      name: "Mehwish Rashid",
+      exam: "CTD",
+      achievement: "Posted in Counter Terrorism",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1407746352059-32b5fabb75d2?w=400&h=400&fit=crop",
+      dept: "Counter Terrorism Department"
+    },
+    {
+      name: "Nina Shabir",
+      exam: "CTD",
+      achievement: "Posted in Counter Terrorism",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+      dept: "Counter Terrorism Department"
+    },
+    {
+      name: "Zunaira Ashraf",
+      exam: "CTD",
+      achievement: "Posted in Counter Terrorism",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+      dept: "Counter Terrorism Department"
+    },
+    {
+      name: "Taha Rax",
+      exam: "CTD",
+      achievement: "Posted in Counter Terrorism",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      dept: "Counter Terrorism Department"
+    },
+    {
+      name: "Sidra Ahmad Yar",
+      exam: "GTD",
+      achievement: "Posted in General Services",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+      dept: "General Services"
+    },
+    {
+      name: "Roman Bashir",
+      exam: "GTD",
+      achievement: "Posted in General Services",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      dept: "General Services"
+    },
+    {
+      name: "Maryam Saeed",
+      exam: "GTD",
+      achievement: "Posted in General Services",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+      dept: "General Services"
+    },
+    {
+      name: "Fida Hussain",
+      exam: "Various",
+      achievement: "Successfully Allocated",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+      dept: "Government Services"
     }
   ]
 
@@ -106,7 +509,7 @@ const SuccessStoriesPage = () => {
                         Our Serving <span className="text-brand">Alumni</span>
                     </h1>
                     <p className="text-xl text-slate-600 font-medium">
-                        Explore the verified success records of Al-Haq students who achieved final allocations in PPSC, FPSC, and other departmental exams.
+                        Browse success records from our PHP ASI batch (record-breaking 100% results) and our Proud Achievers program spanning multiple government departments and services.
                     </p>
                 </div>
              </div>
@@ -133,9 +536,9 @@ const SuccessStoriesPage = () => {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
                     { label: 'Total Allocated', value: '500+', icon: CheckCircle2, color: 'text-brand' },
-                    { label: 'PPSC Merit', value: '320+', icon: Award, color: 'text-brand' },
-                    { label: 'FPSC Officers', value: '180+', icon: ShieldCheck, color: 'text-brand' },
-                    { label: 'Success Ratio', value: '85%', icon: Star, color: 'text-brand' },
+                    { label: 'PHP ASI Batch', value: '30', icon: Award, color: 'text-brand' },
+                    { label: 'Proud Achievers', value: '29', icon: ShieldCheck, color: 'text-brand' },
+                    { label: 'Success Ratio', value: '85%+', icon: Star, color: 'text-brand' },
                 ].map((stat, i) => (
                     <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4 group hover:border-brand/10 transition-colors">
                         <div className={`w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center shrink-0 ${stat.color} group-hover:bg-brand group-hover:text-white transition-all`}>
@@ -178,9 +581,9 @@ const SuccessStoriesPage = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-brand/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
                 <div className="relative z-10 space-y-4">
                     <Trophy className="w-10 h-10 text-yellow-500 mx-auto" />
-                    <h3 className="text-2xl sm:text-3xl font-black text-white">400+ More Records Loading</h3>
+                    <h3 className="text-2xl sm:text-3xl font-black text-white">59+ Success Stories Documented</h3>
                     <p className="text-slate-400 font-medium max-w-2xl mx-auto">
-                        Our Quality Assurance team is currently verifying allocation documents for our 2023 batch. New officer profiles are added to this roster daily.
+                        Our PHP ASI batch achieved a record-breaking 100% allocation with 30 officers. Join our Proud Achievers program to explore success stories across multiple government departments and services.
                     </p>
                 </div>
             </div>

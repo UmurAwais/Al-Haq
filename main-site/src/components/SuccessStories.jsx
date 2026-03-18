@@ -6,47 +6,91 @@ import SuccessCard from './SuccessCard'
 const SuccessStories = () => {
   const navigate = useNavigate();
   const stories = [
+    // Featured PHP ASI Batch
     {
-      name: "Ahmed Raza",
-      exam: "PPSC One-Paper",
-      achievement: "Allocated as AD-IB",
+      name: "Abdul Basit Khan",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
       year: "2024",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400"
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop"
     },
     {
-      name: "Zainab Fatima",
-      exam: "FPSC Inspector",
-      achievement: "Posted in FIA",
-      year: "2023",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400"
-    },
-    {
-      name: "Muhammed Bilal",
-      exam: "PPSC Lecturer",
-      achievement: "Allocated in Higher Ed",
-      year: "2023",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400"
-    },
-    {
-      name: "Iqra Aziz",
-      exam: "FPSC Assistant",
-      achievement: "Allocated in MOD",
+      name: "Fahad Chaema",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
       year: "2024",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400"
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop"
     },
     {
-      name: "Usama Pervez",
-      exam: "PPSC Tehsildar",
+      name: "M. Shamoon",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop"
+    },
+    {
+      name: "Zahid Hussain",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1519085360753-af0119e43470?w=400&h=400&fit=crop"
+    },
+    {
+      name: "Ali Zaib Lashari",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop"
+    },
+    {
+      name: "Mirfan Yousaf",
+      exam: "PHP/ASI",
+      achievement: "Allocated as ASI",
+      year: "2024",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop"
+    },
+    // Featured Proud Achievers
+    {
+      name: "Faizan Zafar",
+      exam: "Agriculture Officer",
+      achievement: "Posted as BPS-17",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop"
+    },
+    {
+      name: "Maria Aslam",
+      exam: "Canal Patwari",
       achievement: "Posted in Revenue",
-      year: "2024",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400"
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1507876466836-bc7706f854ec?w=400&h=400&fit=crop"
     },
     {
-      name: "Maria Qureshi",
-      exam: "FPSC Custom Officer",
-      achievement: "Allocated in FBR",
+      name: "Waseem Akhtar",
+      exam: "Punjab Police",
+      achievement: "Posted as SI",
       year: "2023",
-      image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400"
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop"
+    },
+    {
+      name: "Muhammad Zafar",
+      exam: "Rescue Officer",
+      achievement: "Posted in Rescue",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop"
+    },
+    {
+      name: "Khadija Afzal",
+      exam: "Madrassah Teacher",
+      achievement: "Posted",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop"
+    },
+    {
+      name: "Hammad",
+      exam: "PHP",
+      achievement: "Posted as Police Officer",
+      year: "2023",
+      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop"
     }
   ]
 
