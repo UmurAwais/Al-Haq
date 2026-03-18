@@ -3,6 +3,9 @@ import { Trophy, GraduationCap, Award, CheckCircle2 } from 'lucide-react'
 
 const SuccessCard = ({ story, variant = 'default' }) => {
   // variants: 'default' (for page grid), 'marquee' (for homepage carousel)
+  const isFemale = story.gender === 'female'
+  const genderBg = isFemale ? 'bg-rose-50' : 'bg-blue-50'
+  const genderImage = isFemale ? '/woman.png' : '/man.png'
   
   if (variant === 'marquee') {
     return (
@@ -12,8 +15,8 @@ const SuccessCard = ({ story, variant = 'default' }) => {
         
         <div className="relative z-10 flex flex-col h-full">
           <div className="flex items-center justify-center mb-8 shrink-0">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-slate-50 shadow-md group-hover:border-brand/20 transition-all relative">
-              <img src={story.image} alt={story.name} className="w-full h-full object-cover" />
+            <div className={`w-24 h-24 rounded-full ${genderBg} border-4 border-slate-50 shadow-md group-hover:border-brand/20 transition-all relative flex items-center justify-center overflow-hidden`}>
+              <img src={genderImage} alt="gender icon" className="w-full h-full object-cover" />
             </div>
             <div className={`absolute top-0 right-0 p-2.5 rounded-xl bg-brand text-white shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform duration-500`}>
               <Award className="w-5 h-5" />
@@ -45,8 +48,8 @@ const SuccessCard = ({ story, variant = 'default' }) => {
   return (
     <div className="bg-white rounded-3xl p-6 border border-slate-200 hover:border-brand/20 hover:shadow-xl transition-all duration-300 flex flex-col group h-full relative overflow-hidden">
       <div className="flex items-center gap-4 mb-6 relative z-10">
-        <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-100 shrink-0 border-2 border-slate-50 shadow-sm group-hover:border-brand/20 transition-all">
-          <img src={story.image} alt={story.name} className="w-full h-full object-cover" />
+        <div className={`w-16 h-16 rounded-full ${genderBg} shrink-0 border-2 border-slate-50 shadow-sm group-hover:border-brand/20 transition-all flex items-center justify-center overflow-hidden`}>
+          <img src={genderImage} alt="gender icon" className="w-full h-full object-cover" />
         </div>
         <div>
           <h3 className="font-bold text-slate-900 group-hover:text-brand transition-colors line-clamp-1">{story.name}</h3>
