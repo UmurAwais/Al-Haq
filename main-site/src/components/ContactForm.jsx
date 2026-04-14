@@ -122,7 +122,9 @@ const ContactForm = () => {
                 </div>
                 <div>
                   <div className="text-xs font-black text-brand uppercase tracking-[0.2em] mb-0.5">Call Support</div>
-                  <div className="text-lg font-bold text-slate-900">+92 300 1234567</div>
+                  <a href="tel:03466950163" className="text-lg font-bold text-slate-900 hover:text-brand transition-colors">
+                    +923466950163
+                  </a>
                 </div>
               </div>
 
