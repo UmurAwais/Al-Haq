@@ -14,6 +14,96 @@ const SuccessStoriesPage = () => {
   }, [])
 
   const allStories = [
+    {
+      name: "Adnan Khan",
+      exam: "SI Police",
+      achievement: "Allocated as Sub Inspector",
+      year: "2026",
+      gender: "male",
+      dept: "Police",
+      image: "/stories/adnan-khan.webp"
+    },
+    {
+      name: "Hafiz Muhammad Umair",
+      exam: "SI",
+      achievement: "Allocated as Sub Inspector",
+      year: "2026",
+      gender: "male",
+      dept: "Police",
+      image: "/stories/umair.webp"
+    },
+    {
+      name: "Kishwar Zubair",
+      exam: "SI",
+      achievement: "Allocated as Sub Inspector",
+      year: "2026",
+      gender: "female",
+      dept: "Police",
+      image: "/stories/kishwar.webp"
+    },
+    {
+      name: "Aqsa Shehzadi",
+      exam: "SI",
+      achievement: "Allocated as Sub Inspector",
+      year: "2026",
+      gender: "female",
+      dept: "Police",
+      image: "/stories/aqsa.webp"
+    },
+    {
+      name: "Kamran Saleem",
+      exam: "BPS-16",
+      achievement: "Posted as Excise Inspector",
+      year: "2023",
+      gender: "male",
+      dept: "Excise Department",
+      image: "/stories/kamran.webp"
+    },
+    {
+      name: "Parsa Shabbir",
+      exam: "BPS-16",
+      achievement: "Posted as Excise Inspector",
+      year: "2023",
+      gender: "female",
+      dept: "Excise Department",
+      image: "/stories/parsa.webp"
+    },
+    {
+      name: "Faizan Zafar",
+      exam: "BPS-17",
+      achievement: "Posted as Agriculture Officer",
+      year: "2023",
+      gender: "male",
+      dept: "Agriculture Department",
+      image: "/stories/faizan.webp"
+    },
+    {
+      name: "Sarmad Bilal",
+      exam: "BPS-17",
+      achievement: "Allocated as AD Fisheries",
+      year: "2024",
+      gender: "male",
+      dept: "Fisheries Department",
+      image: "/stories/sarmad.webp"
+    },
+    {
+      name: "Irfan Farooq",
+      exam: "ASF",
+      achievement: "Posted in Airport Security Force",
+      year: "2023",
+      gender: "male",
+      dept: "Airport Security Force",
+      image: "/stories/irfan.webp"
+    },
+    {
+      name: "Qazi Husnain",
+      exam: "BPS-17",
+      achievement: "Allocated as AD Rescue 1122",
+      year: "2023",
+      gender: "male",
+      dept: "Rescue 1122",
+      image: "/stories/husnain.webp"
+    },
     // PHP ASI Batch - Record Breaking Success (30 Students)
     {
       name: "Abdul Basit Khan",
@@ -258,30 +348,6 @@ const SuccessStoriesPage = () => {
 
     // Proud Achievers - Various Positions
     {
-      name: "Faizan Zafar",
-      exam: "BPS-17",
-      achievement: "Posted as Agriculture Officer",
-      year: "2023",
-      gender: "male",
-      dept: "Agriculture Department"
-    },
-    {
-      name: "Kamran Saleem",
-      exam: "BPS-16",
-      achievement: "Posted as Excise Inspector",
-      year: "2023",
-      gender: "male",
-      dept: "Excise Department"
-    },
-    {
-      name: "Parsa Shabbir",
-      exam: "BPS-16",
-      achievement: "Posted as Excise Inspector",
-      year: "2023",
-      gender: "female",
-      dept: "Excise Department"
-    },
-    {
       name: "Sidra Kamal",
       exam: "BPS-16",
       achievement: "Posted as Assistant",
@@ -336,14 +402,6 @@ const SuccessStoriesPage = () => {
       year: "2023",
       gender: "female",
       dept: "Food Department"
-    },
-    {
-      name: "M Irfan",
-      exam: "ASF",
-      achievement: "Posted in Armed Forces",
-      year: "2023",
-      gender: "male",
-      dept: "Armed Forces"
     },
     {
       name: "Ali Raza",
@@ -581,7 +639,7 @@ const SuccessStoriesPage = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-brand/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
                 <div className="relative z-10 space-y-4">
                     <Trophy className="w-10 h-10 text-yellow-500 mx-auto" />
-                    <h3 className="text-2xl sm:text-3xl font-black text-white">59+ Success Stories Documented</h3>
+                    <h3 className="text-2xl sm:text-3xl font-black text-white">66+ Success Stories Documented</h3>
                     <p className="text-slate-400 font-medium max-w-2xl mx-auto">
                         Our PHP ASI batch achieved a record-breaking 100% allocation with 30 officers. Join our Proud Achievers program to explore success stories across multiple government departments and services.
                     </p>

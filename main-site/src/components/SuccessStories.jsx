@@ -8,6 +8,87 @@ const SuccessStories = () => {
   const stories = [
     // Featured PHP ASI Batch
     {
+      name: "Adnan Khan",
+      exam: "SI Police",
+      achievement: "Allocated as Sub Inspector",
+      year: "2026",
+      gender: "male",
+      image: "/stories/adnan-khan.webp"
+    },
+    {
+      name: "Hafiz Muhammad Umair",
+      exam: "SI",
+      achievement: "Allocated as Sub Inspector",
+      year: "2026",
+      gender: "male",
+      image: "/stories/umair.webp"
+    },
+    {
+      name: "Kishwar Zubair",
+      exam: "SI",
+      achievement: "Allocated as Sub Inspector",
+      year: "2026",
+      gender: "female",
+      image: "/stories/kishwar.webp"
+    },
+    {
+      name: "Aqsa Shehzadi",
+      exam: "SI",
+      achievement: "Allocated as Sub Inspector",
+      year: "2026",
+      gender: "female",
+      image: "/stories/aqsa.webp"
+    },
+    {
+      name: "Kamran Saleem",
+      exam: "Excise Inspector",
+      achievement: "Posted as BPS-16",
+      year: "2023",
+      gender: "male",
+      image: "/stories/kamran.webp"
+    },
+    {
+      name: "Parsa Shabbir",
+      exam: "Excise Inspector",
+      achievement: "Posted as BPS-16",
+      year: "2023",
+      gender: "female",
+      image: "/stories/parsa.webp"
+    },
+    {
+      name: "Faizan Zafar",
+      exam: "AD Agriculture",
+      achievement: "Posted as BPS-17",
+      year: "2023",
+      gender: "male",
+      image: "/stories/faizan.webp"
+    },
+    {
+      name: "Sarmad Bilal",
+      exam: "AD Fisheries",
+      achievement: "Posted as BPS-17",
+      year: "2024",
+      gender: "male",
+      image: "/stories/sarmad.webp"
+    },
+    {
+      name: "Irfan Farooq",
+      exam: "ASF",
+      achievement: "Posted in Armed Forces",
+      year: "2023",
+      gender: "male",
+      image: "/stories/irfan.webp"
+    },
+    {
+      name: "Qazi Husnain",
+      exam: "AD Rescue 1122",
+      achievement: "Posted as BPS-17",
+      year: "2023",
+      gender: "male",
+      image: "/stories/husnain.webp"
+    },
+    // Featured PHP ASI Batch
+    {
       name: "Abdul Basit Khan",
       exam: "PHP/ASI",
       achievement: "Allocated as ASI",
