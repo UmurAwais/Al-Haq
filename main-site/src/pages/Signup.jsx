@@ -24,55 +24,81 @@ const Signup = () => {
     setError('')
 
     try {
-      // 1. Create user in Firebase Auth
+      // 1. Create user in Firebase Auth (Critical Step)
       const userCredential = await createUserWithEmailAndPassword(auth, email, password)
       const user = userCredential.user
 
-      // 2. Update profile name
+      // 2. Update profile name (Critical Step)
       await updateProfile(user, { displayName: name })
 
-      // 3. Register in Backend (to generate Reference Number for MongoDB)
-      const regRes = await apiFetch('/api/users/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          uid: user.uid, 
-          email: user.email, 
-          displayName: name,
-          phone: phone
-        })
-      })
-      const regData = await regRes.json();
+      // 3. Kick off background sync tasks (Non-blocking)
+      const runBackgroundSync = async () => {
+        let referenceNumber = 'PENDING';
+        try {
+          // Register in Backend
+          const regRes = await apiFetch('/api/users/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              uid: user.uid, 
+              email: user.email, 
+              displayName: name,
+              phone: phone
+            })
+          });
+          
+          if (regRes && regRes.ok) {
+            const regData = await regRes.json();
+            referenceNumber = regData.referenceNumber || 'PENDING';
+          }
+        } catch (err) {
+          console.warn('Background backend sync failed:', err);
+        }
 
-      // 4. MIRROR TO FIRESTORE (for real-time admin sync)
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        email: user.email,
-        displayName: name,
-        phone: phone,
-        referenceNumber: regData.referenceNumber || 'PENDING',
-        status: 'active',
-        createdAt: serverTimestamp(),
-        lastSignIn: serverTimestamp()
-      });
+        try {
+          // Mirror to Firestore
+          await setDoc(doc(db, "users", user.uid), {
+            uid: user.uid,
+            email: user.email,
+            displayName: name,
+            phone: phone,
+            referenceNumber: referenceNumber,
+            status: 'active',
+            createdAt: serverTimestamp(),
+            lastSignIn: serverTimestamp()
+          });
+        } catch (err) {
+          console.warn('Background Firestore sync failed:', err);
+        }
 
-      // 4. Set Session (simulating dashboard logic)
-      const sessionId = Date.now().toString() + Math.random().toString(36).substring(2)
-      await apiFetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: user.uid, sessionId })
-      })
-      localStorage.setItem(`session_${user.uid}`, sessionId)
+        try {
+          // Set Session
+          const sessionId = Date.now().toString() + Math.random().toString(36).substring(2)
+          await apiFetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: user.uid, sessionId })
+          });
+          localStorage.setItem(`session_${user.uid}`, sessionId)
+        } catch (err) {
+          console.warn('Background session sync failed:', err);
+        }
+      };
 
-      // 5. Redirect to portal
-      navigate('/student/dashboard');
+      // Run sync in background without awaiting
+      runBackgroundSync();
+
+      // 4. IMMEDIATE REDIRECTION
+      // We set a tiny timeout just to ensure Firebase Auth state has propagated to the context
+      setTimeout(() => {
+        navigate('/student/dashboard');
+      }, 100);
+
     } catch (err) {
       console.error(err)
       setError(err.message.includes('email-already-in-use') 
         ? 'This email is already registered.' 
         : 'Failed to create account. Please try again.')
-    } finally {
       setLoading(false)
     }
   }

@@ -240,7 +240,7 @@ const Checkout = () => {
     <div className="min-h-screen bg-[#F9FAFB] font-sans flex flex-col">
       <Header />
       
-      <main className="flex-grow pt-12 pb-16 lg:pt-16 lg:pb-24">
+      <main className="grow pt-12 pb-16 lg:pt-16 lg:pb-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <h1 className="text-3xl font-extrabold text-slate-900 mb-8 tracking-tight">
@@ -536,7 +536,7 @@ const Checkout = () => {
                         <div className="w-16 h-10 shrink-0 rounded bg-slate-200 overflow-hidden border border-slate-200">
                            <img src={itemImage} alt={item.title} className="w-full h-full object-cover" />
                         </div>
-                        <div className="flex-grow">
+                        <div className="grow">
                           <h4 className="text-[12px] font-bold text-slate-900 leading-tight mb-1 line-clamp-2">{item.title}</h4>
                           <p className="text-[10px] text-slate-500">Online Training • Al-Haq Learning Hub</p>
                         </div>
@@ -548,7 +548,7 @@ const Checkout = () => {
 
               {/* Payment Methods Card */}
               <div className="bg-white border border-slate-200 rounded-2xl shadow-sm text-center overflow-hidden">
-                <div className="bg-[#E31B23] text-white py-3 px-6 text-sm font-bold flex items-center justify-center gap-2">
+                <div className="bg-brand-accent text-white py-3 px-6 text-sm font-bold flex items-center justify-center gap-2">
                   <CreditCard size={18} />
                   Payment Methods
                 </div>
@@ -556,25 +556,27 @@ const Checkout = () => {
                 <div className="p-6">
                    <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 inline-block px-3 relative w-full header-lines">
                      <span className="bg-white relative z-10 px-3">SCAN QR CODE</span>
-                     <div className="absolute top-1/2 left-0 w-full h-[1px] bg-slate-200 z-0"></div>
+                     <div className="absolute top-1/2 left-0 w-full h-px bg-slate-200 z-0"></div>
                    </h4>
 
                    {/* Mock QR Code space */}
-                   <div className="w-40 h-40 mx-auto border-4 border-slate-100 rounded-xl p-2 mb-6">
-                     <div className="w-full h-full bg-slate-100 flex items-center justify-center rounded">
-                       <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">QR CODE</span>
-                     </div>
+                   <div className="w-64 h-64 mx-auto border-4 border-slate-100 rounded-2xl p-2 mb-6 bg-white shadow-inner flex items-center justify-center overflow-hidden">
+                     <img 
+                       src="/payment%20code.jpeg" 
+                       alt="Payment QR Code" 
+                       className="w-full h-full object-contain mix-blend-multiply" 
+                     />
                    </div>
 
                    {/* Till ID */}
-                   <div className="max-w-[280px] mx-auto border-2 border-[#F59E0B] rounded-xl pr-2 pl-2 pb-6 pt-5 mb-8 relative">
+                   <div className="max-w-70 mx-auto border-2 border-brand-accent rounded-xl pr-2 pl-2 pb-6 pt-5 mb-8 relative">
                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-3 flex items-center gap-1.5 text-[11px] font-bold text-[#F59E0B] tracking-wider">
                        <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></div>
                        TILL ID
                        <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]"></div>
                      </div>
                      <div className="text-[26px] font-black text-slate-900 tracking-[0.2em] mb-3 font-mono">
-                       981425710
+                       983119799
                      </div>
                      <div className="text-[10px] text-slate-500 flex items-center justify-center gap-2 font-medium">
                        Dial <span className="bg-slate-900 text-white font-mono px-1.5 py-0.5 rounded text-[10px]">*786*10#</span> • Enter TILL ID
@@ -583,11 +585,11 @@ const Checkout = () => {
 
                    <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 inline-block px-3 relative w-full header-lines opacity-70">
                      <span className="bg-white relative z-10 px-3">BANK TRANSFER</span>
-                     <div className="absolute top-1/2 left-0 w-full h-[1px] border-b border-dashed border-slate-300 z-0"></div>
+                     <div className="absolute top-1/2 left-0 w-full h-px border-b border-dashed border-slate-300 z-0"></div>
                    </h4>
 
                    {/* Bank Details */}
-                   <div className="space-y-2 text-left text-sm max-w-[280px] mx-auto">
+                   <div className="space-y-2 text-left text-sm max-w-70 mx-auto">
                      <div className="flex justify-between items-center py-2 border-b border-slate-100">
                        <span className="text-slate-500 text-[11px] font-bold tracking-wider uppercase">Account Title</span>
                        <span className="font-bold text-slate-900 text-xs">Al-Haq Learning Hub</span>
@@ -613,7 +615,7 @@ const Checkout = () => {
                 </div>
 
                 <div className="bg-[#f8fafc] p-4 text-[10px] sm:text-[11px] text-blue-800 font-medium flex items-center justify-center gap-2 border-t border-slate-200 border-dashed">
-                  <div className="w-4 h-4 rounded overflow-hidden mt-0.5 opacity-80 shrink-0"><Upload size={14} className="mt-[-2px] ml-0.5" /></div>
+                  <div className="w-4 h-4 rounded overflow-hidden mt-0.5 opacity-80 shrink-0"><Upload size={14} className="-mt-0.5 ml-0.5" /></div>
                   <div className="text-left leading-tight">
                     Upload payment screenshot above <br/>
                     Enrollment confirmed after verification

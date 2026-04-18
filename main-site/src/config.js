@@ -12,48 +12,53 @@ const POSSIBLE_PORTS = [3000, 4001, 5000, 8080];
  * Automatically detect which port the backend server is running on (Local Dev Only)
  */
 async function detectApiUrl() {
-  // If we have an ENV variable or we are not in dev, use what we have
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
   if (!isDevelopment) return PRODUCTION_FALLBACK;
 
-  // Check localStorage for previously working URL
   const storedUrl = localStorage.getItem('api_url');
-  if (storedUrl) {
-    try {
-      const response = await fetch(`${storedUrl}/api/health`, { 
-        method: 'GET',
-        signal: AbortSignal.timeout(2000)
-      });
-      if (response.ok) {
-        API_URL = storedUrl;
-        return storedUrl;
-      }
-    } catch (e) {
-      localStorage.removeItem('api_url');
-    }
-  }
-
-  // Try each port until we find one that works
-  for (const port of POSSIBLE_PORTS) {
-    const url = `http://localhost:${port}`;
+  
+  const checkUrl = async (url) => {
     try {
       const response = await fetch(`${url}/api/health`, { 
         method: 'GET',
-        signal: AbortSignal.timeout(2000)
+        signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
       });
-      
-      if (response.ok) {
-        localStorage.setItem('api_url', url);
+      if (response.ok) return url;
+      throw new Error('Not ok');
+    } catch (e) {
+      throw e;
+    }
+  };
+
+  try {
+    // If we have a stored URL, try that first as it's the most likely candidate
+    if (storedUrl) {
+      try {
+        const url = await checkUrl(storedUrl);
         API_URL = url;
         return url;
+      } catch (e) {
+        localStorage.removeItem('api_url');
       }
-    } catch (e) {
-      continue;
     }
-  }
 
-  API_URL = PRODUCTION_FALLBACK;
-  return API_URL;
+    // Try all ports in parallel with a race to find the first working one
+    const detectionPromise = Promise.any(POSSIBLE_PORTS.map(port => checkUrl(`http://localhost:${port}`)));
+    
+    // Global timeout of 3 seconds for the entire detection process
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Detection Timeout')), 3000));
+
+    const fastestUrl = await Promise.race([detectionPromise, timeoutPromise]);
+    
+    localStorage.setItem('api_url', fastestUrl);
+    API_URL = fastestUrl;
+    return fastestUrl;
+  } catch (error) {
+    // If all fail or timeout happened
+    console.warn('Backend detection failed, using production fallback.');
+    API_URL = PRODUCTION_FALLBACK;
+    return PRODUCTION_FALLBACK;
+  }
 }
 
 // Initialize API URL detection

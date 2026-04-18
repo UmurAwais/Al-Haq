@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from '../firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 
 const AuthContext = createContext();
 
@@ -22,29 +22,48 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
+    let snapshotUnsubscribe = null;
+
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+      // Clean up previous snapshot listener if it exists
+      if (snapshotUnsubscribe) {
+        snapshotUnsubscribe();
+        snapshotUnsubscribe = null;
+      }
+
       if (currentUser) {
-        // Set basic user info immediately to unblock UI
-        setUser(prev => ({ ...prev, ...currentUser, uid: currentUser.uid }));
+        // Set basic user info immediately from Firebase Auth
+        setUser(prev => ({ 
+          ...prev, 
+          uid: currentUser.uid,
+          email: currentUser.email,
+          displayName: currentUser.displayName,
+          photoURL: currentUser.photoURL
+        }));
         setLoading(false);
 
-        // Fetch extended data in background
-        try {
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const userDoc = await getDoc(userDocRef);
-          if (userDoc.exists()) {
-            setUser(prev => ({ ...prev, ...userDoc.data(), uid: currentUser.uid }));
+        // Listen for real-time updates for extended data (referenceNumber, etc)
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        snapshotUnsubscribe = onSnapshot(userDocRef, (doc) => {
+          if (doc.exists()) {
+            setUser(prev => ({ ...prev, ...doc.data(), uid: currentUser.uid }));
           }
-        } catch (error) {
-          console.error("Error fetching background user data:", error);
-        }
+        }, (error) => {
+          // Suppress "offline" errors as they are handled by Firestore's persistence
+          if (error.code !== 'unavailable' && !error.message.includes('offline')) {
+            console.error("Error in user data listener:", error);
+          }
+        });
       } else {
         setUser(null);
         setLoading(false);
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (snapshotUnsubscribe) snapshotUnsubscribe();
+    }
   }, []);
 
   const logout = () => auth.signOut();

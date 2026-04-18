@@ -76,7 +76,7 @@ const Cart = () => {
                 <CheckCircle2 size={20} className="text-[#22c55e]" />
                 <span>Course has been added to your cart.</span>
               </div>
-              <Link to="/" className="text-[#E31B23] font-bold hover:underline whitespace-nowrap">
+              <Link to="/" className="text-brand font-bold hover:underline whitespace-nowrap">
                 Continue browsing
               </Link>
             </div>
@@ -106,9 +106,9 @@ const Cart = () => {
                     <thead>
                       <tr className="border-b border-slate-200 text-[11px] font-black text-slate-400 tracking-wider">
                         <th className="py-4 px-6 uppercase">Course</th>
-                        <th className="py-4 px-4 uppercase text-center w-[120px]">Price</th>
-                        <th className="py-4 px-4 uppercase text-center w-[100px]">Quantity</th>
-                        <th className="py-4 px-6 uppercase text-right w-[120px]">Subtotal</th>
+                        <th className="py-4 px-4 uppercase text-center w-30">Price</th>
+                        <th className="py-4 px-4 uppercase text-center w-25">Quantity</th>
+                        <th className="py-4 px-6 uppercase text-right w-30">Subtotal</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -129,7 +129,7 @@ const Cart = () => {
                                 >
                                   <X size={16} strokeWidth={2} />
                                 </button>
-                                <div className="w-[84px] shrink-0 aspect-[16/10] rounded border border-slate-200 overflow-hidden bg-slate-100 hidden sm:block">
+                                <div className="w-21 shrink-0 aspect-16/10 rounded border border-slate-200 overflow-hidden bg-slate-100 hidden sm:block">
                                   <img src={itemImage || 'https://images.unsplash.com/photo-1544161515-4af6b1d462c2'} alt={item.title} className="w-full h-full object-cover" />
                                 </div>
                                 <span className="font-bold text-[14px] text-slate-900 leading-snug">
@@ -182,7 +182,7 @@ const Cart = () => {
                         value={coupon}
                         onChange={(e) => setCoupon(e.target.value.toUpperCase())}
                         placeholder="COUPON CODE" 
-                        className="flex-grow bg-slate-50/50 border border-slate-100 rounded-full px-5 py-3 text-xs font-bold uppercase tracking-widest outline-none focus:bg-white focus:border-brand/20 transition-all"
+                        className="grow bg-slate-50/50 border border-slate-100 rounded-full px-5 py-3 text-xs font-bold uppercase tracking-widest outline-none focus:bg-white focus:border-brand/20 transition-all"
                       />
                       <Button 
                         onClick={handleApplyCoupon}
