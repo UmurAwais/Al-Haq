@@ -23,6 +23,7 @@ const Header = ({ searchQuery, onSearchChange, onSearchSubmit }) => {
   const navLinks = [
     { name: 'Home', href: '/#home' },
     { name: 'Courses', href: '/#courses' },
+    { name: 'Success Stories', href: '/success-stories' },
     { name: 'About Us', href: '/#about' },
     { name: 'Contact Us', href: '/#contact' },
   ]
