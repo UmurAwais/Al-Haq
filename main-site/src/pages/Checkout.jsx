@@ -584,38 +584,38 @@ const Checkout = () => {
                    </div>
 
                    <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 inline-block px-3 relative w-full header-lines opacity-70">
-                     <span className="bg-white relative z-10 px-3">JAZZ CASH</span>
+                     <span className="bg-white relative z-10 px-3">BANK TRANSFER</span>
                      <div className="absolute top-1/2 left-0 w-full h-px border-b border-dashed border-slate-300 z-0"></div>
                    </h4>
 
-                   {/* JazzCash Details */}
+                   {/* Bank Details */}
                    <div className="space-y-2 text-left text-sm max-w-70 mx-auto">
+                     <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                       <span className="text-slate-500 text-[11px] font-bold tracking-wider uppercase">Bank Name</span>
+                       <span className="font-bold text-slate-900 text-xs">UBL</span>
+                     </div>
                      <div className="flex justify-between items-center py-2 border-b border-slate-100">
                        <span className="text-slate-500 text-[11px] font-bold tracking-wider uppercase">Account Name</span>
                        <span className="font-bold text-slate-900 text-xs">Al Haq Learning Hub</span>
                      </div>
-                     <div className="flex justify-between items-center py-2 border-b border-slate-100">
-                       <span className="text-slate-500 text-[11px] font-bold tracking-wider uppercase">Mobile Number</span>
-                       <span className="font-bold text-slate-900 text-xs">03098521477</span>
-                     </div>
                      
-                     <div className="bg-[#fff1f2] rounded-xl p-4 my-4 border border-red-100 shadow-inner">
+                     <div className="bg-[#f0f9ff] rounded-xl p-4 my-4 border border-blue-100 shadow-inner">
                        <div className="flex justify-between items-center mb-2">
-                         <span className="text-red-600 text-[10px] font-black tracking-widest uppercase">Mobile Account</span>
+                         <span className="text-blue-600 text-[10px] font-black tracking-widest uppercase">Account Number</span>
                          <div className="flex gap-1">
-                           <div className="w-1 h-1 rounded-full bg-red-400"></div>
-                           <div className="w-1 h-1 rounded-full bg-red-300"></div>
-                           <div className="w-1 h-1 rounded-full bg-red-200"></div>
+                           <div className="w-1 h-1 rounded-full bg-blue-400"></div>
+                           <div className="w-1 h-1 rounded-full bg-blue-300"></div>
+                           <div className="w-1 h-1 rounded-full bg-blue-200"></div>
                          </div>
                        </div>
-                       <div className="text-red-950 font-mono text-[22px] font-black tracking-tighter text-center">
-                         0309 8521 477
+                       <div className="text-blue-950 font-mono text-[20px] font-black tracking-tighter text-center">
+                         1062 3625 1933 2
                        </div>
                      </div>
                      
-                     <div className="bg-[#E31B23] rounded-xl p-3 text-white text-center shadow-md shadow-red-200/50">
-                       <div className="font-black text-[14px] tracking-wider mb-0.5 uppercase">JazzCash</div>
-                       <div className="text-[9px] text-red-100 font-bold tracking-widest">DIGITAL MONEY MADE EASY</div>
+                     <div className="bg-[#00529b] rounded-xl p-3 text-white text-center shadow-md shadow-blue-200/50">
+                       <div className="font-black text-[14px] tracking-wider mb-0.5 uppercase">UBL</div>
+                       <div className="text-[9px] text-blue-100 font-bold tracking-widest">WHERE YOU COME FIRST</div>
                      </div>
                    </div>
                 </div>
