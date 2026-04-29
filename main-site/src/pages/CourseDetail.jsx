@@ -92,7 +92,7 @@ const CourseDetail = () => {
     
     // Check for Google Drive video in the first lecture
     if (firstLecture?.video?.id) {
-      return `https://drive.google.com/file/d/${firstLecture.video.id}/preview`;
+      return `${getApiUrl()}/api/video/stream/${firstLecture.video.id}`;
     }
 
     return null;
@@ -178,43 +178,39 @@ const CourseDetail = () => {
                            )}
                          </div>
                        ) : (
-                         previewVideo.includes('drive.google.com') ? (
-                           <div className="relative w-full h-full">
-                             <iframe 
-                               src={previewVideo} 
-                               className="w-full h-full border-0" 
-                               allow="autoplay" 
-                               allowFullScreen
-                             />
-                             {/* Transparent overlay to block the pop-out button */}
-                             <div className="absolute top-0 right-0 w-24 h-12 bg-transparent z-10 cursor-default" title="Direct view only"></div>
-                           </div>
-                         ) : (
-                           <video 
-                             src={(() => {
-                               let url = previewVideo;
-                               if (url.includes('localhost:')) {
-                                 url = url.replace(/^http:\/\/localhost:\d+/, '');
-                               }
-                               if (url.startsWith('http')) return url;
-                               const base = getApiUrl().replace(/\/$/, '');
-                               const path = url.startsWith('/') ? url : `/${url}`;
-                               return `${base}${path}`;
-                             })()} 
-                             controls 
-                             autoPlay 
-                             disablePictureInPicture
-                             controlsList="nodownload nopictureinpicture"
-                             onContextMenu={(e) => e.preventDefault()}
-                             className="w-full h-full object-contain"
-                             onError={(e) => {
-                               console.error("Video play error:", e);
-                               alert("The video preview could not be loaded. Please ensure the file exists and is in a supported format (MP4).");
-                               setShowVideo(false);
-                             }}
-                           />
-                         )
-                       )}
+                           <div className="relative w-full h-full bg-black flex flex-col justify-center items-center">
+                            <video 
+                              src={(() => {
+                                let url = previewVideo;
+                                if (url.includes('localhost:')) {
+                                  url = url.replace(/^http:\/\/localhost:\d+/, '');
+                                }
+                                if (url.startsWith('http')) return url;
+                                const base = getApiUrl().replace(/\/$/, '');
+                                const path = url.startsWith('/') ? url : `/${url}`;
+                                return `${base}${path}`;
+                              })()} 
+                              controls 
+                              autoPlay 
+                              disablePictureInPicture
+                              controlsList="nodownload nopictureinpicture"
+                              className="w-full h-full object-contain bg-black"
+                              onError={(e) => {
+                                console.error("Video play error:", e);
+                                e.target.style.display = 'none';
+                                const fallback = e.target.nextElementSibling;
+                                if (fallback) fallback.style.display = 'flex';
+                              }}
+                            />
+                              <div className="hidden flex-col items-center justify-center p-6 text-center h-full w-full bg-slate-900 text-white absolute inset-0">
+                                 <AlertCircle className="w-12 h-12 text-red-400 mb-4" />
+                                 <p className="text-sm font-bold text-slate-300">Video failed to load.</p>
+                                 <p className="text-xs text-slate-400 mt-2 max-w-md">
+                                   The video file could not be streamed. Please ensure the cloud credentials are valid.
+                                 </p>
+                              </div>
+                            </div>
+                        )}
                     </div>
                   </div>
               </div>

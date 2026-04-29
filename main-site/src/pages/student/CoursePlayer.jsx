@@ -17,7 +17,8 @@ import {
   Star,
   ChevronDown,
   ChevronUp,
-  Video
+  Video,
+  AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
@@ -170,16 +171,36 @@ const CoursePlayer = () => {
             {/* Aspect Ratio Video Container */}
             <div className="aspect-video bg-black relative group shadow-2xl overflow-hidden">
                {activeLecture?.video?.id ? (
-                 <div className="relative w-full h-full">
-                   <iframe 
-                     src={`https://drive.google.com/file/d/${activeLecture.video.id}/preview`}
-                     className="w-full h-full border-0"
-                     allow="autoplay; encrypted-media"
-                     allowFullScreen
-                     title={activeLecture.title}
-                   ></iframe>
-                   {/* Blocking pop-out for security */}
-                   <div className="absolute top-2 right-2 w-32 h-16 bg-transparent z-10 cursor-default"></div>
+                 <div className="relative w-full h-full bg-black flex flex-col justify-center items-center">
+                   <video 
+                     src={`${getApiUrl()}/api/video/stream/${activeLecture.video.id}`}
+                     className="w-full h-full outline-none object-contain"
+                     controls
+                     autoPlay
+                     disablePictureInPicture
+                     controlsList="nodownload nopictureinpicture"
+                     onContextMenu={(e) => e.preventDefault()}
+                     onError={(e) => {
+                       e.target.style.display = 'none';
+                       const fallback = e.target.nextElementSibling;
+                       if (fallback) fallback.style.display = 'flex';
+                     }}
+                   />
+                   <div className="hidden flex-col items-center justify-center p-6 text-center h-full w-full bg-slate-900 text-white absolute inset-0">
+                      <AlertCircle className="w-12 h-12 text-red-400 mb-4" />
+                      <p className="text-sm font-bold text-slate-300">Video failed to load.</p>
+                      <p className="text-xs text-slate-400 mt-2 max-w-md">
+                        The video file could not be streamed from the cloud storage. Please ensure the cloud credentials are valid.
+                      </p>
+                      <a 
+                        href={`https://drive.google.com/file/d/${activeLecture.video.id}/view`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="mt-4 px-4 py-2 bg-brand text-white text-xs font-bold rounded-lg uppercase tracking-widest"
+                      >
+                        Open directly in Google Drive
+                      </a>
+                   </div>
                  </div>
                ) : (
                  <div className="w-full h-full flex flex-col items-center justify-center text-white p-10 bg-linear-to-br from-slate-900 to-brand/20">

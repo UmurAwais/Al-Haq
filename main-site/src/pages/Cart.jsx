@@ -19,7 +19,7 @@ const Cart = () => {
     if (!priceVal) return 0;
     const str = String(priceVal).toLowerCase();
     if (str === 'free') return 0;
-    // Extract numbers from "Rs. 4000" or similar
+    // Extract numbers from "Rs. 5000" or similar
     const cleaned = str.replace(/[^0-9]/g, '');
     return cleaned ? parseInt(cleaned, 10) : 0;
   };
