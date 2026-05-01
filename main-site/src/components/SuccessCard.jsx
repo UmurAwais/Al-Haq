@@ -48,13 +48,13 @@ const SuccessCard = ({ story, variant = 'default' }) => {
   // Default variant (Simplified but retaining the SuccessCard "identity")
   return (
     <div className="bg-white rounded-3xl p-6 border border-slate-200 hover:border-brand/20 hover:shadow-xl transition-all duration-300 flex flex-col group h-full relative overflow-hidden">
-      <div className="flex items-center gap-4 mb-6 relative z-10">
-        <div className={`w-16 h-16 rounded-full ${genderBg} shrink-0 border-2 border-slate-50 shadow-sm group-hover:border-brand/20 transition-all flex items-center justify-center overflow-hidden`}>
+      <div className="flex flex-col items-center mb-6 relative z-10">
+        <div className={`w-24 h-24 rounded-full ${genderBg} shrink-0 border-4 border-slate-50 shadow-md group-hover:border-brand/20 transition-all flex items-center justify-center overflow-hidden mb-4`}>
           <img src={displayImage} alt={story.name} className="w-full h-full object-cover" />
         </div>
-        <div>
-          <h3 className="font-bold text-slate-900 group-hover:text-brand transition-colors line-clamp-1">{story.name}</h3>
-          <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <div className="text-center space-y-1">
+          <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand transition-colors">{story.name}</h3>
+          <div className="flex items-center justify-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
             <span>{story.year}</span>
             <span className="w-1 h-1 rounded-full bg-slate-200"></span>
             <span>Allocated</span>
