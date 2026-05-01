@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Menu, X, LogOut, LayoutDashboard, BookOpen, UserCircle } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Menu, X, LogOut, LayoutDashboard, BookOpen, UserCircle, Smartphone } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
 
@@ -12,8 +12,30 @@ import { useAuth } from '../contexts/AuthContext'
 
 const Header = ({ searchQuery, onSearchChange, onSearchSubmit }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [deferredPrompt, setDeferredPrompt] = useState(null)
+  const [showInstallButton, setShowInstallButton] = useState(false)
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault()
+      setDeferredPrompt(e)
+      setShowInstallButton(true)
+    }
+    window.addEventListener('beforeinstallprompt', handler)
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return
+    deferredPrompt.prompt()
+    const { outcome } = await deferredPrompt.userChoice
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null)
+      setShowInstallButton(false)
+    }
+  }
 
   const handleLogout = async () => {
     await logout()
@@ -51,6 +73,16 @@ const Header = ({ searchQuery, onSearchChange, onSearchSubmit }) => {
               <SearchBar value={searchQuery} onChange={onSearchChange} onSubmit={onSearchSubmit} />
             </div>
             
+            {showInstallButton && (
+              <button 
+                onClick={handleInstallClick}
+                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-brand/5 hover:bg-brand text-brand hover:text-white border border-brand/10 rounded-xl transition-all group cursor-pointer"
+              >
+                <Smartphone size={16} className="group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Install App</span>
+              </button>
+            )}
+
             <div className="hidden lg:flex items-center gap-2 md:gap-4 border-l border-slate-100 pl-4">
               {user ? (
                 <div className="relative group py-2">

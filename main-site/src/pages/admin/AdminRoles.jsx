@@ -150,16 +150,16 @@ const AdminRoles = () => {
             <ShieldCheck className="w-8 h-8 text-brand" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Authority Matrix</h1>
-            <p className="text-sm text-slate-500 font-medium">Manage administrative roles and permissions system-wide ({roles.length} roles)</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Authority Matrix</h1>
+            <p className="text-xs md:text-sm text-slate-500 font-medium">Manage administrative roles ({roles.length} roles)</p>
           </div>
         </div>
         
         <button 
           onClick={() => openModal()}
-          className="flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand-accent/20 hover:-translate-y-0.5 active:scale-95"
+          className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-brand text-white rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest transition-all shadow-lg shadow-brand-accent/20 hover:-translate-y-0.5 active:scale-95 w-full sm:w-auto"
         >
-          <Plus size={16} strokeWidth={3} /> Create New Role
+          <Plus size={16} strokeWidth={3} /> <span className="sm:inline hidden">Create New Role</span><span className="sm:hidden inline">Add Role</span>
         </button>
       </div>
 

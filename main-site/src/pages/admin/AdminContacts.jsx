@@ -242,7 +242,7 @@ const AdminContacts = () => {
         </div>
 
         {/* Submissions Table */}
-        <div className="overflow-x-auto">
+        <div className="relative">
           {loading ? (
              <div className="py-32 flex flex-col items-center justify-center">
                <Loader2 className="w-12 h-12 text-brand animate-spin mb-4 opacity-20" />
@@ -257,65 +257,111 @@ const AdminContacts = () => {
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No inquiry submissions found at this time</p>
              </div>
           ) : (
-             <table className="w-full border-collapse">
-                <thead>
-                   <tr className="bg-slate-50/50 border-b border-slate-100">
-                      <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sender</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Subject</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Excerpt</th>
-                      <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</th>
-                      <th className="px-8 py-4 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actions</th>
-                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                   {filteredSubmissions.map((sub) => (
-                      <tr key={sub._id} className="group hover:bg-slate-50/50 transition-all cursor-pointer" onClick={() => handleOpenDetails(sub)}>
-                         <td className="px-8 py-5">
-                            <div className="flex items-center gap-4">
-                               <div className="w-10 h-10 rounded-xl bg-brand/5 flex items-center justify-center border border-brand/10 text-brand group-hover:bg-brand group-hover:text-white transition-all">
-                                  <User size={18} />
-                               </div>
-                               <div>
-                                  <p className="text-sm font-bold text-slate-800 tracking-tight leading-tight group-hover:text-brand transition-colors">{sub.name}</p>
-                                  <p className="text-[10px] font-medium text-slate-400 tracking-tight mt-0.5">
-                                      {sub.email}
-                                  </p>
-                               </div>
-                            </div>
-                         </td>
-                         <td className="px-6 py-5">
-                            <span className="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-[10px] font-bold uppercase tracking-tight border border-slate-200">
-                                {sub.subject || 'GENERAL INQUIRY'}
-                            </span>
-                         </td>
-                         <td className="px-6 py-5">
-                            <p className="text-xs font-bold text-slate-500 line-clamp-1 max-w-50">
-                                {sub.message}
-                            </p>
-                         </td>
-                         <td className="px-6 py-5 text-right">
-                            <p className="text-xs font-bold text-slate-700 tracking-tighter mb-0.5">{formatDate(sub.createdAt).split(',')[0]}</p>
-                            <p className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">{formatDate(sub.createdAt).split(',')[1]}</p>
-                         </td>
-                         <td className="px-8 py-5 text-center">
-                            <div className="flex items-center justify-center gap-2">
-                                <button className="p-2 text-slate-400 hover:text-brand hover:bg-white rounded-2xl transition-all shadow-sm border border-slate-100">
-                                    <Eye size={18} />
-                                </button>
-                                <button 
-                                  onClick={(e) => handleDeleteClick(e, sub)}
-                                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-2xl transition-all shadow-sm border border-slate-100"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
-                            </div>
-                         </td>
-                      </tr>
-                   ))}
-                </tbody>
-             </table>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                     <tr className="bg-slate-50/50 border-b border-slate-100">
+                        <th className="px-8 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sender</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Subject</th>
+                        <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest">Excerpt</th>
+                        <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</th>
+                        <th className="px-8 py-4 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actions</th>
+                     </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                     {filteredSubmissions.map((sub) => (
+                        <tr key={sub._id} className="group hover:bg-slate-50/50 transition-all cursor-pointer" onClick={() => handleOpenDetails(sub)}>
+                           <td className="px-8 py-5">
+                              <div className="flex items-center gap-4">
+                                 <div className="w-10 h-10 rounded-xl bg-brand/5 flex items-center justify-center border border-brand/10 text-brand group-hover:bg-brand group-hover:text-white transition-all">
+                                    <User size={18} />
+                                 </div>
+                                 <div>
+                                    <p className="text-sm font-bold text-slate-800 tracking-tight leading-tight group-hover:text-brand transition-colors uppercase">{sub.name}</p>
+                                    <p className="text-[10px] font-medium text-slate-400 tracking-tight mt-0.5">
+                                        {sub.email}
+                                    </p>
+                                 </div>
+                              </div>
+                           </td>
+                           <td className="px-6 py-5">
+                              <span className="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-[10px] font-bold uppercase tracking-tight border border-slate-200">
+                                  {sub.subject || 'GENERAL INQUIRY'}
+                              </span>
+                           </td>
+                           <td className="px-6 py-5">
+                              <p className="text-xs font-bold text-slate-500 line-clamp-1 max-w-50">
+                                  {sub.message}
+                              </p>
+                           </td>
+                           <td className="px-6 py-5 text-right">
+                              <p className="text-xs font-bold text-slate-700 tracking-tighter mb-0.5">{formatDate(sub.createdAt).split(',')[0]}</p>
+                              <p className="text-[9px] font-medium text-slate-400 uppercase tracking-widest">{formatDate(sub.createdAt).split(',')[1]}</p>
+                           </td>
+                           <td className="px-8 py-5 text-center">
+                              <div className="flex items-center justify-center gap-2">
+                                  <button className="p-2 text-slate-400 hover:text-brand hover:bg-white rounded-2xl transition-all shadow-sm border border-slate-100">
+                                      <Eye size={18} />
+                                  </button>
+                                  <button 
+                                    onClick={(e) => handleDeleteClick(e, sub)}
+                                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-2xl transition-all shadow-sm border border-slate-100"
+                                  >
+                                      <Trash2 size={18} />
+                                  </button>
+                              </div>
+                           </td>
+                        </tr>
+                     ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card List View */}
+              <div className="lg:hidden divide-y divide-slate-100">
+                {filteredSubmissions.map((sub) => (
+                  <div key={sub._id} className="p-4 space-y-4 active:bg-slate-50 transition-colors" onClick={() => handleOpenDetails(sub)}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-brand/5 flex items-center justify-center text-brand border border-brand/10">
+                           <User size={18} />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-black text-slate-900 uppercase truncate max-w-40">{sub.name}</p>
+                          <p className="text-[9px] font-bold text-slate-400 truncate max-w-40 lowercase">{sub.email}</p>
+                        </div>
+                      </div>
+                      <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-lg text-[8px] font-black uppercase tracking-widest border border-slate-200">
+                        {sub.subject || 'INQUIRY'}
+                      </span>
+                    </div>
+                    
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                       <p className="text-[10px] font-bold text-slate-600 line-clamp-2 leading-relaxed italic">
+                         "{sub.message}"
+                       </p>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                         {formatDate(sub.createdAt).split(',')[0]}
+                       </span>
+                       <button 
+                         onClick={(e) => handleDeleteClick(e, sub)}
+                         className="p-2 text-slate-400 hover:text-red-500 bg-white border border-slate-100 rounded-xl shadow-sm"
+                       >
+                         <Trash2 size={16} />
+                       </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
+
       </div>
 
       {/* DETAIL MODAL */}
