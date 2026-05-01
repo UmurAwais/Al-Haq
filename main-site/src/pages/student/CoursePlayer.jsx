@@ -33,7 +33,7 @@ const CoursePlayer = () => {
   const [loading, setLoading] = useState(true);
   const [activeLecture, setActiveLecture] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
   const [expandedSections, setExpandedSections] = useState({});
   const [completedLectures, setCompletedLectures] = useState([]);
 
@@ -89,6 +89,10 @@ const CoursePlayer = () => {
   const handleLectureSelect = (lecture) => {
     setActiveLecture(lecture);
     navigate(`/student/course/${courseId}/play/${lecture.id}`);
+    // Auto-close sidebar on mobile after selecting a lecture
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
   };
 
   const toggleLectureCompletion = (id) => {
@@ -214,31 +218,88 @@ const CoursePlayer = () => {
             </div>
 
             {/* Bottom Content Container */}
-            <div className="p-6 md:p-10">
-              <div className="flex items-center justify-between mb-8 pb-8 border-b border-slate-100">
-                <div>
-                  <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">
+            <div className="p-4 md:p-10">
+              {/* Lecture Info Bar — matches mobile layout */}
+              <div className="flex items-center justify-between gap-3 mb-6 pb-6 border-b border-slate-100">
+                {/* Left: Title + meta */}
+                <div className="min-w-0">
+                  <h2 className="text-lg md:text-2xl font-black text-slate-900 tracking-tight leading-tight line-clamp-2">
                     {activeLecture?.title || "Welcome to the Course"}
                   </h2>
-                  <div className="flex items-center gap-4 mt-2">
-                    <span className="flex items-center gap-1.5 text-xs text-slate-400 font-bold uppercase tracking-widest">
-                       <Play size={14} className="text-brand" /> Current Session
+                  <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                    <span className="flex items-center gap-1 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                      <Play size={10} className="text-brand" /> Current Session
                     </span>
-                    <span className="w-1 h-1 rounded-full bg-slate-200"></span>
-                    <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">
+                    <span className="w-1 h-1 rounded-full bg-slate-200 shrink-0"></span>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
                       {progressPercent}% Complete
                     </span>
                   </div>
                 </div>
+
+                {/* Right: Mark Complete button */}
                 <button 
                   onClick={() => toggleLectureCompletion(activeLecture?.id)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${completedLectures.includes(activeLecture?.id) ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+                  className={`shrink-0 flex items-center gap-1.5 px-4 py-2.5 md:px-6 md:py-3 rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-widest transition-all ${completedLectures.includes(activeLecture?.id) ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
                 >
-                  <CheckCircle2 size={16} /> {completedLectures.includes(activeLecture?.id) ? 'Completed' : 'Mark Complete'}
+                  <CheckCircle2 size={14} />
+                  <span className="hidden xs:inline">{completedLectures.includes(activeLecture?.id) ? 'Completed' : 'Mark Complete'}</span>
+                  <span className="xs:hidden">{completedLectures.includes(activeLecture?.id) ? 'Done' : 'Mark Complete'}</span>
                 </button>
               </div>
 
-              {/* Tabs */}
+              {/* Mobile-only: Lectures in this section */}
+              {(() => {
+                const activeSection = (course.lectures || []).find(s =>
+                  (s.lectures || []).some(l => l.id === activeLecture?.id)
+                );
+                if (!activeSection) return null;
+                return (
+                  <div className="md:hidden mb-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">In This Section</span>
+                        <h4 className="text-sm font-black text-slate-800 leading-tight">{activeSection.sectionTitle}</h4>
+                      </div>
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                        {activeSection.lectures?.length} Lessons
+                      </span>
+                    </div>
+                    <div className="rounded-2xl border border-slate-100 overflow-hidden divide-y divide-slate-50">
+                      {(activeSection.lectures || []).map((lecture, lIndex) => {
+                        const isActive = activeLecture?.id === lecture.id;
+                        const isCompleted = completedLectures.includes(lecture.id);
+                        return (
+                          <button
+                            key={lecture.id}
+                            onClick={() => handleLectureSelect(lecture)}
+                            className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all border-l-4 ${isActive ? 'bg-brand/5 border-brand' : 'bg-white border-transparent hover:bg-slate-50'}`}
+                          >
+                            <div
+                              className="shrink-0"
+                              onClick={(e) => { e.stopPropagation(); toggleLectureCompletion(lecture.id); }}
+                            >
+                              {isCompleted
+                                ? <CheckCircle2 size={16} className="text-emerald-500" />
+                                : <Circle size={16} className="text-slate-200" />
+                              }
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Lesson {lIndex + 1}</span>
+                              <p className={`text-xs font-bold truncate ${isActive ? 'text-brand' : 'text-slate-700'}`}>
+                                {lecture.title}
+                              </p>
+                            </div>
+                            {isActive && <Play size={10} className="text-brand shrink-0" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+
+
               <div className="flex items-center gap-8 mb-8 overflow-x-auto no-scrollbar border-b border-slate-100">
                 {['overview', 'resources', 'notes', 'announcements'].map((tab) => (
                   <button 
