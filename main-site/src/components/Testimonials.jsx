@@ -5,38 +5,73 @@ import TestimonialCard from './TestimonialCard'
 const Testimonials = () => {
   const testimonials = [
     {
-      name: "Ali Hamza",
-      role: "PPSC Aspirant",
-      text: "The best place for PPSC General Ability. The MCQ patterns and daily mock tests helped me understand exactly how the examiner thinks. I passed my screening test comfortably!",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+      name: "Adnan Khan",
+      role: "Sub Inspector — Punjab Police",
+      text: "Al-Haq's structured preparation made the SI exam feel straightforward. The mock tests were spot-on with the actual paper. Today I wear the uniform with pride — all thanks to this platform.",
+      image: "/stories/adnan-khan.webp",
       rating: 5
     },
     {
-      name: "Sana Malik",
-      role: "FPSC Candidate",
-      text: "I was struggling with Pakistan Affairs and Current Affairs, but Al-Haq's simplified notes and video lectures made everything so clear. The focus on one-paper MCQs is unmatched.",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200",
+      name: "Hafiz Muhammad Umair",
+      role: "Sub Inspector — Punjab Police",
+      text: "From day one, the faculty at Al-Haq guided me with clear goals and real exam strategies. The MCQ bank and daily practice sessions built my confidence step by step until I finally got allocated.",
+      image: "/stories/umair.webp",
       rating: 5
     },
     {
-      name: "Usman Ghani",
-      role: "Govt Job Applicant",
-      text: "Joining the Al-Haq Hub was the best decision for my prep. Their test-taking strategies for PPSC are a goldmine. Highly recommend it to anyone aiming for a 16th or 17th scale job.",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
+      name: "Kishwar Zubair",
+      role: "Sub Inspector — Punjab Police",
+      text: "As a female candidate competing in a tough field, Al-Haq gave me the edge I needed. The dedicated preparation content and supportive environment helped me achieve my dream posting.",
+      image: "/stories/kishwar.webp",
       rating: 5
     },
     {
-      name: "Fatima Noor",
-      role: "NTS Success",
-      text: "The MCQ bank is incredibly relevant. I found almost 70% of the questions in my actual test were similar to what I practiced here. Truly a game-changer for aspirants.",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200",
+      name: "Aqsa Shehzadi",
+      role: "Sub Inspector — Punjab Police",
+      text: "I tried multiple academies before, but nothing compared to the depth and relevance of Al-Haq's material. Their focus on repeated MCQ patterns is what truly sets them apart.",
+      image: "/stories/aqsa.webp",
       rating: 5
     },
     {
-      name: "Ahmed Raza",
-      role: "PPSC Inspector",
-      text: "I finally cleared my test after three attempts, thanks to the targeted approach of Al-Haq. Their focus on the most repeated questions saved me so much time.",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200",
+      name: "Kamran Saleem",
+      role: "Excise Inspector — BPS-16",
+      text: "The Excise Inspector paper is tricky, but Al-Haq's subject-specific notes made it manageable. I cleared the written test on my first attempt — something I could not have done without this platform.",
+      image: "/stories/kamran.webp",
+      rating: 5
+    },
+    {
+      name: "Parsa Shabbir",
+      role: "Excise Inspector — BPS-16",
+      text: "Al-Haq made me believe that hard work paired with the right guidance is unbeatable. Their study plan was realistic, their notes were precise, and the results speak for themselves.",
+      image: "/stories/parsa.webp",
+      rating: 5
+    },
+    {
+      name: "Faizan Zafar",
+      role: "AD Agriculture — BPS-17",
+      text: "Getting into BPS-17 feels like a dream come true. Al-Haq's content for Agriculture Officer was comprehensive and exam-focused. I highly recommend this platform to every serious aspirant.",
+      image: "/stories/faizan.webp",
+      rating: 5
+    },
+    {
+      name: "Sarmad Bilal",
+      role: "AD Fisheries — BPS-17",
+      text: "The quality of preparation I received at Al-Haq is unmatched. Their analytical approach to every topic, combined with regular assessments, kept me on track throughout my journey.",
+      image: "/stories/sarmad.webp",
+      rating: 5
+    },
+    {
+      name: "Irfan Farooq",
+      role: "ASF — Armed Forces",
+      text: "Al-Haq's disciplined approach to exam prep mirrors the discipline required in the Armed Forces. Their test series gave me the mental toughness to excel under pressure on exam day.",
+      image: "/stories/irfan.webp",
+      rating: 5
+    },
+    {
+      name: "Qazi Husnain",
+      role: "AD Rescue 1122 — BPS-17",
+      text: "Rescue 1122 selection is highly competitive, but Al-Haq's targeted preparation strategy made all the difference. I cleared every stage confidently and am now proud to serve my community.",
+      image: "/stories/husnain.webp",
       rating: 5
     }
   ]
