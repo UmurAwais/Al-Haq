@@ -72,9 +72,8 @@ const CourseDetail = () => {
     );
   }
 
-  const imageUrl = course.image?.startsWith('http') 
-    ? course.image 
-    : `${getApiUrl().replace(/\/$/, '')}${course.image?.startsWith('/') ? '' : '/'}${course.image}`;
+  const imageUrl = '/thumbnail.webp';
+
 
   const coursePriceStr = String(course.price || '');
   const priceToDisplay = coursePriceStr.toLowerCase() === 'free' 

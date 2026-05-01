@@ -12,10 +12,11 @@ const CourseCard = ({ course }) => {
       {/* 1. Thumbnail */}
       <div className="relative aspect-16/10 mb-4 overflow-hidden rounded-xl">
         <img 
-          src={course.image} 
+          src="/thumbnail.webp" 
           alt={course.title} 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
+
       </div>
 
       {/* 2. Badge Wrapper */}
