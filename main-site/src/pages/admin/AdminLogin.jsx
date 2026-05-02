@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ShieldAlert, Lock, Mail, Eye, EyeOff, ArrowRight, Loader2, Server } from 'lucide-react'
 import logo from '../../assets/logo.png'
 import Button from '../../components/Button'
-import { getApiUrl } from '../../config'
+import { apiFetch } from '../../config'
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('')
@@ -20,7 +20,7 @@ const AdminLogin = () => {
 
     try {
       // First try super-admin login (password only)
-      const res = await fetch(`${getApiUrl()}/api/admin/login`, {
+      const res = await apiFetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })
@@ -35,7 +35,7 @@ const AdminLogin = () => {
         navigate('/admin');
       } else {
         // If password login fails, try role-based login
-        const roleRes = await fetch(`${getApiUrl()}/api/admin/role-login`, {
+        const roleRes = await apiFetch('/api/admin/role-login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })

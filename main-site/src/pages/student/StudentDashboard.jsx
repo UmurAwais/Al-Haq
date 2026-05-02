@@ -67,7 +67,7 @@ const StudentDashboard = () => {
 
   const fetchActivities = async () => {
     try {
-      const res = await fetch(`${getApiUrl()}/api/student/activities/${user.email}`);
+      const res = await apiFetch(`/api/student/activities/${user.email}`);
       const data = await res.json();
       if (data.ok) {
         setActivities(data.activities);
@@ -80,7 +80,7 @@ const StudentDashboard = () => {
 
   const fetchLiveStatus = async () => {
     try {
-      const res = await fetch(`${getApiUrl()}/api/live/status`);
+      const res = await apiFetch('/api/live/status');
       const data = await res.json();
       if (data.ok) setLiveStatus(data.liveClass);
     } catch (err) {

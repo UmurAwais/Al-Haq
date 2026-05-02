@@ -1,8 +1,8 @@
 const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
 // Priority: 1. .env file 2. Localhost fallback 3. Production fallback
-const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:4001';
 const PRODUCTION_FALLBACK = 'https://al-haq-backend.vercel.app';
+const BACKEND_URL = import.meta.env.VITE_API_URL || (isDevelopment ? 'http://localhost:4001' : PRODUCTION_FALLBACK);
 
 export let API_URL = BACKEND_URL;
 
