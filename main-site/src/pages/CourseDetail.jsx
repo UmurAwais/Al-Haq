@@ -72,7 +72,10 @@ const CourseDetail = () => {
     );
   }
 
-  const imageUrl = '/thumbnail.webp';
+  const baseUrl = getApiUrl().replace(/\/$/, '');
+  const imageUrl = course.image?.startsWith('http') 
+    ? course.image 
+    : (course.image ? `${baseUrl}${course.image.startsWith('/') ? '' : '/'}${course.image}` : '/thumbnail.webp');
 
 
   const coursePriceStr = String(course.price || '');
@@ -319,7 +322,14 @@ const CourseDetail = () => {
               <div className="bg-white border border-slate-200 rounded-xl lg:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)] lg:border-t-0 p-1 lg:p-0">
                  {/* Top Image (Hidden on mobile since Preview card is prominent) */}
                  <div className="hidden lg:block aspect-[16/9] w-full relative bg-black pt-[2px] pr-[2px] pl-[2px] rounded-xl">
-                    <img src={imageUrl} alt={course.title} className="w-full h-full object-cover rounded-3xl" />
+                    <img 
+                      src={imageUrl} 
+                      alt={course.title} 
+                      className="w-full h-full object-cover rounded-3xl" 
+                      onError={(e) => {
+                        e.target.src = '/thumbnail.webp';
+                      }}
+                    />
                  </div>
                  
                  <div className="p-6">

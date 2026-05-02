@@ -31,7 +31,7 @@ const FeaturedCourses = ({ searchQuery = '', onClearSearch }) => {
           const mapped = data.map(course => ({
             title: course.title,
             author: course.instructor || course.author || 'Al-Haq Expert',
-            image: course.image?.startsWith('http') ? course.image : (course.image ? `${baseUrl}${course.image.startsWith('/') ? '' : '/'}${course.image}` : 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800'),
+            image: course.image?.startsWith('http') ? course.image : (course.image ? `${baseUrl}${course.image.startsWith('/') ? '' : '/'}${course.image}` : '/thumbnail.webp'),
             rating: course.rating || '4.8',
             reviews: course.ratingCount || course.reviews || '100+',
             price: String(course.price || '').toLowerCase() === 'free' ? 'Free' : (String(course.price || '').startsWith('Rs') ? course.price : `Rs. ${course.price}`),

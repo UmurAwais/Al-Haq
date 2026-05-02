@@ -527,14 +527,22 @@ const Checkout = () => {
 
                 <div className="bg-slate-50 border-t items-center border-slate-100 p-6 space-y-4">
                   {cartItems.map((item) => {
-                    const itemImage = item.image?.startsWith('http') 
-                      ? item.image 
-                      : `${getApiUrl().replace(/\/$/, '')}${item.image?.startsWith('/') ? '' : '/'}${item.image}`;
+                    const baseUrl = getApiUrl().replace(/\/$/, '');
+                    const itemImage = item.image 
+                      ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image.startsWith('/') ? '' : '/'}${item.image}`)
+                      : '/thumbnail.webp';
                     
                     return (
                       <div key={item.id || item._id} className="flex gap-4">
                         <div className="w-16 h-10 shrink-0 rounded bg-slate-200 overflow-hidden border border-slate-200">
-                           <img src={itemImage} alt={item.title} className="w-full h-full object-cover" />
+                           <img 
+                             src={itemImage} 
+                             alt={item.title} 
+                             className="w-full h-full object-cover" 
+                             onError={(e) => {
+                               e.target.src = '/thumbnail.webp';
+                             }}
+                           />
                         </div>
                         <div className="grow">
                           <h4 className="text-[12px] font-bold text-slate-900 leading-tight mb-1 line-clamp-2">{item.title}</h4>

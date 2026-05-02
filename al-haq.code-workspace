@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "main-site",
+			"name": "Frontend (Main Site)"
+		},
+		{
+			"path": "backend",
+			"name": "Backend API"
+		}
+	],
+	"settings": {
+		"git.autoRepositoryDetection": true,
+		"git.scanRepositories": [
+			"backend"
+		],
+		"files.exclude": {
+			"**/.git": true,
+			"**/node_modules": true
+		}
+	}
+}

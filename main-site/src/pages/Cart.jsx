@@ -113,9 +113,10 @@ const Cart = () => {
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {cartItems.map((item) => {
-                        const itemImage = item.image?.startsWith('http') 
-                          ? item.image 
-                          : `${getApiUrl().replace(/\/$/, '')}${item.image?.startsWith('/') ? '' : '/'}${item.image}`;
+                        const baseUrl = getApiUrl().replace(/\/$/, '');
+                        const itemImage = item.image 
+                          ? (item.image.startsWith('http') ? item.image : `${baseUrl}${item.image.startsWith('/') ? '' : '/'}${item.image}`)
+                          : '/thumbnail.webp';
                         const numericPrice = parsePrice(item.price);
                         
                         return (
@@ -130,7 +131,14 @@ const Cart = () => {
                                   <X size={16} strokeWidth={2} />
                                 </button>
                                 <div className="w-21 shrink-0 aspect-16/10 rounded border border-slate-200 overflow-hidden bg-slate-100 hidden sm:block">
-                                  <img src={itemImage || 'https://images.unsplash.com/photo-1544161515-4af6b1d462c2'} alt={item.title} className="w-full h-full object-cover" />
+                                  <img 
+                                    src={itemImage} 
+                                    alt={item.title} 
+                                    className="w-full h-full object-cover" 
+                                    onError={(e) => {
+                                      e.target.src = '/thumbnail.webp';
+                                    }}
+                                  />
                                 </div>
                                 <span className="font-bold text-[14px] text-slate-900 leading-snug">
                                   {item.title}

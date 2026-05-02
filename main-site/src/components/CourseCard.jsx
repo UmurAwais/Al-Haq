@@ -9,14 +9,15 @@ const CourseCard = ({ course }) => {
   return (
     <Link to={`/course/${course.id}`} className="block group h-full">
       <div className="bg-white border border-slate-100 rounded-2xl p-2 flex flex-col h-full group hover:shadow-2xl transition-all duration-300">
-      {/* 1. Thumbnail */}
-      <div className="relative aspect-16/10 mb-4 overflow-hidden rounded-xl">
+      <div className="relative aspect-16/10 mb-4 overflow-hidden rounded-xl bg-slate-100">
         <img 
-          src="/thumbnail.webp" 
+          src={course.image || '/thumbnail.webp'} 
           alt={course.title} 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          onError={(e) => {
+            e.target.src = '/thumbnail.webp';
+          }}
         />
-
       </div>
 
       {/* 2. Badge Wrapper */}
