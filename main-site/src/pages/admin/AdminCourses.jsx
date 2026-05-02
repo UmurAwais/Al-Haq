@@ -454,11 +454,11 @@ const AdminCourses = () => {
     }
 
     try {
-      const url = editingCourse 
-        ? `${getApiUrl()}/api/courses/update/online/${editingCourse.id}`
-        : `${getApiUrl()}/api/courses/upload`;
+      const endpoint = editingCourse 
+        ? `/api/courses/update/online/${editingCourse.id}`
+        : `/api/courses/upload`;
         
-      const res = await fetch(url, {
+      const res = await apiFetch(endpoint, {
         method: editingCourse ? 'PUT' : 'POST',
         headers: { 'x-admin-token': token },
         body: fd
