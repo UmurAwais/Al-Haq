@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Upload, CreditCard, CheckCircle2, Loader2, Activity, User, Mail, Lock, Phone, ArrowRight, LogIn } from 'lucide-react';
+import { 
+  Upload, 
+  CreditCard, 
+  CheckCircle2, 
+  Loader2, 
+  Activity, 
+  User, 
+  Mail, 
+  Lock, 
+  Phone, 
+  ArrowRight, 
+  LogIn,
+  MapPin,
+  AlertCircle
+} from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
@@ -8,7 +22,11 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { getApiUrl, apiFetch } from '../config';
 import { auth, db } from '../firebaseConfig';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  updateProfile 
+} from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const Checkout = () => {
@@ -19,10 +37,8 @@ const Checkout = () => {
   // Auth state for non-logged in users
   const [authMode, setAuthMode] = useState('signup'); // 'signup' or 'login'
   const [authData, setAuthData] = useState({
-    name: '',
-    email: '',
     password: '',
-    phone: ''
+    confirmPassword: ''
   });
   const [authProcessing, setAuthProcessing] = useState(false);
   const [authError, setAuthError] = useState('');
@@ -67,41 +83,45 @@ const Checkout = () => {
     setAuthData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAuthSubmit = async (e) => {
-    e.preventDefault();
+  const handleAuthSubmit = async () => {
+    if (!formData.email || !authData.password) {
+      setAuthError('Email and Password are required.');
+      return false;
+    }
+
+    if (authMode === 'signup' && authData.password !== authData.confirmPassword) {
+      setAuthError('Passwords do not match.');
+      return false;
+    }
+
     setAuthProcessing(true);
     setAuthError('');
 
     try {
       if (authMode === 'signup') {
-        // 1. Firebase Auth Signup
-        const userCredential = await createUserWithEmailAndPassword(auth, authData.email, authData.password);
+        const userCredential = await createUserWithEmailAndPassword(auth, formData.email, authData.password);
         const fbUser = userCredential.user;
+        const fullName = `${formData.firstName} ${formData.lastName}`.trim();
 
-        // 2. Update Profile
-        await updateProfile(fbUser, { displayName: authData.name });
+        await updateProfile(fbUser, { displayName: fullName });
 
-        // Inform UI that auth part is done so it can transition
-        setAuthProcessing(false);
-
-        // 3. Register in Backend & Mirror (Background)
+        // Background registration
         apiFetch('/api/users/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             uid: fbUser.uid, 
             email: fbUser.email, 
-            displayName: authData.name,
-            phone: authData.phone
+            displayName: fullName,
+            phone: formData.whatsapp
           })
         }).then(async (regRes) => {
           const regData = await regRes.json();
-          // Mirror to Firestore
           await setDoc(doc(db, "users", fbUser.uid), {
             uid: fbUser.uid,
             email: fbUser.email,
-            displayName: authData.name,
-            phone: authData.phone,
+            displayName: fullName,
+            phone: formData.whatsapp,
             referenceNumber: regData.referenceNumber || 'PENDING',
             status: 'active',
             createdAt: serverTimestamp(),
@@ -109,18 +129,19 @@ const Checkout = () => {
           });
         }).catch(err => console.warn('Background registration failed:', err));
 
+        return true;
       } else {
-        // Firebase Login - Faster execution
-        await signInWithEmailAndPassword(auth, authData.email, authData.password);
-        setAuthProcessing(false);
+        await signInWithEmailAndPassword(auth, formData.email, authData.password);
+        return true;
       }
     } catch (err) {
       console.error(err);
       setAuthError(err.message.includes('email-already-in-use') 
         ? 'Email already registered. Try logging in.' 
-        : err.message.includes('user-not-found') || err.message.includes('wrong-password')
+        : err.message.includes('user-not-found') || err.message.includes('wrong-password') || err.message.includes('invalid-credential')
         ? 'Invalid email or password.'
         : 'Authentication failed. Please check your details.');
+      return false;
     } finally {
       setAuthProcessing(false);
     }
@@ -157,9 +178,15 @@ const Checkout = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if (!formData.firstName || !formData.whatsapp || !selectedFile) {
+    if (!formData.firstName || !formData.whatsapp || !selectedFile || !formData.email) {
       alert("Please fill in all required fields and upload the payment screenshot.");
       return;
+    }
+
+    // Handle authentication if not logged in
+    if (!user) {
+      const authSuccess = await handleAuthSubmit();
+      if (!authSuccess) return;
     }
 
     setOrderLoading(true);
@@ -249,202 +276,200 @@ const Checkout = () => {
 
           <div className="flex flex-col lg:flex-row gap-8 items-start">
             
-            {/* Left Column: Form or Auth */}
-            <div className="w-full lg:w-[60%] shrink-0 space-y-6">
+            <div className="w-full lg:w-[60%] shrink-0 space-y-8">
               
-              {!user ? (
-                <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500">
-                  <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-brand/5 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-brand/10">
-                      {authMode === 'signup' ? <User className="text-brand" size={32} /> : <LogIn className="text-brand" size={32} />}
+              <div className="bg-white border border-slate-200 rounded-[2rem] p-6 sm:p-10 shadow-sm animate-in fade-in slide-in-from-left-4 duration-500">
+                {/* 1. Billing Form Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8">
+                  <div className="relative group">
+                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2.5 left-4 bg-white px-1.5 z-10">First name</label>
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={18} />
+                      <input 
+                        type="text" name="firstName" value={formData.firstName} onChange={handleInputChange}
+                        placeholder="First Name"
+                        className="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 focus:border-brand outline-none text-sm font-medium transition-all bg-transparent"
+                      />
                     </div>
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-                      {authMode === 'signup' ? 'Create Account' : 'Welcome Back'}
-                    </h2>
-                    <p className="text-sm text-slate-500 font-medium">
-                      {authMode === 'signup' ? 'Join our community to proceed' : 'Sign in to access your details'}
-                    </p>
                   </div>
 
-                  {authError && (
-                    <div className="bg-red-50 text-red-600 p-4 rounded-xl text-[11px] font-bold mb-6 border border-red-100 flex items-start gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mt-1 shrink-0"></div>
-                      <p>{authError}</p>
+                  <div className="relative group">
+                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2.5 left-4 bg-white px-1.5 z-10">Last name</label>
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={18} />
+                      <input 
+                        type="text" name="lastName" value={formData.lastName} onChange={handleInputChange}
+                        placeholder="Last Name"
+                        className="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 focus:border-brand outline-none text-sm font-medium transition-all bg-transparent"
+                      />
                     </div>
-                  )}
+                  </div>
 
-                  <form onSubmit={handleAuthSubmit} className="space-y-4">
-                    {authMode === 'signup' && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="relative group">
-                          <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={16} />
+                  <div className="relative group">
+                    <div className="relative">
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={18} />
+                      <input 
+                        type="text" name="city" value={formData.city} onChange={handleInputChange}
+                        placeholder="Town / City"
+                        className="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 focus:border-brand outline-none text-sm font-medium transition-all bg-transparent"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="relative group">
+                    <div className="relative">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={18} />
+                      <input 
+                        type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange}
+                        placeholder="WhatsApp number"
+                        className="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 focus:border-brand outline-none text-sm font-medium transition-all bg-transparent"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-span-1 sm:col-span-2 relative group">
+                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2.5 left-4 bg-white px-1.5 z-10">Email address</label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={18} />
+                      <input 
+                        type="email" name="email" value={formData.email} onChange={handleInputChange} disabled={!!user}
+                        placeholder="Email address"
+                        className={`w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 focus:border-brand outline-none text-sm font-medium transition-all ${!!user ? 'bg-slate-50 text-slate-400' : 'bg-transparent'}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Account Section (Guest only) */}
+                {!user && (
+                  <div className="mt-12 pt-8 border-t border-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-base font-black text-slate-900 tracking-tight">
+                        {authMode === 'signup' ? 'Create an account' : 'Sign in to your account'}
+                      </h3>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setAuthMode(authMode === 'signup' ? 'login' : 'signup');
+                          setAuthError('');
+                        }}
+                        className="text-[12px] font-black text-brand hover:underline uppercase tracking-tight"
+                      >
+                        {authMode === 'signup' ? 'Already have an account?' : 'Need an account? Register'}
+                      </button>
+                    </div>
+
+                    {authError && (
+                      <div className="bg-red-50 text-red-600 p-4 rounded-xl text-[11px] font-bold mb-6 border border-red-100 flex items-start gap-3">
+                        <AlertCircle className="shrink-0" size={14} />
+                        <p>{authError}</p>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="relative group">
+                        <div className="relative">
+                          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={18} />
                           <input 
-                            type="text" name="name" required value={authData.name} onChange={handleAuthInputChange}
-                            placeholder="Full Name"
-                            className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand/30 outline-none text-sm transition-all"
-                          />
-                        </div>
-                        <div className="relative group">
-                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={16} />
-                          <input 
-                            type="tel" name="phone" required value={authData.phone} onChange={handleAuthInputChange}
-                            placeholder="WhatsApp Number"
-                            className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand/30 outline-none text-sm transition-all"
+                            type="password" name="password" value={authData.password} onChange={handleAuthInputChange}
+                            placeholder="Password"
+                            className="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 focus:border-brand outline-none text-sm font-medium transition-all bg-transparent"
                           />
                         </div>
                       </div>
-                    )}
-                    
-                    <div className="relative group">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={16} />
-                      <input 
-                        type="email" name="email" required value={authData.email} onChange={handleAuthInputChange}
-                        placeholder="Email Address"
-                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand/30 outline-none text-sm transition-all"
-                      />
-                    </div>
 
-                    <div className="relative group">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={16} />
-                      <input 
-                        type="password" name="password" required value={authData.password} onChange={handleAuthInputChange}
-                        placeholder="Password (Min 6 chars)" minLength={6}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand/30 outline-none text-sm transition-all"
-                      />
-                    </div>
-
-                    <button 
-                      type="submit" disabled={authProcessing}
-                      className="w-full py-4 bg-brand text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-brand/20 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
-                    >
-                      {authProcessing ? <Loader2 className="animate-spin" size={16} /> : (
-                        <>
-                          {authMode === 'signup' ? 'Create Account & Continue' : 'Sign In & Continue'}
-                          <ArrowRight size={14} />
-                        </>
+                      {authMode === 'signup' && (
+                        <div className="relative group">
+                          <div className="relative">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand transition-colors" size={18} />
+                            <input 
+                              type="password" name="confirmPassword" value={authData.confirmPassword} onChange={handleAuthInputChange}
+                              placeholder="Confirm password"
+                              className="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 focus:border-brand outline-none text-sm font-medium transition-all bg-transparent"
+                            />
+                          </div>
+                        </div>
                       )}
-                    </button>
-                  </form>
+                    </div>
+                    {authMode === 'signup' && (
+                      <p className="text-[11px] text-slate-400 mt-4 font-medium">Password must be at least 6 characters.</p>
+                    )}
+                  </div>
+                )}
 
-                  <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                      {authMode === 'signup' ? 'Already have an account?' : "Don't have an account yet?"}
-                      <button 
-                        onClick={() => setAuthMode(authMode === 'signup' ? 'login' : 'signup')}
-                        className="ml-2 text-brand hover:underline"
-                      >
-                        {authMode === 'signup' ? 'Log in' : 'Register now'}
-                      </button>
-                    </p>
+                {user && (
+                  <div className="mt-8 pt-6 border-t border-slate-100 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-brand">
+                      <CheckCircle2 size={20} />
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-bold text-slate-900">Logged in as {user.email}</p>
+                      <button onClick={() => auth.signOut()} className="text-[11px] font-bold text-brand hover:underline uppercase tracking-wider">Switch Account</button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <>
-                {/* Logged in indicator */}
-                <div className="bg-[#eff6ff] border border-[#bfdbfe] rounded-lg px-4 py-3 flex justify-between items-center text-sm mb-6 animate-in fade-in slide-in-from-top-2 duration-500">
-                  <div>
-                    <span className="text-blue-900">Signed in as </span>
-                    <span className="font-bold text-blue-900">{user.email}</span>
-                  </div>
-                  <button onClick={() => auth.signOut()} className="text-blue-700 font-bold hover:underline text-xs">
-                    Sign out
-                  </button>
-                </div>
+                )}
 
-                {/* Form Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-500 delay-150">
-                  <div className="space-y-1.5 relative">
-                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">First name</label>
-                    <input 
-                      type="text" name="firstName" value={formData.firstName} onChange={handleInputChange}
-                      className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
-                      placeholder="First Name"
-                    />
-                  </div>
-                  <div className="space-y-1.5 relative">
-                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">Last name</label>
-                    <input 
-                      type="text" name="lastName" value={formData.lastName} onChange={handleInputChange}
-                      className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
-                      placeholder="Last Name"
-                    />
-                  </div>
-                  <div className="space-y-1.5 relative">
-                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">Town / City</label>
-                    <input 
-                      type="text" name="city" value={formData.city} onChange={handleInputChange}
-                      className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
-                      placeholder="Town / City"
-                    />
-                  </div>
-                  <div className="space-y-1.5 relative">
-                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">WhatsApp number</label>
-                    <input 
-                      type="text" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange}
-                      className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent"
-                      placeholder="WhatsApp Number"
-                    />
-                  </div>
-                  <div className="col-span-1 md:col-span-2 space-y-1.5 relative mt-4">
-                    <label className="text-[11px] font-bold text-brand uppercase tracking-wider absolute -top-2 left-3 bg-[#F9FAFB] px-1">Email address</label>
-                    <input 
-                      type="email" name="email" value={formData.email} disabled
-                      className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none bg-slate-50 text-slate-500 cursor-not-allowed"
-                    />
-                  </div>
-                </div>
-
-                {/* Upload Section */}
-                <div className="mt-8 space-y-3 pt-4 border-t border-slate-200">
-                  <h3 className="text-sm font-bold text-slate-900">Upload payment screenshot</h3>
-                  <div className="flex items-center gap-4">
-                    <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-bold text-brand hover:bg-slate-50 transition-colors">
-                      <Upload size={16} />
-                      <span>Choose file</span>
+                {/* 3. Upload Section */}
+                <div className="mt-12 pt-8 border-t border-slate-100">
+                  <h3 className="text-[16px] font-bold text-slate-900 mb-4">Upload payment screenshot</h3>
+                  <div className="flex items-center gap-6">
+                    <label className="cursor-pointer flex items-center gap-2 px-6 py-3 border border-dashed border-slate-300 rounded-xl hover:bg-slate-50 transition-all group">
+                      <Upload size={20} className="text-brand" />
+                      <span className="text-[15px] font-bold text-brand">Choose file</span>
                       <input type="file" className="hidden" accept="image/jpeg,image/png" onChange={handleFileChange} />
                     </label>
-                    <span className="text-xs text-slate-400">Max 5 MB • JPG/PNG</span>
+                    <span className="text-[15px] text-slate-400 font-medium">Max 5 MB • JPG/PNG</span>
                   </div>
-                  {selectedFile && (
-                    <p className="text-xs text-emerald-600 font-bold mt-2 flex items-center gap-1">
-                      <CheckCircle2 size={14} /> {selectedFile.name} attached
-                    </p>
-                  )}
-                  <p className="text-[11px] text-slate-400 mt-2">
+                  <p className="text-[15px] text-slate-500 mt-4 font-medium">
                     Upload JazzCash / Easypaisa / Bank transfer receipt.
                   </p>
+
+                  {selectedFile && (
+                    <div className="mt-6 p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-center gap-3 animate-in zoom-in-95 max-w-sm">
+                      <div className="w-10 h-10 rounded-xl bg-brand text-white flex items-center justify-center shadow-sm">
+                        <CheckCircle2 size={20} />
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-[13px] font-black text-brand truncate uppercase tracking-tight">{selectedFile.name}</p>
+                        <p className="text-[10px] font-bold text-brand uppercase opacity-60">Attached successfully</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Order Notes */}
-                <div className="mt-6">
+                {/* 4. Order Notes */}
+                <div className="mt-10 space-y-4 pt-8 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900">Order notes (optional)</h3>
                   <textarea 
                     name="orderNotes"
                     value={formData.orderNotes}
                     onChange={handleInputChange}
-                    placeholder="Order notes (optional)"
+                    placeholder="Notes about your order, e.g. special requirements for your learning journey."
                     rows={4}
-                    className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-transparent resize-y"
+                    className="w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-brand transition-colors bg-slate-50/30 resize-none font-medium"
                   />
                 </div>
 
-                 <div className="pt-4">
+                <div className="mt-10">
                   <Button 
                     onClick={handlePlaceOrder}
-                    disabled={orderLoading}
-                    className="w-full py-4 bg-[#E31B23] hover:bg-[#c2171e] text-white text-[16px] font-black rounded-lg transition-colors shadow-lg shadow-brand/10 disabled:opacity-50 flex items-center justify-center gap-3"
+                    disabled={orderLoading || authProcessing}
+                    className="w-full py-5 bg-[#E31B23] hover:bg-[#c2171e] text-white text-[16px] font-black rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 active:scale-[0.98]"
                   >
-                    {orderLoading ? (
+                    {orderLoading || authProcessing ? (
                       <>
                         <Loader2 className="animate-spin" size={20} />
                         Processing...
                       </>
                     ) : (
-                      'Place order'
+                      <>
+                        Place order
+                        <ArrowRight size={18} />
+                      </>
                     )}
                   </Button>
                 </div>
-                </>
-              )}
+              </div>
 
             </div>
 
